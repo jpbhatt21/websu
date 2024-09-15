@@ -1,0 +1,765 @@
+import JSZip from "jszip";
+import Preview from "./Preview";
+import { useEffect, useState } from "react";
+import MiniSearch from "minisearch";
+import utf8 from "utf8";
+import {
+	fakeClick,
+	getBeatMapCollectionInfo,
+	getIndividualBeatMapInfo,
+	loader,
+	playSong,
+	setBackground,
+	setPreviewImage,
+	music,
+	backgroundImage
+} from "./Utils";
+import PlayArea from "./PlayArea";
+let typetimer = null;
+let sctimer = null;
+let minis = null;
+let defaultElementClass =
+	"bg-blank outline fade-in outline-1 outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50vh] shadow-lg nons snap-cetner overflow-hidden ";
+function SongSelectionMenu() {
+	function getFiles(files) {
+		//console.log(files);
+		for (let i = 0; i < files.length; i++) {
+			try {
+				if (files[i].name.includes(".osz")) {
+					getOszFileToUnzip(files[i], i);
+				} else {
+					continue;
+					handleNonOszFiles(files[i]);
+				}
+			} catch (e) {}
+		}
+	}
+	async function getOszFileToUnzip(file, diffe = 0) {
+		// let filz = [];
+		// let test = allFiles;
+		// test.name.push(file.name);
+		// test.files.push([]);
+		// test.levels.push([]);
+		// let l = allFiles.name.length + diffe;
+		// document.getElementById(
+		// 	"sub" + globalIndex + " " + secondaryIndex
+		// ).style.backgroundColor = "";
+		// document.getElementById(
+		// 	"sub" + globalIndex + " " + 0
+		// ).style.backgroundColor = "rgb(148 163 184 / var(--tw-bg-opacity))";
+		// setGlobalIndex(-1);
+		// setSecondaryIndex(0);
+		// let len = 0;
+		// let meta = "";
+		// let init = 0;
+		// let osus = [];
+		// let lz = 0;
+		let zip = new JSZip();
+
+		let osuFiles = [];
+		let assets = [];
+		let unzipOsz = zip.loadAsync(file).then(async function (zip) {
+			//console.log("hola");
+
+			let lz = Object.keys(zip.files);
+			let len = lz.length;
+			let counter = 0;
+			for (let i in zip.files) {
+				break;
+				zip.file(i)
+					.async("base64")
+					.then(function (blob) {
+						counter++;
+						if (i.includes(".osu") && init++ == 0) {
+							test.meta.push(
+								getBeatMapCollectionInfo({ file: blob })
+							);
+						}
+						filz = { name: i, file: blob };
+						if (!i.includes(".osu")) {
+							test.files[l - 1].push(filz);
+						} else {
+							osus.push(filz);
+						}
+						if (counter == len) {
+							test.meta[l - 1].parent = test.name[l - 1];
+							test.name[l - 1] = test.meta[l - 1].name;
+							test.meta[l - 1].id = l - 1;
+							let cur = [];
+							for (let i in osus) {
+								cur.push(
+									getIndividualBeatMapInfo(
+										osus[i].file,
+										l - 1
+									)
+								);
+							}
+							let ordered = [];
+							for (let i in cur) {
+								ordered.push(cur[i].difficulty);
+							}
+							ordered.sort();
+
+							for (let i in ordered) {
+								for (let j in cur) {
+									if (cur[j].difficulty == ordered[i]) {
+										if (i == 0) {
+											test.meta[l - 1].bg = cur[j].bg;
+										}
+										test.levels[l - 1].push(cur[j]);
+									}
+								}
+							}
+							const request = indexedDB.open(
+								"WebsuFileStorage",
+								2
+							);
+							request.onsuccess = function (event) {
+								////console.log("Success: " + event.type);
+								const db = event.target.result;
+								const transaction = db.transaction(
+									["osuFiles"],
+									"readwrite"
+								);
+								const objectStore =
+									transaction.objectStore("osuFiles");
+								try {
+									const request = objectStore.put({
+										name: test.name[l - 1],
+										files: test.files[l - 1],
+										meta: test.meta[l - 1],
+										levels: test.levels[l - 1],
+									});
+								} catch (e) {
+									const request = objectStore.add({
+										name: test.name[l - 1],
+										files: test.files[l - 1],
+										meta: test.meta[l - 1],
+										levels: test.levels[l - 1],
+									});
+								}
+								request.onsuccess = function (event) {
+									////console.log("Data has been written successfully");
+								};
+							};
+							addOsuFilesToSelectionList();
+						}
+					});
+			}
+
+			for (let i in zip.files) {
+				let loadIndividualFiles = zip
+					.file(i)
+					.async("base64")
+					.then(function (blob) {
+						if (i.includes(".osu")) {
+							osuFiles.push(blob);
+						} else {
+							assets.push({ name: i, file: blob });
+						}
+					});
+				await loadIndividualFiles;
+			}
+		});
+		await unzipOsz;
+		let beatmapInfo = [];
+		let preview = [];
+
+		for (let i in osuFiles) {
+			beatmapInfo.push(getIndividualBeatMapInfo(osuFiles[i], assets));
+
+			if (!preview.includes(beatmapInfo[i].audioFile)) {
+				preview.push(beatmapInfo[i].audioFile);
+				beatmapInfo[i].audioFile = preview.length - 1;
+			} else {
+				beatmapInfo[i].audioFile = preview.indexOf(
+					beatmapInfo[i].audioFile
+				);
+			}
+			if (!preview.includes(beatmapInfo[i].backgroundImage)) {
+				preview.push(beatmapInfo[i].backgroundImage);
+				beatmapInfo[i].backgroundImage = preview.length - 1;
+			} else {
+				beatmapInfo[i].backgroundImage = preview.indexOf(
+					beatmapInfo[i].backgroundImage
+				);
+			}
+
+			if (beatmapInfo[0].setId != beatmapInfo[i].setId) {
+				//console.log("Error: Different BeatmapSetID");
+				return;
+			}
+		}
+		beatmapInfo.sort((a, b) => a.difficulty - b.difficulty);
+
+		let setMeta = getBeatMapCollectionInfo({ file: osuFiles[0] });
+		osuFiles = {
+			setId: setMeta.setId,
+			files: beatmapInfo.map((x) => {
+				let temp = JSON.parse(JSON.stringify(x.file));
+				x.file = null;
+				return { id: x.id, file: temp };
+			}),
+		};
+		setMeta.levels = beatmapInfo;
+		setMeta.backgroundImage = preview[beatmapInfo[0].backgroundImage];
+		//console.log(setMeta);
+
+		preview = { setId: setMeta.setId, files: preview };
+		assets = { setId: setMeta.setId, files: assets };
+		//console.log(setMeta);
+		//console.log(osuFiles);
+		//console.log(preview);
+		//console.log(assets);
+		const request = indexedDB.open("osuStorage", 2);
+		request.onsuccess = function (event) {
+			////console.log("Success: " + event.type);
+			const db = event.target.result;
+			const transaction = db.transaction(
+				["Assets", "Files", "Meta", "Preview"],
+				"readwrite"
+			);
+			let objectStore = transaction.objectStore("Assets");
+			try {
+				const request = objectStore.put(assets);
+			} catch (e) {
+				const request = objectStore.add(assets);
+			}
+			objectStore = transaction.objectStore("Files");
+			try {
+				const request = objectStore.put(osuFiles);
+			} catch (e) {
+				const request = objectStore.add(osuFiles);
+			}
+			objectStore = transaction.objectStore("Meta");
+			try {
+				const request = objectStore.put(setMeta);
+			} catch (e) {
+				const request = objectStore.add(setMeta);
+			}
+			setMeta.id=metaData.length;
+			setMetaData((prev) => [...prev, setMeta]);
+			setMetaFiles((prev) => [...prev, setMeta]);
+			minis.add(setMeta);
+			fakeClick(metaData.length, false);
+			objectStore = transaction.objectStore("Preview");
+			try {
+				const request = objectStore.put(preview);
+			} catch (e) {
+				const request = objectStore.add(preview);
+			}
+		};
+	}
+	async function fetchFromDB(collectionName, setID, object) {
+		let result = null;
+		const request = indexedDB.open("osuStorage", 2);
+		request.onsuccess = function (event) {
+			////console.log("Success: " + event.type);
+			const db = event.target.result;
+			db
+				.transaction(collectionName)
+				.objectStore(collectionName)
+				.get(setID).onsuccess = function (event) {
+				result = event.target.result;
+			};
+		};
+		while (result == null) {
+			await new Promise((r) => setTimeout(r, 10));
+		}
+		//console.log(result);
+		return "ok";
+	}
+	const [metaData, setMetaData] = useState([]);
+	const [metaFiles, setMetaFiles] = useState([]);
+	const [globalIndex, setGlobalIndex] = useState(-1);
+	const [secondaryIndex, setSecondaryIndex] = useState(0);
+	const [searchKey, setSearchKey] = useState(0);
+	const [start, setStart] = useState(false);
+	const [focus, setFocus] = useState(false);
+	//console.log(globalIndex);
+	if(start){
+		backgroundImage.style.filter="blur(0px) brightness(0.5)";
+
+	}
+	else{
+		backgroundImage.style.filter="blur(12px) brightness(0.5)";
+	}
+
+	useEffect(() => {
+		if(!focus)
+			return
+		const request = indexedDB.open("osuStorage", 2);
+		request.onupgradeneeded = function (event) {
+			const db = event.target.result;
+			let objectStore = db.createObjectStore("Files", {
+				keyPath: "setId",
+			});
+			objectStore = db.createObjectStore("Assets", {
+				keyPath: "setId",
+			});
+			objectStore = db.createObjectStore("Meta", {
+				keyPath: "setId",
+			});
+			objectStore = db.createObjectStore("Preview", {
+				keyPath: "setId",
+			});
+			// objectStore.createIndex("name", "name", { unique: true });
+			// objectStore.createIndex("files", "files", { unique: false });
+			// objectStore.createIndex("meta", "meta", { unique: false });
+			// objectStore.createIndex("levels", "levels", { unique: false });
+		};
+		request.onsuccess = function (event) {
+			////console.log("Success: " + event.type);
+			const db = event.target.result;
+			//to delete
+			// db.transaction("osuFiles","readwrite").objectStore("osuFiles").delete("test").onsuccess = function(event) {
+
+			//   ////console.log("hallo",event.target.result)
+			// }
+
+			//to write
+			// const transaction = db.transaction(["osuFiles"], "readwrite");
+			// const objectStore = transaction.objectStore("osuFiles");
+			// const request = objectStore.add({name:test.name[l-1], files: test.files[l-1],meta:test.meta[l-1],levels:test.levels[l-1]});
+			// request.onsuccess = function(event) {
+			// ////console.log("Data has been written successfully");
+			// };
+
+			db.transaction("Meta").objectStore("Meta").getAll().onsuccess =
+				async function (event) {
+					//console.log(event.target.result);
+					setTimeout(() => {
+						let result = event.target.result.sort((a, b) =>
+							a.title.localeCompare(b.title)
+						);
+						result.map((element, index) => {
+							element.id = index;
+						});
+						setMetaData(result);
+						setMetaFiles(result);
+
+						minis = new MiniSearch({
+							fields: [
+								"title",
+								"artist",
+								"creator",
+								"tags",
+								"setId",
+							],
+							storeFields: [
+								"title",
+								"artist",
+								"creator",
+								"tags",
+								"setId",
+							],
+							searchOptions: {
+								fuzzy: 0.2,
+								prefix: true,
+							},
+						});
+						minis.addAll(result);
+						fakeClick(0,true);
+						
+						
+					}, 10);
+				};
+		};
+	}, [focus]);
+	let list = metaData.map((element, index) => {
+		return (
+			<div
+				key={"element" + index}
+				
+				className={defaultElementClass + " bg-opacity-10 h-20 "}>
+				<div
+				onClick={() => {
+					fakeClick(index, false);
+				}}
+					className=" w-full h-20    outline outline-1 outline-bcol   rounded-t-lg"
+					style={{
+						backgroundImage:
+							"url(data:image/png;base64," +
+							element.backgroundImage +
+							")",
+						backgroundSize: "cover",
+						backgroundPosition: "center",
+					}}>
+					<div className="h-full w-full flex flex-col items-center bg-blank pointer-events-none p-2 bg-opacity-60">
+						<div className="flex leading-[40px]  font-semibold text-[30px] pointer-events-none  self-start text-[#ccc] ">
+							{element.title}
+						</div>
+						<div className="flex leading-[20px]   self-start ml-2 text-[#bbb] mb-[20px]  pointer-events-none text-[18px]">
+							{element.artist + " - " + element.creator}
+						</div>
+					</div>
+				</div>
+				<div className="p-2 max-h-[calc(50vh-80px)] overflow-y-scroll  pt-3">
+					<div
+						className="levhol l   w-full p-2 -mt-2  "
+						style={{
+							height: 96 + element.levels.length * 68 - 96 + "px",
+						}}>
+						{element.levels.map((x, index2) => (
+							<div
+								key={"sub" + index + " " + index2}
+								id={"sub" + index + " " + index2}
+								className=" flex flex-col  justify-evenly rounded-md p-1 px-3 bg-blank bg-opacity-25 duration-300 w-full  text-[#eee] mb-2 h-[60px]"
+								onClick={(e) => {
+									////console.log(index, index2, secondaryIndex);
+									setSecondaryIndex(index2);
+									if (secondaryIndex == index2) {
+										setStart(true);
+										////console.log(index, index2);
+										
+									} else {
+										// if (secondaryIndex != -1)
+										// 	document.getElementById(
+										// 		"sub" +
+										// 			index +
+										// 			" " +
+										// 			secondaryIndex
+										// 	).style.backgroundColor = "";
+										// document.querySelector(
+										// 	".bgimg"
+										// ).style.opacity = 0.5;
+										// //console.log(x.bg);
+										// if (
+										// 	x.bg !=
+										// 	allFiles.levels[index][
+										// 		secondaryIndex
+										// 	].bg
+										// )
+										// 	help.setBackground(
+										// 		x.bg.split(","),
+										// 		fileFinder,
+										// 		height,
+										// 		width,
+										// 		parseInt(index)
+										// 	);
+										setSecondaryIndex(index2);
+										//document.getElementById("infobox").innerHTML=utf8.decode(x.source)
+										setPreviewImage(
+											metaData[index].setId,
+											x.backgroundImage
+										);
+										previewCircleSize.style.width =
+											x.circleSize * 10 + "%";
+										previewApproachRate.style.width =
+											x.approachRate * 10 + "%";
+										previewHPDrain.style.width =
+											x.hpDrainRate * 10 + "%";
+										previewAccuracy.style.width =
+											x.difficulty * 10 + "%";
+										previewMapper.innerHTML = x.mapper;
+										previewSource.innerHTML = utf8.decode(
+											x.source
+										);
+										previewVersion2.innerHTML = x.level;
+										previewTags.innerHTML = utf8.decode(
+											x.tags
+										);
+										previewSong.innerHTML =
+											metaData[index].title;
+										previewArtist.innerHTML =
+											metaData[index].artist;
+										previewVersion.innerHTML = x.level;
+									}
+								}}
+								style={{
+									backgroundColor:
+										secondaryIndex == index2
+											? "#94a3b844"
+											: "",
+								}}>
+								<div className=" pointer-events-none leading-[20px]">
+									{x.level}
+								</div>
+								<div className=" pointer-events-none rounded-lg w-full  h-2 bg-white bg-opacity-30 ">
+									<div
+										className={
+											" pointer-events-none rounded-lg h-2"
+										}
+										style={{
+											width: x.difficulty * 10 + "%",
+											background:
+												x.difficulty <= 3.5
+													? "#A3BE8C"
+													: x.difficulty <= 7
+													? "#EBCB8B"
+													: x.difficulty <= 8.5
+													? "#D08770"
+													: "#BF616A",
+										}}
+									/>
+								</div>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		);
+	});
+	return (
+		<>
+			
+
+			<div
+				key={searchKey}
+				id="scrollMenu"
+				className=" duration-300 fixed overflow-y-scroll z-0  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]  gap-y-[8px]  "
+				onScroll={(e) => {
+					scrollMenu.style.scrollSnapType = "none";
+					let children = scrollMenu.children;
+					let rect = [];
+					let closest = 2;
+					let clost = 0;
+					for (let i = 0; i < children.length - 1; i++) {
+						rect = children[i].getBoundingClientRect();
+						let dist = rect.bottom / (window.innerHeight / 2);
+						if (Math.abs(dist - 1) < closest) {
+							closest = Math.abs(dist - 1);
+							clost = i;
+						}
+					}
+
+					if (
+						scrollMenu.scrollTop <
+						(children.length - 1) * 88 +
+							children[clost].getBoundingClientRect().height
+					) {
+						scrollMenu.style.top = 0;
+						for (let i = 0; i < children.length - 1; i++) {
+							children[i].className =
+								defaultElementClass + " bg-opacity-10";
+
+							children[i].style.marginRight =
+								-Math.abs(clost - i) * 10 + "px";
+							children[i].style.marginLeft =
+								Math.abs(clost - i) * 10 + "px";
+							children[i].style.height = 80 + "px";
+						}
+						scrollMenu.style.marginTop = 0 + "px";
+						children[clost].className =
+							defaultElementClass + " bg-opacity-20";
+
+						children[clost].style.marginRight = 10 + "px";
+						children[clost].style.marginLeft = -30 + "px";
+
+						if (sctimer !== null) {
+							clearTimeout(sctimer);
+						}
+						sctimer = setTimeout(async function () {
+							scrollMenu.style.scrollSnapType = "y mandatory";
+							await new Promise((r) => setTimeout(r, 10));
+							sctimer = null;
+							let children = scrollMenu.children;
+							let rect = [];
+							let closest = 2;
+							let clost = 0;
+							for (let i = 0; i < children.length - 1; i++) {
+								rect = children[i].getBoundingClientRect();
+								let dist =
+									rect.bottom / (window.innerHeight / 2);
+								if (Math.abs(dist - 1) < closest) {
+									closest = Math.abs(dist - 1);
+									clost = i;
+								}
+							}
+							for (let i = 0; i < children.length - 1; i++) {
+								if (i != clost) {
+									children[i].className =
+										defaultElementClass +
+										" nons bg-opacity-10";
+									children[i].style.marginRight =
+										-Math.abs(clost - i) * 10 + "px";
+									children[i].style.marginLeft =
+										Math.abs(clost - i) * 10 + "px";
+									children[i].style.height = 80 + "px";
+								} else {
+									children[clost].className =
+										defaultElementClass +
+										" sel bg-opacity-20";
+									children[clost].style.marginRight =
+										10 + "px";
+									children[clost].style.marginLeft =
+										-50 + "px";
+									children[i].style.height = 80 + "px";
+								}
+							}
+							children[clost].style.height =
+								96 + metaData[clost].levels.length * 68 + "px";
+							scrollMenu.style.marginTop =
+								-children[clost].getBoundingClientRect()
+									.height /
+									2 +
+								50 +
+								"px";
+
+							if (clost != globalIndex) {
+								setBackground(metaData[clost].backgroundImage);
+
+								let x = metaData[clost].levels[0];
+								////console.log(x.source);
+								setPreviewImage(
+									metaData[clost].setId,
+									x.backgroundImage
+								);
+								previewCircleSize.style.width =
+									x.circleSize * 10 + "%";
+								previewApproachRate.style.width =
+									x.approachRate * 10 + "%";
+								previewHPDrain.style.width =
+									x.hpDrainRate * 10 + "%";
+								previewAccuracy.style.width =
+									x.difficulty * 10 + "%";
+								previewMapper.innerHTML = x.mapper;
+								previewSource.innerHTML = utf8.decode(x.source);
+								previewVersion2.innerHTML = x.level;
+								previewTags.innerHTML = utf8.decode(x.tags);
+								previewSong.innerHTML = metaData[clost].title;
+								previewArtist.innerHTML =
+									metaData[clost].artist;
+								previewVersion.innerHTML = x.level;
+								setGlobalIndex(clost);
+								
+								setSecondaryIndex(0);
+								await new Promise((r) => setTimeout(r, 100));
+								//console.log(metaData[clost].setId, 0,x.previewTime);
+								playSong( metaData[clost].setId, 0,x.previewTime);
+								return
+								
+							}
+							
+						}, 1000);
+					} else {
+						scrollMenu.scrollTop = children.length * 88;
+					}
+				}}
+				style={{
+					scrollSnapType: "y mandatory",
+					opacity:start?0:1,
+					pointerEvents:start?"none":"auto",
+				}}>
+				{list}
+
+				<div
+					id="emptyy"
+					className="w-full h-[110vh]"
+					onDragCapture={(e) => {
+						e.preventDefault();
+					}}></div>
+			</div>
+			<div style={{opacity:start?0:1,
+					pointerEvents:start?"none":"auto",}} id="previewSearch" className="bg-post duration-300 bg-opacity-25  h-[60px] outline-bcol outline   backdrop-blur-md outline-1 w-full rounded-br-md top-0 left-0  fixed z-[12]">
+				<Preview />
+
+				<div className="bg-post p-1 pl-2 outline-bcol outline-1   outline bg-opacity-30 rounded-lg w-[20vw] h-[40px] absolute right-[10px] top-[10px]">
+					<div
+						id="searchBar"
+						className="pointer-events-none hidden  absolute flex items-center gap-1 justify-between w-[calc(20vw-20px)] h-[calc(38px-0.5rem)]  duration-200 text-slate-200 ">
+						Search
+					</div>
+					<input
+						placeholder="Search"
+						onChange={(e) => {
+							if (typetimer !== null) {
+								clearTimeout(typetimer);
+							}
+							typetimer = setTimeout(() => {
+								if (minis == null) return;
+								if (e.target.value == "") {
+									setMetaData(metaFiles);
+									// try {
+									// 	document.getElementById(
+									// 		"sub" +
+									// 			globalIndex +
+									// 			" " +
+									// 			secondaryIndex
+									// 	).style.backgroundColor = "";
+									// 	document.getElementById(
+									// 		"sub" + globalIndex + " " + 0
+									// 	).style.backgroundColor =
+									// 		"rgb(148 163 184 / var(--tw-bg-opacity))";
+									// 	document.getElementById(
+									// 		"sub" + globalIndex + " " + 0
+									// 	).style.backgroundColor =
+									// 		"rgb(148 163 184 / var(--tw-bg-opacity))";
+									// } catch (e) {}
+									setGlobalIndex(-1);
+									setSecondaryIndex(0);
+									setSearchKey(0);
+									fakeClick(0, true);
+									return;
+								}
+								let res = minis.search(e.target.value);
+								let temp = [];
+								//console.log("test", res);
+								for (let i in res) {
+									temp.push(
+										metaFiles.find(
+											(x) => x.setId == res[i].setId
+										)
+									);
+								}
+								setMetaData(temp);
+								setSearchKey(searchKey + 1);
+								setGlobalIndex(-1);
+								setSecondaryIndex(0);
+								fakeClick(0,true);
+							}, 1000);
+						}}
+						type="text"
+						id={"searchbox"}
+						className=" h-full leading-[38px] -mt-[1Px] w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none rounded-md"
+					/>
+				</div>
+			</div>
+			<div style={{opacity:start?0:1,
+					}} id="addOSZButton" className="w-full duration-300 h-full fixed z-20 pointer-events-none">
+				<label
+					//style={{ display: !props.playing ? "" : "none" }}
+					htmlFor="inpp"
+					className="fixed pointer-events-auto  bg-opacity-75  bg-post border text-bact border-bcol h-fit  z-[11]  rounded-md shadow-lg bottom-2 left-2  cursor-pointer  px-6 py-4">
+					<input
+						multiple
+						type="file"
+						className="hidden"
+						id="inpp"
+						accept=".osz"
+						onChange={(e) => {
+							getFiles(e.target.files);
+						}}
+					/>
+					Upload .osz
+				</label>
+				<div className="absolute hidden w-16 aspect-square bg-black"
+				style={{
+					top:0,
+					left:0,
+					animation:"move 10s linear infinite alternate",
+					offsetPath:"path(' M 466 283 L 493 249 M 493 249 L 482 196')"
+				}}
+				></div>
+			</div>
+			<div style={{opacity:start?1:0}} id="load" className="w-full opacity-0 duration-300 flex items-center justify-center z-30 pointer-events-none h-full fixed bg-black bg-opacity-25 ">
+				<div
+				className=" text-bact text-[30px] font-bold bg-bcol  shadow-md border border-[#777] bg-opacity-25 rounded-lg p-3"
+				>{loader}</div>
+			</div>
+			<div onClick={()=>{
+				setFocus(!focus);
+			}}
+			style={{opacity:focus?0:1,pointerEvents:focus?"none":"auto",filter:focus?"blur(0px)":""}}
+			id="load" className="w-full  duration-300 text-bcol flex items-center justify-center z-40 h-full fixed bg-black bg-opacity-50  backdrop-blur-md ">
+				<div className="text-xl font-bold">Click to Start</div>
+				</div>
+
+			
+			{start?<PlayArea setId={metaData[globalIndex].setId} id={metaData[globalIndex].levels[secondaryIndex].id} setStart={setStart} />:<></>}
+			
+		</>
+	);
+}
+
+export default SongSelectionMenu;

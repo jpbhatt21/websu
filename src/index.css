@@ -1,0 +1,110 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+}
+.fade-in {
+  animation: fadeIn ease 1s;
+}
+.fade-out {
+  animation: fadeIn ease 1s reverse;
+}
+
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes fade {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  76% {
+    opacity: 0;
+  }
+}
+@keyframes hit {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+@keyframes hit2 {
+  0% {
+    transform: scale(5);
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  75% {
+    transform: scale(1.4);
+
+    opacity: 1;
+  }
+  76% {
+    transform: scale(1.4);
+
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1.4);
+
+    opacity: 0;
+  }
+}
+@keyframes move {
+  0% {
+    offset-distance: 0%;
+    opacity: 1;
+    offset-rotate: 0deg;
+  }
+  
+  100% {
+    
+    offset-distance: 100%;
+    opacity: 1;
+    offset-rotate: 0deg;
+    
+  }
+} 
+@keyframes sliderFadeIn {
+  0% {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+@keyframes sliderFadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
