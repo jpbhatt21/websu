@@ -2,7 +2,7 @@ export let backgroundImage = document.getElementById("backgroundImage");
 export let music = new Audio();
 let pSliderPathCache = { points: [], path: [] };
 let bSliderPathCache = { points: [], path: [] };
-let css=0;
+let css = 0;
 export function getBeatMapCollectionInfo(file) {
 	file = window.atob(file.file);
 	let lines = file.split("\n");
@@ -39,12 +39,8 @@ export function getBeatMapCollectionInfo(file) {
 }
 export function cleanse(str) {
 	str = str.trim();
-	while (str[0] == "'" || str[0] == '"')
-		str = str.slice(1);
-	while (
-		str[str.length - 1] == "'" ||
-		str[str.length - 1] == '"'
-	)
+	while (str[0] == "'" || str[0] == '"') str = str.slice(1);
+	while (str[str.length - 1] == "'" || str[str.length - 1] == '"')
 		str = str.slice(0, -1);
 	return str.trim();
 }
@@ -157,7 +153,7 @@ export async function setBackground(data) {
 	backgroundImage.style.opacity = 1;
 }
 
-export async function setPreviewImage(setID, index) {
+export async function setPreviewImage(setID, index, secondaryIndex) {
 	let result = null;
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = function (event) {
@@ -170,7 +166,8 @@ export async function setPreviewImage(setID, index) {
 					"data:image/png;base64," + event.target.result.files[index]
 				)
 					return;
-				setBackground(event.target.result.files[index]);
+				if (secondaryIndex > 0)
+					setBackground(event.target.result.files[index]);
 				previewImage.style.opacity = 0;
 				setTimeout(() => {
 					previewImage.src =
@@ -207,10 +204,10 @@ export function playSong(setID, index, previewTime) {
 			};
 	};
 }
-let musicLoaded = false;	
+let musicLoaded = false;
 let videoLoaded = false;
 export function setMusic(file, setId) {
-	console.log(file,setId);
+	console.log(file, setId);
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = function (event) {
 		const db = event.target.result;
@@ -244,7 +241,7 @@ export function setBackgroundVideo(file, setId) {
 
 				backgroundVideo.pause();
 				backgroundVideo.currentTime = 0;
-				
+
 				backgroundImage.style.opacity = 0;
 				await new Promise((r) => setTimeout(r, 300));
 				backgroundImage.style.display = "none";
@@ -281,7 +278,106 @@ export let loader = (
 		</g>
 	</svg>
 );
-
+export let exit = (
+	<svg
+		className="scale-50"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				d="M14 7.63636L14 4.5C14 4.22386 13.7761 4 13.5 4L4.5 4C4.22386 4 4 4.22386 4 4.5L4 19.5C4 19.7761 4.22386 20 4.5 20L13.5 20C13.7761 20 14 19.7761 14 19.5L14 16.3636"
+				stroke="#b3b3b3"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+			<path
+				d="M10 12L21 12M21 12L18.0004 8.5M21 12L18 15.5"
+				stroke="#b3b3b3"
+				strokeWidth="2"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+		</g>
+	</svg>
+);
+export let replay = (
+	<svg
+		className="scale-50"
+		viewBox="0 0 16 16"
+		xmlns="http://www.w3.org/2000/svg"
+		fill="none">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				fill="#b3b3b3"
+				d="M7.248 1.307A.75.75 0 118.252.193l2.5 2.25a.75.75 0 010 1.114l-2.5 2.25a.75.75 0 01-1.004-1.114l1.29-1.161a4.5 4.5 0 103.655 2.832.75.75 0 111.398-.546A6 6 0 118.018 2l-.77-.693z"></path>
+		</g>
+	</svg>
+);
+export let playButton = (
+	<svg
+		className="scale-50"
+		viewBox="-0.5 0 7 7"
+		version="1.1"
+		xmlns="http://www.w3.org/2000/svg"
+		xmlnsXlink="http://www.w3.org/1999/xlink"
+		fill="#000000">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<defs></defs>
+			<g
+				id="Page-1"
+				stroke="none"
+				strokeWidth="1"
+				fill="none"
+				fillRule="evenodd">
+				<g
+					id="Dribbble-Light-Preview"
+					transform="translate(-347.000000, -3766.000000)"
+					fill="#b3b3b3">
+					<g id="icons" transform="translate(56.000000, 160.000000)">
+						<path
+							d="M296.494737,3608.57322 L292.500752,3606.14219 C291.83208,3605.73542 291,3606.25002 291,3607.06891 L291,3611.93095 C291,3612.7509 291.83208,3613.26444 292.500752,3612.85767 L296.494737,3610.42771 C297.168421,3610.01774 297.168421,3608.98319 296.494737,3608.57322"
+							id="play-[#b3b3b33b3b3]"></path>
+					</g>
+				</g>
+			</g>
+		</g>
+	</svg>
+);
+export let playButton2 = (
+	<svg
+		viewBox="0 0 24 24"
+		className="scale-50"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M7.23832 3.04445C5.65196 2.1818 3.75 3.31957 3.75 5.03299L3.75 18.9672C3.75 20.6806 5.65196 21.8184 7.23832 20.9557L20.0503 13.9886C21.6499 13.1188 21.6499 10.8814 20.0503 10.0116L7.23832 3.04445ZM2.25 5.03299C2.25 2.12798 5.41674 0.346438 7.95491 1.72669L20.7669 8.6938C23.411 10.1317 23.411 13.8685 20.7669 15.3064L7.95491 22.2735C5.41674 23.6537 2.25 21.8722 2.25 18.9672L2.25 5.03299Z"
+				fill="#b3b3b3"></path>
+		</g>
+	</svg>
+);
 export async function decodeBeatMap(base64, setId) {
 	musicLoaded = false;
 	let osuFile = window.atob(base64);
@@ -301,11 +397,7 @@ export async function decodeBeatMap(base64, setId) {
 	if (events[2].includes("Video")) {
 		isVideo = true;
 		setBackgroundVideo(cleanse(events[2].split(",")[2]), setId);
-	  }
-	  else
-	  videoLoaded = true;
-
-
+	} else videoLoaded = true;
 
 	let difficulty = osuFile.slice(
 		osuFile.findIndex((line) => line.includes("[Difficulty]")) + 1,
@@ -337,7 +429,7 @@ export async function decodeBeatMap(base64, setId) {
 	}
 	let cs = 54.4 - 4.48 * parseInt(difficulty["CircleSize"]);
 	cs *= 1.2;
-	css=cs
+	css = cs;
 	let hitObjects = osuFile.slice(
 		osuFile.findIndex((line) => line.includes("[HitObjects]")) + 1
 	);
@@ -411,7 +503,7 @@ export async function decodeBeatMap(base64, setId) {
 			obx.push([j[0], j[1]]);
 			obx.push(parseInt(j[4]));
 			obx.push(j[5].split(":").map((j5x) => parseInt(j5x)));
-			obx[3] = [parseInt(obx[3][0])+cs/2, parseInt(obx[3][1])+cs/2];
+			obx[3] = [parseInt(obx[3][0]) + cs, parseInt(obx[3][1]) + cs];
 		} else if (obx[0] == 1) {
 			typ = j[5][0];
 			slider = j[5]
@@ -454,16 +546,13 @@ export async function decodeBeatMap(base64, setId) {
 				obx.push(j[10].split(":").map((j5x) => parseInt(j5x)));
 			} catch (e) {}
 			obx[0] = typ == "P" ? 2 : typ == "B" ? 3 : 1;
-			if(typ=="P")
-				obx[3]=pSliderPath(obx[3][0], obx[3][1], obx[3][2])
-			else if(typ=="B")
-				obx[3]=bSliderPath(obx[3])
-			else
-				obx[3]=lSliderPath(obx[3])
+			if (typ == "P")
+				obx[3] = pSliderPath(obx[3][0], obx[3][1], obx[3][2]);
+			else if (typ == "B") obx[3] = bSliderPath(obx[3]);
+			else obx[3] = lSliderPath(obx[3]);
 		} else obx.push([j[0], j[1]]);
 		console.log(obx[3]);
 
-		
 		hit2.push(obx);
 	}
 	let temp = [];
@@ -484,13 +573,13 @@ export async function decodeBeatMap(base64, setId) {
 	}
 	pSliderPathCache = { points: [], path: [] };
 	bSliderPathCache = { points: [], path: [] };
-	return [aprate / 1000, cs, hit2, temp, col,isVideo];
+	return [aprate / 1000, cs, hit2, temp, col, isVideo];
 }
 
 function pSliderPath(start, mid, end) {
 	let points = [start, mid, end].join(",");
 	if (pSliderPathCache.points.includes(points)) {
-	  return pSliderPathCache.path[pSliderPathCache.points.indexOf(points)];
+		return pSliderPathCache.path[pSliderPathCache.points.indexOf(points)];
 	}
 	const A = dist(end, mid);
 	const B = dist(mid, start);
@@ -501,152 +590,167 @@ function pSliderPath(start, mid, end) {
 	const K = 0.5 * A * B * Math.sin(angle);
 	let r = (A * B * C) / 4 / K;
 	r = Math.round(r * 1000) / 1000;
-  
+
 	//large arc flag
 	const laf = +(Math.PI / 2 > angle);
-  
+
 	//sweep flag
 	const saf = +(
-	  (end[0] - start[0]) * (mid[1] - start[1]) -
-		(end[1] - start[1]) * (mid[0] - start[0]) <
-	  0
+		(end[0] - start[0]) * (mid[1] - start[1]) -
+			(end[1] - start[1]) * (mid[0] - start[0]) <
+		0
 	);
-	start=[start[0]+css,start[1]+css]
-	end=[end[0]+css,end[1]+css]
+	start = [start[0] + css * 1.5, start[1] + css * 1.5];
+	end = [end[0] + css * 1.5, end[1] + css * 1.5];
 	let path = ["M", start, "A", r, r, 0, laf, saf, end].join(" ");
 	pSliderPathCache.points.push(points);
 	pSliderPathCache.path.push(path);
 	return path;
-  }
-  
-  function dist(a, b) {
+}
+
+function dist(a, b) {
 	return Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2));
-  }
-  function lSliderPath(points) {
-	let path = "M" + (points[0][0]+css) + " " + (points[0][1]+css);
+}
+function lSliderPath(points) {
+	let path =
+		"M" + (points[0][0] + css * 1.5) + " " + (points[0][1] + css * 1.5);
 	for (let i = 1; i < points.length; i++) {
-	  path += " L" + (points[i][0]+css) + " " + (points[i][1]+css);
+		path +=
+			" L" +
+			(points[i][0] + css * 1.5) +
+			" " +
+			(points[i][1] + css * 1.5);
 	}
 	return path;
-  }
-  function bSliderPath(points, val = true) {
+}
+function bSliderPath(points, val = true) {
 	if (bSliderPathCache.points.includes(points.join(","))) {
-	  return bSliderPathCache.path[
-		bSliderPathCache.points.indexOf(points.join(","))
-	  ];
+		return bSliderPathCache.path[
+			bSliderPathCache.points.indexOf(points.join(","))
+		];
 	}
-  
+
 	let path = " ";
 	let subs = [];
 	let sub = [];
 	sub.push(points[0]);
 	for (let i = 1; i < points.length - 1; i++) {
-	  sub.push(points[i]);
-	  if (points[i][0] == points[i + 1][0] && points[i][1] == points[i + 1][1]) {
-		subs.push(sub);
-		sub = [];
-	  }
+		sub.push(points[i]);
+		if (
+			points[i][0] == points[i + 1][0] &&
+			points[i][1] == points[i + 1][1]
+		) {
+			subs.push(sub);
+			sub = [];
+		}
 	}
 	sub.push(points[points.length - 1]);
 	subs.push(sub);
 	for (let j = 0; j < subs.length; j++) {
-	  let i = j;
-	  if (subs[i].length == 2) {
-		path +=
-		  " M " +
-		  (subs[i][0][0]+css) +
-		  " " +
-		  (subs[i][0][1]+css) +
-		  " L " +
-		  (subs[i][1][0]+css) +
-		  " " +
-		  (subs[i][1][1]+css) +
-		  " ";
-	  }
-	  if (subs[i].length == 3) {
-		path +=
-		  " M " +
-		  (subs[i][0][0]+css) +
-		  " " +
-		  (subs[i][0][1]+css) +
-		  " Q " +
-		  (subs[i][1][0]+css) +
-		  " " +
-		  (subs[i][1][1]+css) +
-		  " " +
-		  (subs[i][2][0]+css) +
-		  " " +
-		  (subs[i][2][1]+css) +
-		  " ";
-	  }
-	  if (subs[i].length == 4) {
-		path +=
-		  " M " +
-		  (subs[i][0][0]+css) +
-		  " " +
-		  (subs[i][0][1]+css) +
-		  " C " +
-		  (subs[i][1][0]+css) +
-		  " " +
-		  (subs[i][1][1]+css) +
-		  " " +
-		  (subs[i][2][0]+css) +
-		  " " +
-		  (subs[i][2][1]+css) +
-		  " " +
-		  (subs[i][3][0]+css) +
-		  " " +
-		  (subs[i][3][1]+css) +
-		  " ";
-	  }
-	  if (subs[i].length == 5) {
-		path +=
-		  " M " +
-		  (subs[i][0][0]+css) +
-		  " " +
-		  (subs[i][0][1]+css) +
-		  " C " +
-		  getControlPoints(subs[i][1], subs[i][2], subs[i][3], 1) +
-		  " " +
-		  (subs[i][4][0]+css) +
-		  " " +
-		  (subs[i][4][1]+css) +
-		  " ";
-	  }
-	  if(subs[i].length>5){
-	  let points2 = getStrutPoints(subs[i]);
-	  path+=" M " + (points2[0][0] +css) + " " + (points2[0][1] +css) + " L ";
-	  for (let i = 1; i < points2.length; i++) {
-		path += " " + (points2[i][0] +css) + " " + (points2[i][1] +css);+" "
-	  }}
-  
-  
+		let i = j;
+		if (subs[i].length == 2) {
+			path +=
+				" M " +
+				(subs[i][0][0] + css * 1.5) +
+				" " +
+				(subs[i][0][1] + css * 1.5) +
+				" L " +
+				(subs[i][1][0] + css * 1.5) +
+				" " +
+				(subs[i][1][1] + css * 1.5) +
+				" ";
+		}
+		if (subs[i].length == 3) {
+			path +=
+				" M " +
+				(subs[i][0][0] + css * 1.5) +
+				" " +
+				(subs[i][0][1] + css * 1.5) +
+				" Q " +
+				(subs[i][1][0] + css * 1.5) +
+				" " +
+				(subs[i][1][1] + css * 1.5) +
+				" " +
+				(subs[i][2][0] + css * 1.5) +
+				" " +
+				(subs[i][2][1] + css * 1.5) +
+				" ";
+		}
+		if (subs[i].length == 4) {
+			path +=
+				" M " +
+				(subs[i][0][0] + css * 1.5) +
+				" " +
+				(subs[i][0][1] + css * 1.5) +
+				" C " +
+				(subs[i][1][0] + css * 1.5) +
+				" " +
+				(subs[i][1][1] + css * 1.5) +
+				" " +
+				(subs[i][2][0] + css * 1.5) +
+				" " +
+				(subs[i][2][1] + css * 1.5) +
+				" " +
+				(subs[i][3][0] + css * 1.5) +
+				" " +
+				(subs[i][3][1] + css * 1.5) +
+				" ";
+		}
+		if (subs[i].length == 5) {
+			path +=
+				" M " +
+				(subs[i][0][0] + css * 1.5) +
+				" " +
+				(subs[i][0][1] + css * 1.5) +
+				" C " +
+				getControlPoints(subs[i][1], subs[i][2], subs[i][3], 1) +
+				" " +
+				(subs[i][4][0] + css * 1.5) +
+				" " +
+				(subs[i][4][1] + css * 1.5) +
+				" ";
+		}
+		if (subs[i].length > 5) {
+			let points2 = getStrutPoints(subs[i]);
+			path +=
+				" M " +
+				(points2[0][0] + css * 1.5) +
+				" " +
+				(points2[0][1] + css * 1.5) +
+				" L ";
+			for (let i = 1; i < points2.length; i++) {
+				path +=
+					" " +
+					(points2[i][0] + css * 1.5) +
+					" " +
+					(points2[i][1] + css * 1.5);
+				+" ";
+			}
+		}
 	}
 	bSliderPathCache.points.push(points.join(","));
 	bSliderPathCache.path.push(path);
-  
+
 	return path;
-  }
-  function getStrutPoints(points) {
-		
-	  
+}
+function getStrutPoints(points) {
 	// run de Casteljau's algorithm, starting with the base points
-	let len= points.length
-	let finals=[]
-	for (let t=0;t<=1;t+=0.001){
-	  for (let i = 0; i < len - 1; i++) {
-		for (let j = 0; j < len - 1 - i; j++) {
-		  points[j] = [
-			points[j][0] + t * (points[j + 1][0] - points[j][0]),
-			points[j][1] + t * (points[j + 1][1] - points[j][1]),
-		  ];
+	let len = points.length;
+	let finals = [];
+	for (let t = 0; t <= 1; t += 0.001) {
+		for (let i = 0; i < len - 1; i++) {
+			for (let j = 0; j < len - 1 - i; j++) {
+				points[j] = [
+					points[j][0] + t * (points[j + 1][0] - points[j][0]),
+					points[j][1] + t * (points[j + 1][1] - points[j][1]),
+				];
+			}
 		}
-	  }
-	  finals.push(points[0])
+		finals.push(points[0]);
 	}
-	return(finals)
-  }
-  function getControlPoints([x0, y0], [x1, y1], [x2, y2], t) {
+	return finals;
+}
+function getControlPoints([x0, y0], [x1, y1], [x2, y2], t) {
 	var d01 = Math.sqrt(Math.pow(x1 - x0, 2) + Math.pow(y1 - y0, 2));
 	var d12 = Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
 	var fa = (t * d01) / (d01 + d12); // scaling factor for triangle Ta
@@ -655,6 +759,35 @@ function pSliderPath(start, mid, end) {
 	var p1y = y1 - fa * (y2 - y0); // y2-y0 is the height of T
 	var p2x = x1 + fb * (x2 - x0);
 	var p2y = y1 + fb * (y2 - y0);
-	let ret = [p1x+css, p1y+css, p2x+css, p2y+css].join(" ");
+	let ret = [
+		p1x + css * 1.5,
+		p1y + css * 1.5,
+		p2x + css * 1.5,
+		p2y + css * 1.5,
+	].join(" ");
 	return ret;
-  }
+}
+export function pause(ele) {
+	pauseMenu.style.opacity = "1";
+	pauseMenu.style.pointerEvents = "all";
+	music.pause();
+	backgroundVideo.pause();
+	let children = ele.children;
+	ele.style.animationPlayState = "paused";
+	for (let i = 0; i < children.length; i++) {
+		pause(children[i]);
+	}
+}
+export  function play(ele) {
+	
+
+		let children = ele.children;
+		
+		ele.style.animationPlayState = "running";
+		for (let i = 0; i < children.length; i++) {
+			play(children[i]);
+		}
+		music.play();
+		backgroundVideo.play();
+	
+}

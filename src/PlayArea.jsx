@@ -6,11 +6,13 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 	const [circleSize, setCircleSize] = useState(0);
 	const [timedHitObjects, setTimedHitObjects] = useState([]);
 	const [timedSliders, setTimedSliders] = useState([]);
+	const [len,setLen]=useState(0)
 	const [timingPoints, setTimingPoints] = useState([]);
 	const [colors, setColors] = useState([]);
 	const [time, setTime] = useState(0.01);
 	let delay = 0;
 	useEffect(() => {
+		searchbox.style.display="none";
 		console.log(setId, id);
 		music.currentTime = 0;
 		const request = indexedDB.open("osuStorage", 2);
@@ -49,31 +51,34 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 								(x) => x[0] < 4 && x[0] > 0
 							  ))
 					}
+					setLen(x[2].length)
 					setApproachRate(x[0]);
 					setCircleSize(x[1]);
 					setTimingPoints(x[3]);
 					setColors(x[4]);
 					setTime(0);
+					//music.currentTime=music.duration-5
 					music.play();
 					if (x[5]) {
 						backgroundVideo.play();
 					}
-					let counter = 0;
-					let pointerIndex = 0;
+					
+					let pointerIndex = -1;
 					let t = 0;
 					while (music.currentTime < music.duration) {
 						t = parseFloat(music.currentTime.toFixed(2));
-						if (counter == 0) {
+						if (pointerIndex!=parseInt(t/10)) {
+							pointerIndex = parseInt(t/10);
 							setTimedHitObjects(
 								timedHitObjectsCollection[pointerIndex]
 							);
+							
 							setTimedSliders(
 								timedSlidersCollection[pointerIndex]
 							);
-							pointerIndex++;
+							
 						}
 						setTime(t);
-						counter = (counter + 1) % 1000;
 						await new Promise((resolve) => {
 							setTimeout(() => {
 								resolve();
@@ -109,8 +114,9 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 	let sliders=timedSliders.map((x, i) =>
 	<g
 	key={"slider" + x[2]}
-	  className=" "
+	  className=" fixed"
 	  style={{
+		zIndex:len-x[2]+50,
 		display: time - x[1] > 0 ? "" : "none",
 		animation:
 		  "sliderFadeIn " +
@@ -153,7 +159,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 				key={"hit" + x[2]}
 				className=" absolute fadex opacity-0 aspect-square flex items-center justify-center text-bact  rounded-full outline outline-4 bg-post bg-opacity-50 pointer-events-none"
 				style={{
-					zIndex: 10, //+ (leny - x[2]),
+					zIndex:len-x[2]+50,
 					top: x[3][1],
 					left: x[3][0],
 					height: circleSize + "px",
@@ -181,7 +187,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 				key={"hit" + x[2]}
 				className=" absolute fadex duration-150 opacity-0  aspect-square flex items-center justify-center text-bact  rounded-full outline outline-4 bg-post bg-opacity-50 pointer-events-none"
 				style={{
-					zIndex: 10, //+ (leny - x[2]),
+					zIndex:len-x[2]+50,
 					
 					height: circleSize + "px",
 					outlineColor: "rgb(" + colors[x[2]] + ")",
@@ -228,55 +234,58 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 	return (
 		<>
 			
-			<div className="w-full h-full flex flex-col items-center justify-center fixed"
+			<div className="w-full h-full  flex flex-col justify-center items-center  fixed"
 			style={{
-				marginTop: -circleSize/2 +"px",
+				
+				
 			}}
 			>
 			<svg
 						key={"scresen"}
-						className=" h-96   aspect-[4/3]  pointer-events-none"
+						className="fixed     pointer-events-none"
 						style={{
-							paddingTop: circleSize/2 +"px",
-							paddingLeft: circleSize*0.65  +"px",
-
+							
+							
+						
 							transform:
 							"scale(" +
-							window.innerHeight / (384 + 2*circleSize) +
+							window.innerHeight / (384 +circleSize*3) +
 							")",
-						height: 384 + circleSize*2 + "px",
-						marginTop:circleSize/2 +"px",
-						marginBottom:-(384 + circleSize*1.5) + "px",						}}
+						
+						height: 384 + circleSize*3 + "px",
+						width: 512 + circleSize*3 + "px"
+						
+											}}
 						fill="black"
 						xmlns="http://www.w3.org/2000/svg"
 						id="svghold">
 							{sliders}
-						{/*<path className='pointer-events-none hidden' d="M 492 224 Q 466 267 396 271 Q  348 230 350 174" fill='none' strokeWidth={1  } stroke="rgba(0,0,0,1)"/>
-      <path className='pointer-events-none hidden' d="M 492 224 S 466 267 396 271  348 230 350 174" fill='none' strokeWidth={1  } stroke="rgba(0,200,0,1)"/>
-      <path className='pointer-events-none hidden' d={"M 492 224 C "+getControlPoints([466, 267],[ 396, 271],[  348 ,230],1)+" 350 174 " +help.bSliderPath([[350,174],[335,201]])} fill='none' strokeWidth={1  } stroke="rgba(200,200,0,1)"/>*/}
+						
 					</svg>
-				<div
-					className="h-96  aspect-[4/3] bg-post  bg-opacity-0"
+				<div 
+					className="fixed   "
 					style={{
 						transform:
 							"scale(" +
-							window.innerHeight / (384 + 2*circleSize) +
+							window.innerHeight / (384 +circleSize*3) +
 							")",
-						height: 384 + circleSize + "px",
+						
+						height: 384 + circleSize*3 + "px",
+						width: 512 + circleSize*3 + "px"
 					}}>
 					
 					<div className=" aspect-square bg-bl ack top-0 absolute left-0"
 					style={
-						{
+						{	
 							width: circleSize + "px",
 							
 						}
 					
 					}
 					></div>
-					<div className=" aspect-square bg-b lack top-96 absolute left-0"
+					<div className=" aspect-square top-96 bg-bl ack  absolute left-0"
 					style={
-						{
+						{	
 							width: circleSize + "px",
 							
 						}
@@ -291,6 +300,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 						width: (parseFloat(time) / music.duration) * 100 + "%",
 					}}></div>
 			</div>
+			
 		</>
 	);
 }

@@ -9,6 +9,9 @@
 .fade-in {
   animation: fadeIn ease 1s;
 }
+.fade-in2 {
+  animation: fadeIn2 ease-out 2.1s;
+}
 .fade-out {
   animation: fadeIn ease 1s reverse;
 }
@@ -21,7 +24,14 @@
     opacity: 1;
   }
 }
-
+@keyframes fadeIn2 {
+  0%,50% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}
 @keyframes fade {
   0% {
     opacity: 0;

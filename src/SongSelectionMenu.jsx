@@ -12,7 +12,13 @@ import {
 	setBackground,
 	setPreviewImage,
 	music,
-	backgroundImage
+	backgroundImage,
+	pause,
+	play,
+	exit,
+	replay,
+	playButton,
+	playButton2,
 } from "./Utils";
 import PlayArea from "./PlayArea";
 let typetimer = null;
@@ -237,11 +243,11 @@ function SongSelectionMenu() {
 			} catch (e) {
 				const request = objectStore.add(setMeta);
 			}
-			setMeta.id=metaData.length;
+			setMeta.id = metaData.length;
 			setMetaData((prev) => [...prev, setMeta]);
 			setMetaFiles((prev) => [...prev, setMeta]);
 			minis.add(setMeta);
-			fakeClick(metaData.length+1, false);
+			fakeClick(metaData.length + 1, false);
 			setSearchKey(searchKey + 1);
 			objectStore = transaction.objectStore("Preview");
 			try {
@@ -277,18 +283,63 @@ function SongSelectionMenu() {
 	const [searchKey, setSearchKey] = useState(0);
 	const [start, setStart] = useState(false);
 	const [focus, setFocus] = useState(false);
+	const [prevMusic, setPrevMusic] = useState([]);
 	//console.log(globalIndex);
-	if(start){
-		backgroundImage.style.filter="blur(0px) brightness(0.5)";
+	function getMetaFiles() {
+		return metaFiles;
+	}
+	if (start) {
+		backgroundImage.style.filter = "blur(0px) brightness(0.5)";
+	} else {
+		backgroundImage.style.filter = "blur(12px) brightness(0.5)";
+	}
+	console.log(metaFiles);
+	function keyaction(e) {
+		if (previewSearch.style.opacity == 1) {
+			console.log(start);
+			if (!start && e.key == "Escape") {
+				searchbox.value = "";
+				searchbox.blur();
+				resetButton.click();
 
+				return;
+			}
+			if (!start) {
+				searchbox.focus();
+				return;
+			}
+		} else {
+			if (e.repeat) return;
+
+			if (e.key == "Escape") {
+				let root = document.querySelector("#root");
+				if (root.style.animationPlayState != "paused") {
+					pause(root);
+				} else {
+					pauseMenu.style.opacity = "0";
+
+					pauseMenu.style.pointerEvents = "none";
+					setTimeout(()=>{play(root);},1000)
+				}
+			}
+			if (e.key == "x" || e.key == "z") {
+				{
+					let doc = document.querySelector(
+						"#test23 > div >  div:hover "
+					);
+					if (doc != null) {
+						doc.click();
+						doc.style.pointerEvents = "none";
+					}
+				}
+			}
+		}
 	}
-	else{
-		backgroundImage.style.filter="blur(12px) brightness(0.5)";
-	}
+	function keyaction2(e) {}
 
 	useEffect(() => {
-		if(!focus)
-			return
+		if (!focus) return;
+		document.addEventListener("keydown", keyaction);
 		const request = indexedDB.open("osuStorage", 2);
 		request.onupgradeneeded = function (event) {
 			const db = event.target.result;
@@ -310,25 +361,10 @@ function SongSelectionMenu() {
 			// objectStore.createIndex("levels", "levels", { unique: false });
 		};
 		request.onsuccess = function (event) {
-			////console.log("Success: " + event.type);
 			const db = event.target.result;
-			//to delete
-			// db.transaction("osuFiles","readwrite").objectStore("osuFiles").delete("test").onsuccess = function(event) {
-
-			//   ////console.log("hallo",event.target.result)
-			// }
-
-			//to write
-			// const transaction = db.transaction(["osuFiles"], "readwrite");
-			// const objectStore = transaction.objectStore("osuFiles");
-			// const request = objectStore.add({name:test.name[l-1], files: test.files[l-1],meta:test.meta[l-1],levels:test.levels[l-1]});
-			// request.onsuccess = function(event) {
-			// ////console.log("Data has been written successfully");
-			// };
 
 			db.transaction("Meta").objectStore("Meta").getAll().onsuccess =
 				async function (event) {
-					//console.log(event.target.result);
 					setTimeout(() => {
 						let result = event.target.result.sort((a, b) =>
 							a.title.localeCompare(b.title)
@@ -360,23 +396,28 @@ function SongSelectionMenu() {
 							},
 						});
 						minis.addAll(result);
-						fakeClick(0,true);
-						
-						
+						fakeClick(0, true);
+						setTimeout(() => {
+							//setStart(true)
+						}, 2000);
 					}, 10);
 				};
 		};
 	}, [focus]);
+	useEffect(() => {
+		if (!start && prevMusic.length > 0) {
+			playSong(prevMusic[0], prevMusic[1], prevMusic[2]);
+		}
+	}, [start]);
 	let list = metaData.map((element, index) => {
 		return (
 			<div
 				key={"element" + index}
-				
 				className={defaultElementClass + " bg-opacity-10 h-20 "}>
 				<div
-				onClick={() => {
-					fakeClick(index, false);
-				}}
+					onClick={() => {
+						fakeClick(index, false);
+					}}
 					className=" w-full h-20    outline outline-1 outline-bcol   rounded-t-lg"
 					style={{
 						backgroundImage:
@@ -407,42 +448,15 @@ function SongSelectionMenu() {
 								id={"sub" + index + " " + index2}
 								className=" flex flex-col  justify-evenly rounded-md p-1 px-3 bg-blank bg-opacity-25 duration-300 w-full  text-[#eee] mb-2 h-[60px]"
 								onClick={(e) => {
-									////console.log(index, index2, secondaryIndex);
 									setSecondaryIndex(index2);
 									if (secondaryIndex == index2) {
 										setStart(true);
-										////console.log(index, index2);
-										
 									} else {
-										// if (secondaryIndex != -1)
-										// 	document.getElementById(
-										// 		"sub" +
-										// 			index +
-										// 			" " +
-										// 			secondaryIndex
-										// 	).style.backgroundColor = "";
-										// document.querySelector(
-										// 	".bgimg"
-										// ).style.opacity = 0.5;
-										// //console.log(x.bg);
-										// if (
-										// 	x.bg !=
-										// 	allFiles.levels[index][
-										// 		secondaryIndex
-										// 	].bg
-										// )
-										// 	help.setBackground(
-										// 		x.bg.split(","),
-										// 		fileFinder,
-										// 		height,
-										// 		width,
-										// 		parseInt(index)
-										// 	);
 										setSecondaryIndex(index2);
-										//document.getElementById("infobox").innerHTML=utf8.decode(x.source)
 										setPreviewImage(
 											metaData[index].setId,
-											x.backgroundImage
+											x.backgroundImage,
+											index2
 										);
 										previewCircleSize.style.width =
 											x.circleSize * 10 + "%";
@@ -503,262 +517,324 @@ function SongSelectionMenu() {
 	});
 	return (
 		<>
-			
-
-			<div
-				key={searchKey}
-				id="scrollMenu"
-				className=" duration-300 fixed overflow-y-scroll z-0  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]  gap-y-[8px]  "
-				onScroll={(e) => {
-					scrollMenu.style.scrollSnapType = "none";
-					let children = scrollMenu.children;
-					let rect = [];
-					let closest = 2;
-					let clost = 0;
-					for (let i = 0; i < children.length - 1; i++) {
-						rect = children[i].getBoundingClientRect();
-						let dist = rect.bottom / (window.innerHeight / 2);
-						if (Math.abs(dist - 1) < closest) {
-							closest = Math.abs(dist - 1);
-							clost = i;
-						}
-					}
-
-					if (
-						scrollMenu.scrollTop <
-						(children.length - 1) * 88 +
-							children[clost].getBoundingClientRect().height
-					) {
-						scrollMenu.style.top = 0;
-						for (let i = 0; i < children.length - 1; i++) {
-							children[i].className =
-								defaultElementClass + " bg-opacity-10";
-
-							children[i].style.marginRight =
-								-Math.abs(clost - i) * 10 + "px";
-							children[i].style.marginLeft =
-								Math.abs(clost - i) * 10 + "px";
-							children[i].style.height = 80 + "px";
-						}
-						scrollMenu.style.marginTop = 0 + "px";
-						children[clost].className =
-							defaultElementClass + " bg-opacity-20";
-
-						children[clost].style.marginRight = 10 + "px";
-						children[clost].style.marginLeft = -30 + "px";
-
-						if (sctimer !== null) {
-							clearTimeout(sctimer);
-						}
-						sctimer = setTimeout(async function () {
-							scrollMenu.style.scrollSnapType = "y mandatory";
-							await new Promise((r) => setTimeout(r, 10));
-							sctimer = null;
-							let children = scrollMenu.children;
-							let rect = [];
-							let closest = 2;
-							let clost = 0;
-							for (let i = 0; i < children.length - 1; i++) {
-								rect = children[i].getBoundingClientRect();
-								let dist =
-									rect.bottom / (window.innerHeight / 2);
-								if (Math.abs(dist - 1) < closest) {
-									closest = Math.abs(dist - 1);
-									clost = i;
-								}
-							}
-							for (let i = 0; i < children.length - 1; i++) {
-								if (i != clost) {
-									children[i].className =
-										defaultElementClass +
-										" nons bg-opacity-10";
-									children[i].style.marginRight =
-										-Math.abs(clost - i) * 10 + "px";
-									children[i].style.marginLeft =
-										Math.abs(clost - i) * 10 + "px";
-									children[i].style.height = 80 + "px";
-								} else {
-									children[clost].className =
-										defaultElementClass +
-										" sel bg-opacity-20";
-									children[clost].style.marginRight =
-										10 + "px";
-									children[clost].style.marginLeft =
-										-50 + "px";
-									children[i].style.height = 80 + "px";
-								}
-							}
-							children[clost].style.height =
-								96 + metaData[clost].levels.length * 68 + "px";
-							scrollMenu.style.marginTop =
-								-children[clost].getBoundingClientRect()
-									.height /
-									2 +
-								50 +
-								"px";
-
-							if (clost != globalIndex) {
-								setBackground(metaData[clost].backgroundImage);
-
-								let x = metaData[clost].levels[0];
-								////console.log(x.source);
-								setPreviewImage(
-									metaData[clost].setId,
-									x.backgroundImage
-								);
-								previewCircleSize.style.width =
-									x.circleSize * 10 + "%";
-								previewApproachRate.style.width =
-									x.approachRate * 10 + "%";
-								previewHPDrain.style.width =
-									x.hpDrainRate * 10 + "%";
-								previewAccuracy.style.width =
-									x.difficulty * 10 + "%";
-								previewMapper.innerHTML = x.mapper;
-								previewSource.innerHTML = utf8.decode(x.source);
-								previewVersion2.innerHTML = x.level;
-								previewTags.innerHTML = utf8.decode(x.tags);
-								previewSong.innerHTML = metaData[clost].title;
-								previewArtist.innerHTML =
-									metaData[clost].artist;
-								previewVersion.innerHTML = x.level;
-								setGlobalIndex(clost);
-								
-								setSecondaryIndex(0);
-								await new Promise((r) => setTimeout(r, 100));
-								//console.log(metaData[clost].setId, 0,x.previewTime);
-								playSong( metaData[clost].setId, 0,x.previewTime);
-								return
-								
-							}
-							
-						}, 1000);
-					} else {
-						scrollMenu.scrollTop = children.length * 88;
-					}
-				}}
-				style={{
-					scrollSnapType: "y mandatory",
-					opacity:start?0:1,
-					pointerEvents:start?"none":"auto",
-				}}>
-				{list}
-
+			{" "}
+			<div id="screen1">
 				<div
-					id="emptyy"
-					className="w-full h-[110vh]"
-					onDragCapture={(e) => {
-						e.preventDefault();
-					}}></div>
-			</div>
-			<div style={{opacity:start?0:1,
-					pointerEvents:start?"none":"auto",}} id="previewSearch" className="bg-post duration-300 bg-opacity-25  h-[60px] outline-bcol outline   backdrop-blur-md outline-1 w-full rounded-br-md top-0 left-0  fixed z-[12]">
-				<Preview />
-
-				<div className="bg-post p-1 pl-2 outline-bcol outline-1   outline bg-opacity-30 rounded-lg w-[20vw] h-[40px] absolute right-[10px] top-[10px]">
-					<div
-						id="searchBar"
-						className="pointer-events-none hidden  absolute flex items-center gap-1 justify-between w-[calc(20vw-20px)] h-[calc(38px-0.5rem)]  duration-200 text-slate-200 ">
-						Search
-					</div>
-					<input
-						placeholder="Search"
-						onChange={(e) => {
-							if (typetimer !== null) {
-								clearTimeout(typetimer);
+					key={searchKey}
+					id="scrollMenu"
+					className=" duration-300 fixed overflow-y-scroll z-0  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]  gap-y-[8px]  "
+					onScroll={(e) => {
+						scrollMenu.style.scrollSnapType = "none";
+						let children = scrollMenu.children;
+						let rect = [];
+						let closest = 2;
+						let clost = 0;
+						for (let i = 0; i < children.length - 1; i++) {
+							rect = children[i].getBoundingClientRect();
+							let dist = rect.bottom / (window.innerHeight / 2);
+							if (Math.abs(dist - 1) < closest) {
+								closest = Math.abs(dist - 1);
+								clost = i;
 							}
-							typetimer = setTimeout(() => {
-								if (minis == null) return;
-								if (e.target.value == "") {
-									setMetaData(metaFiles);
-									// try {
-									// 	document.getElementById(
-									// 		"sub" +
-									// 			globalIndex +
-									// 			" " +
-									// 			secondaryIndex
-									// 	).style.backgroundColor = "";
-									// 	document.getElementById(
-									// 		"sub" + globalIndex + " " + 0
-									// 	).style.backgroundColor =
-									// 		"rgb(148 163 184 / var(--tw-bg-opacity))";
-									// 	document.getElementById(
-									// 		"sub" + globalIndex + " " + 0
-									// 	).style.backgroundColor =
-									// 		"rgb(148 163 184 / var(--tw-bg-opacity))";
-									// } catch (e) {}
-									setGlobalIndex(-1);
+						}
+
+						if (
+							scrollMenu.scrollTop <
+							(children.length - 1) * 88 +
+								children[clost].getBoundingClientRect().height
+						) {
+							scrollMenu.style.top = 0;
+							for (let i = 0; i < children.length - 1; i++) {
+								children[i].className =
+									defaultElementClass + " bg-opacity-10";
+
+								children[i].style.marginRight =
+									-Math.abs(clost - i) * 10 + "px";
+								children[i].style.marginLeft =
+									Math.abs(clost - i) * 10 + "px";
+								children[i].style.height = 80 + "px";
+							}
+							scrollMenu.style.marginTop = 0 + "px";
+							children[clost].className =
+								defaultElementClass + " bg-opacity-20";
+
+							children[clost].style.marginRight = 10 + "px";
+							children[clost].style.marginLeft = -30 + "px";
+
+							if (sctimer !== null) {
+								clearTimeout(sctimer);
+							}
+							sctimer = setTimeout(async function () {
+								scrollMenu.style.scrollSnapType = "y mandatory";
+								await new Promise((r) => setTimeout(r, 10));
+								sctimer = null;
+								let children = scrollMenu.children;
+								let rect = [];
+								let closest = 2;
+								let clost = 0;
+								for (let i = 0; i < children.length - 1; i++) {
+									rect = children[i].getBoundingClientRect();
+									let dist =
+										rect.bottom / (window.innerHeight / 2);
+									if (Math.abs(dist - 1) < closest) {
+										closest = Math.abs(dist - 1);
+										clost = i;
+									}
+								}
+								for (let i = 0; i < children.length - 1; i++) {
+									if (i != clost) {
+										children[i].className =
+											defaultElementClass +
+											" nons bg-opacity-10";
+										children[i].style.marginRight =
+											-Math.abs(clost - i) * 10 + "px";
+										children[i].style.marginLeft =
+											Math.abs(clost - i) * 10 + "px";
+										children[i].style.height = 80 + "px";
+									} else {
+										children[clost].className =
+											defaultElementClass +
+											" sel bg-opacity-20";
+										children[clost].style.marginRight =
+											10 + "px";
+										children[clost].style.marginLeft =
+											-50 + "px";
+										children[i].style.height = 80 + "px";
+									}
+								}
+								children[clost].style.height =
+									96 +
+									metaData[clost].levels.length * 68 +
+									"px";
+								scrollMenu.style.marginTop =
+									-children[clost].getBoundingClientRect()
+										.height /
+										2 +
+									50 +
+									"px";
+
+								if (clost != globalIndex) {
+									setBackground(
+										metaData[clost].backgroundImage
+									);
+
+									let x = metaData[clost].levels[0];
+									////console.log(x.source);
+									setPreviewImage(
+										metaData[clost].setId,
+										x.backgroundImage,
+										0
+									);
+									previewCircleSize.style.width =
+										x.circleSize * 10 + "%";
+									previewApproachRate.style.width =
+										x.approachRate * 10 + "%";
+									previewHPDrain.style.width =
+										x.hpDrainRate * 10 + "%";
+									previewAccuracy.style.width =
+										x.difficulty * 10 + "%";
+									previewMapper.innerHTML = x.mapper;
+									previewSource.innerHTML = utf8.decode(
+										x.source
+									);
+									previewVersion2.innerHTML = x.level;
+									previewTags.innerHTML = utf8.decode(x.tags);
+									previewSong.innerHTML =
+										metaData[clost].title;
+									previewArtist.innerHTML =
+										metaData[clost].artist;
+									previewVersion.innerHTML = x.level;
+									setGlobalIndex(clost);
+
 									setSecondaryIndex(0);
-									setSearchKey(0);
-									fakeClick(0, true);
+									await new Promise((r) =>
+										setTimeout(r, 100)
+									);
+									//console.log(metaData[clost].setId, 0,x.previewTime);
+									playSong(
+										metaData[clost].setId,
+										0,
+										x.previewTime
+									);
+									setPrevMusic([
+										metaData[clost].setId,
+										0,
+										x.previewTime,
+									]);
 									return;
 								}
-								let res = minis.search(e.target.value);
-								let temp = [];
-								//console.log("test", res);
-								for (let i in res) {
-									temp.push(
-										metaFiles.find(
-											(x) => x.setId == res[i].setId
-										)
-									);
-								}
-								setMetaData(temp);
-								setSearchKey(searchKey + 1);
-								setGlobalIndex(-1);
-								setSecondaryIndex(0);
-								fakeClick(0,true);
 							}, 1000);
-						}}
-						type="text"
-						id={"searchbox"}
-						className=" h-full leading-[38px] -mt-[1Px] w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none rounded-md"
-					/>
-				</div>
-			</div>
-			<div style={{opacity:start?0:1,
-					}} id="addOSZButton" className="w-full duration-300 h-full fixed z-20 pointer-events-none">
-				<label
-					//style={{ display: !props.playing ? "" : "none" }}
-					htmlFor="inpp"
-					className="fixed pointer-events-auto  bg-opacity-75  bg-post border text-bact border-bcol h-fit  z-[11]  rounded-md shadow-lg bottom-2 left-2  cursor-pointer  px-6 py-4">
-					<input
-						multiple
-						type="file"
-						className="hidden"
-						id="inpp"
-						accept=".osz"
-						onChange={(e) => {
-							getFiles(e.target.files);
-						}}
-					/>
-					Upload .osz
-				</label>
-				<div className="absolute hidden w-16 aspect-square bg-black"
-				style={{
-					top:0,
-					left:0,
-					animation:"move 10s linear infinite alternate",
-					offsetPath:"path(' M 466 283 L 493 249 M 493 249 L 482 196')"
-				}}
-				></div>
-			</div>
-			<div style={{opacity:start?1:0}} id="load" className="w-full opacity-0 duration-300 flex items-center justify-center z-30 pointer-events-none h-full fixed bg-black bg-opacity-25 ">
-				<div
-				className=" text-bact text-[30px] font-bold bg-bcol  shadow-md border border-[#777] bg-opacity-25 rounded-lg p-3"
-				>{loader}</div>
-			</div>
-			<div onClick={()=>{
-				setFocus(!focus);
-			}}
-			style={{opacity:focus?0:1,pointerEvents:focus?"none":"auto",filter:focus?"blur(0px)":""}}
-			id="load2" className="w-full  duration-300 text-bcol flex items-center justify-center z-40 h-full fixed bg-black bg-opacity-50  backdrop-blur-md ">
-				<div className="text-xl font-bold">Click to Start</div>
-				</div>
+						} else {
+							scrollMenu.scrollTop = children.length * 88;
+						}
+					}}
+					style={{
+						scrollSnapType: "y mandatory",
+						opacity: start ? 0 : 1,
+						pointerEvents: start ? "none" : "auto",
+					}}>
+					{list}
 
-			
-			{start?<PlayArea setId={metaData[globalIndex].setId} id={metaData[globalIndex].levels[secondaryIndex].id} setStart={setStart} />:<></>}
-			
+					<div
+						id="emptyy"
+						className="w-full h-[110vh]"
+						onDragCapture={(e) => {
+							e.preventDefault();
+						}}></div>
+				</div>
+				<div
+					style={{
+						opacity: start ? 0 : 1,
+						pointerEvents: start ? "none" : "auto",
+					}}
+					id="previewSearch"
+					className="bg-post duration-300 bg-opacity-25  h-[60px] outline-bcol outline   backdrop-blur-md outline-1 w-full rounded-br-md top-0 left-0  fixed z-[12]">
+					{focus && metaFiles.length > 0 ? <Preview /> : <></>}
+
+					<div className="bg-post p-1 pl-2 outline-bcol outline-1   outline bg-opacity-30 rounded-lg w-[20vw] h-[40px] absolute right-[10px] top-[10px]">
+						<div
+							id="searchBar"
+							className="pointer-events-none hidden  absolute flex items-center gap-1 justify-between w-[calc(20vw-20px)] h-[calc(38px-0.5rem)]  duration-200 text-slate-200 ">
+							Search
+						</div>
+						<input
+							id="searchbox"
+							placeholder="Search"
+							onChange={(e) => {
+								console.log("change");
+								if (typetimer !== null) {
+									clearTimeout(typetimer);
+								}
+								typetimer = setTimeout(() => {
+									if (minis == null) return;
+									if (e.target.value == "") {
+										setMetaData(metaFiles);
+										let ind = -1;
+										if (
+											metaData[0].setId ==
+											metaFiles[0].setId
+										)
+											ind = 0;
+										setGlobalIndex(ind);
+										setSecondaryIndex(0);
+										setSearchKey(0);
+										fakeClick(0, true);
+										return;
+									}
+									let res = minis.search(e.target.value);
+									let temp = [];
+									//console.log("test", res);
+									for (let i in res) {
+										temp.push(
+											metaFiles.find(
+												(x) => x.setId == res[i].setId
+											)
+										);
+									}
+									setMetaData(temp);
+									setSearchKey(searchKey + 1);
+									let ind = -1;
+									if (metaData[0].setId == temp[0].setId)
+										ind = 0;
+									setGlobalIndex(ind);
+									setSecondaryIndex(0);
+									fakeClick(0, true);
+								}, 1000);
+							}}
+							type="text"
+							className=" h-full leading-[38px] -mt-[1Px] w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none rounded-md"
+						/>
+					</div>
+					<div
+						id="resetButton"
+						className="w-16 h-16 bg-black hidden"
+						onClick={() => {
+							setMetaData(metaFiles);
+							let ind = -1;
+							if (metaData[0].setId == metaFiles[0].setId)
+								ind = 0;
+							setGlobalIndex(ind);
+							setSecondaryIndex(0);
+							setSearchKey(0);
+							fakeClick(0, true);
+						}}></div>
+				</div>
+				<div
+					style={{ opacity: start ? 0 : 1 }}
+					id="addOSZButton"
+					className="w-full duration-300 h-full fixed z-20 pointer-events-none">
+					<label
+						//style={{ display: !props.playing ? "" : "none" }}
+						htmlFor="inpp"
+						className="fixed pointer-events-auto  bg-opacity-75  bg-post border text-bact border-bcol h-fit  z-[11]  rounded-md shadow-lg bottom-2 left-2  cursor-pointer  px-6 py-4">
+						<input
+							multiple
+							type="file"
+							className="hidden"
+							id="inpp"
+							accept=".osz"
+							onChange={(e) => {
+								getFiles(e.target.files);
+							}}
+						/>
+						Upload .osz
+					</label>
+					<div
+						className="absolute hidden w-16 aspect-square bg-black"
+						style={{
+							top: 0,
+							left: 0,
+							animation: "move 10s linear infinite alternate",
+							offsetPath:
+								"path(' M 466 283 L 493 249 M 493 249 L 482 196')",
+						}}></div>
+				</div>
+				<div
+					style={{ opacity: start ? 1 : 0 }}
+					id="load"
+					className="w-full opacity-0 duration-300 flex items-center justify-center z-30 pointer-events-none h-full fixed bg-black bg-opacity-25 ">
+					<div className=" text-bact text-[30px] font-bold bg-bcol  shadow-md border border-[#777] bg-opacity-25 rounded-lg p-3">
+						{loader}
+					</div>
+				</div>
+				<div
+					id="pauseMenu"
+					className="w-full h-full z-[9999] flex flex-row-reverse justify-center gap-5 text-xl font-bold items-center text-[#b3b3b3]  fixed bg-black bg-opacity-50 opacit y-0 duration-300 backdrop-blur-md pointer-events-none opacity-0">
+					<div className="w-16 h-16 bg-post flex  items-center justify-center outline outline-1 bg-opacity-50 outline-colors-red rounded-md text-center leading-[3.6rem]">
+						{exit}
+					</div>
+					<div className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-yellow rounded-md text-center leading-[3.6rem]">
+						{replay}
+					</div>
+					<div className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-green rounded-md text-center leading-[3.6rem]">
+						{playButton2}
+					</div>
+				</div>
+				<div
+					onClick={() => {
+						setFocus(!focus);
+					}}
+					style={{
+						opacity: focus ? 0 : 1,
+						pointerEvents: focus ? "none" : "auto",
+						filter: focus ? "blur(0px)" : "",
+					}}
+					id="load2"
+					className="w-full  duration-300 text-bcol flex items-center justify-center z-40 h-full fixed bg-black bg-opacity-50  backdrop-blur-md ">
+					<div className="text-xl font-bold bg-black ">
+						Click to Start
+					</div>
+				</div>
+			</div>
+			{start ? (
+				<PlayArea
+					setId={metaData[globalIndex].setId}
+					id={metaData[globalIndex].levels[secondaryIndex].id}
+					setStart={setStart}
+				/>
+			) : (
+				<></>
+			)}
 		</>
 	);
 }
