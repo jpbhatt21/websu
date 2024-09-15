@@ -241,7 +241,8 @@ function SongSelectionMenu() {
 			setMetaData((prev) => [...prev, setMeta]);
 			setMetaFiles((prev) => [...prev, setMeta]);
 			minis.add(setMeta);
-			fakeClick(metaData.length, false);
+			fakeClick(metaData.length+1, false);
+			setSearchKey(searchKey + 1);
 			objectStore = transaction.objectStore("Preview");
 			try {
 				const request = objectStore.put(preview);
