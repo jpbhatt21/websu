@@ -22,7 +22,10 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 					const file = event.target.result.files.find(
 						(x) => x.id == id
 					);
+					console.log("bef");
 					let x = await decodeBeatMap(file.file, setId);
+					console.log("bef3");
+
 					await new Promise((resolve) => {
 						setTimeout(() => {
 							resolve();
