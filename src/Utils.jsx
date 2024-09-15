@@ -157,7 +157,6 @@ export async function setPreviewImage(setID, index, secondaryIndex) {
 	let result = null;
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = function (event) {
-		//console.log("Success: " + event.type);
 		const db = event.target.result;
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
 			function (event) {
@@ -190,8 +189,6 @@ export function playSong(setID, index, previewTime) {
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
 			async function (event) {
 				let song = event.target.result.files[index];
-
-				//console.log(metaFiles[clost].audio);
 				music.setAttribute("src", "data:audio/ogg;base64," + song);
 				music.load();
 				music.currentTime = previewTime / 1000;
@@ -207,7 +204,6 @@ export function playSong(setID, index, previewTime) {
 let musicLoaded = false;
 let videoLoaded = false;
 export function setMusic(file, setId) {
-	console.log(file, setId);
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = function (event) {
 		const db = event.target.result;
@@ -233,7 +229,6 @@ export function setBackgroundVideo(file, setId) {
 				let video = event.target.result.files.find(
 					(x) => x.name == file
 				);
-				console.log(video);
 				backgroundVideoSource1.src =
 					"data:video/mp4;base64," + video.file;
 				backgroundVideo.load();
@@ -258,25 +253,22 @@ export function fakeClick(index, index2) {
 }
 
 export let loader = (
-	<svg
-		width="40px"
-		height="40px"
-		viewBox="0 0 1024 1024"
-		xmlns="http://www.w3.org/2000/svg"
-		className=" animate-spin"
-		style={{ animationDuration: "2s" }}
-		fill="currentColor">
-		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-		<g
-			id="SVGRepo_tracerCarrier"
-			strokeLinecap="round"
-			strokeLinejoin="round"></g>
-		<g id="SVGRepo_iconCarrier">
-			<path
-				fill="currentColor"
-				d="M512 64a32 32 0 0 1 32 32v192a32 32 0 0 1-64 0V96a32 32 0 0 1 32-32zm0 640a32 32 0 0 1 32 32v192a32 32 0 1 1-64 0V736a32 32 0 0 1 32-32zm448-192a32 32 0 0 1-32 32H736a32 32 0 1 1 0-64h192a32 32 0 0 1 32 32zm-640 0a32 32 0 0 1-32 32H96a32 32 0 0 1 0-64h192a32 32 0 0 1 32 32zM195.2 195.2a32 32 0 0 1 45.248 0L376.32 331.008a32 32 0 0 1-45.248 45.248L195.2 240.448a32 32 0 0 1 0-45.248zm452.544 452.544a32 32 0 0 1 45.248 0L828.8 783.552a32 32 0 0 1-45.248 45.248L647.744 692.992a32 32 0 0 1 0-45.248zM828.8 195.264a32 32 0 0 1 0 45.184L692.992 376.32a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0zm-452.544 452.48a32 32 0 0 1 0 45.248L240.448 828.8a32 32 0 0 1-45.248-45.248l135.808-135.808a32 32 0 0 1 45.248 0z"></path>
-		</g>
-	</svg>
+	<svg 
+	width="40"
+	className="spin"
+  viewBox="0 0 24 24" 
+  fill="none" 
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+  <g id="SVGRepo_iconCarrier">
+    <path 
+      d="M12 21C10.5316 20.9987 9.08574 20.6382 7.78865 19.9498C6.49156 19.2614 5.38261 18.2661 4.55853 17.0507C3.73446 15.8353 3.22029 14.4368 3.06088 12.977C2.90147 11.5172 3.10167 10.0407 3.644 8.67604C4.18634 7.31142 5.05434 6.10024 6.17229 5.14813C7.29024 4.19603 8.62417 3.53194 10.0577 3.21378C11.4913 2.89563 12.9809 2.93307 14.3967 3.32286C15.8124 3.71264 17.1113 4.44292 18.18 5.45C18.3205 5.59062 18.3993 5.78125 18.3993 5.98C18.3993 6.17875 18.3205 6.36937 18.18 6.51C18.1111 6.58075 18.0286 6.63699 17.9376 6.67539C17.8466 6.71378 17.7488 6.73357 17.65 6.73357C17.5512 6.73357 17.4534 6.71378 17.3624 6.67539C17.2714 6.63699 17.189 6.58075 17.12 6.51C15.8591 5.33065 14.2303 4.62177 12.508 4.5027C10.7856 4.38362 9.07478 4.86163 7.66357 5.85624C6.25237 6.85085 5.22695 8.30132 4.75995 9.96345C4.29296 11.6256 4.41292 13.3979 5.09962 14.9819C5.78633 16.5659 6.99785 17.865 8.53021 18.6604C10.0626 19.4558 11.8222 19.6989 13.5128 19.3488C15.2034 18.9987 16.7218 18.0768 17.8123 16.7383C18.9028 15.3998 19.4988 13.7265 19.5 12C19.5 11.8011 19.579 11.6103 19.7197 11.4697C19.8603 11.329 20.0511 11.25 20.25 11.25C20.4489 11.25 20.6397 11.329 20.7803 11.4697C20.921 11.6103 21 11.8011 21 12C21 14.3869 20.0518 16.6761 18.364 18.364C16.6761 20.0518 14.387 21 12 21Z" 
+      fill="currentColor"
+    ></path>
+  </g>
+</svg>
 );
 export let exit = (
 	<svg
@@ -428,7 +420,9 @@ export async function decodeBeatMap(base64, setId) {
 		aprate -= 150 * (aprd - 5);
 	}
 	let cs = 54.4 - 4.48 * parseInt(difficulty["CircleSize"]);
-	cs *= 1.2;
+	let oldcs = JSON.parse(JSON.stringify(cs));
+	cs = (cs * 384) / (384 - cs * 3);
+	console.log(cs / oldcs, (384 + cs * 3) / 384);
 	css = cs;
 	let hitObjects = osuFile.slice(
 		osuFile.findIndex((line) => line.includes("[HitObjects]")) + 1
@@ -551,7 +545,6 @@ export async function decodeBeatMap(base64, setId) {
 			else if (typ == "B") obx[3] = bSliderPath(obx[3]);
 			else obx[3] = lSliderPath(obx[3]);
 		} else obx.push([j[0], j[1]]);
-		console.log(obx[3]);
 
 		hit2.push(obx);
 	}
@@ -778,16 +771,13 @@ export function pause(ele) {
 		pause(children[i]);
 	}
 }
-export  function play(ele) {
-	
+export function play(ele) {
+	let children = ele.children;
 
-		let children = ele.children;
-		
-		ele.style.animationPlayState = "running";
-		for (let i = 0; i < children.length; i++) {
-			play(children[i]);
-		}
-		music.play();
-		backgroundVideo.play();
-	
+	ele.style.animationPlayState = "running";
+	for (let i = 0; i < children.length; i++) {
+		play(children[i]);
+	}
+	music.play();
+	backgroundVideo.play();
 }

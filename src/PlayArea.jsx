@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { backgroundImage, decodeBeatMap, music } from "./Utils";
-function PlayArea({ setId = 0, id = 0, setStart }) {
+function PlayArea({ setId = 0, id = 0, setStart}) {
 	const [approachRate, setApproachRate] = useState(0);
 	const [hpDrain, setHpDrain] = useState(0);
 	const [circleSize, setCircleSize] = useState(0);
@@ -12,21 +12,17 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 	const [time, setTime] = useState(0.01);
 	let delay = 0;
 	useEffect(() => {
-		searchbox.style.display="none";
-		console.log(setId, id);
+		music.pause()
 		music.currentTime = 0;
 		const request = indexedDB.open("osuStorage", 2);
 		request.onsuccess = function (event) {
-			//console.log("Success: " + event.type);
 			const db = event.target.result;
 			db.transaction("Files").objectStore("Files").get(setId).onsuccess =
 				async function (event) {
 					const file = event.target.result.files.find(
 						(x) => x.id == id
 					);
-					console.log("bef");
 					let x = await decodeBeatMap(file.file, setId);
-					console.log("bef3");
 
 					await new Promise((resolve) => {
 						setTimeout(() => {
@@ -90,17 +86,22 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 							resolve();
 						}, 1000);
 					});
-					if (x[5]) {
-						backgroundVideo.pause();
-						backgroundImage.style.display = "";
-						await new Promise((resolve) => {
-							setTimeout(() => {
-								resolve();
-							}, 10);
-						});
-						backgroundImage.style.opacity = 1;
+					
+					if(music.currentTime>=music.duration){
+						if (x[5]) {
+							backgroundVideo.pause();
+							backgroundVideoSource1.src =""
+							backgroundImage.style.display = "";
+							await new Promise((resolve) => {
+								setTimeout(() => {
+									resolve();
+								}, 10);
+							});
+							backgroundImage.style.opacity = 1;
+						}
+						setStart(false)
 					}
-					setStart(false);
+					
 				};
 		};
 		setTimeout(() => {
@@ -108,7 +109,6 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 		}, 1000);
 	}, []);
 	let getPoints = (x) => {
-		//console.log(x)
 		return x[3][0];
 	};
 	let sliders=timedSliders.map((x, i) =>
@@ -116,7 +116,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 	key={"slider" + x[2]}
 	  className=" fixed"
 	  style={{
-		zIndex:len-x[2]+50,
+		zIndex:len-x[2]+30,
 		display: time - x[1] > 0 ? "" : "none",
 		animation:
 		  "sliderFadeIn " +
@@ -130,7 +130,6 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 	>
 	  <path
 		onClick={(e) => {
-		  //console.log("clicked");
 		}}
 		strokeLinecap="round"
 		className="  pointer-events-auto"
@@ -142,7 +141,6 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 	  />
 	  <path
 		onClick={(e) => {
-		  //console.log("clicked");
 		}}
 		strokeLinecap="round"
 		className="brightness-75 dura pointer-events-auto"
@@ -185,7 +183,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 		) : x[0] < 4 ? (
 			<div
 				key={"hit" + x[2]}
-				className=" absolute fadex duration-150 opacity-0  aspect-square flex items-center justify-center text-bact  rounded-full outline outline-4 bg-post bg-opacity-50 pointer-events-none"
+				className=" absolute fadex duration-150 opacity-0 top-0 left-0  aspect-square flex items-center justify-center text-bact  rounded-full outline outline-4 bg-post bg-opacity-50 pointer-events-none"
 				style={{
 					zIndex:len-x[2]+50,
 					
@@ -231,6 +229,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 			<></>
 		)
 	);
+	let md4=music.duration/4
 	return (
 		<>
 			
@@ -239,31 +238,11 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 				
 				
 			}}
+			id="playArea"
 			>
-			<svg
-						key={"scresen"}
-						className="fixed     pointer-events-none"
-						style={{
-							
-							
-						
-							transform:
-							"scale(" +
-							window.innerHeight / (384 +circleSize*3) +
-							")",
-						
-						height: 384 + circleSize*3 + "px",
-						width: 512 + circleSize*3 + "px"
-						
-											}}
-						fill="black"
-						xmlns="http://www.w3.org/2000/svg"
-						id="svghold">
-							{sliders}
-						
-					</svg>
+			
 				<div 
-					className="fixed   "
+					className="fixed flex flex-col justify-center items-center  "
 					style={{
 						transform:
 							"scale(" +
@@ -274,34 +253,51 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 						width: 512 + circleSize*3 + "px"
 					}}>
 					
-					<div className=" aspect-square bg-bl ack top-0 absolute left-0"
-					style={
-						{	
-							width: circleSize + "px",
-							
-						}
 					
-					}
-					></div>
-					<div className=" aspect-square top-96 bg-bl ack  absolute left-0"
-					style={
-						{	
-							width: circleSize + "px",
+					<svg
+						key={"scresen"}
+						className="absolute w-full h-full    pointer-events-none"
+						style={{
 							
-						}
-					
-					}
-					></div>
+							
+						
+							
+						
+						
+						
+											}}
+						fill="black"
+						xmlns="http://www.w3.org/2000/svg"
+						id="svghold">
+							{sliders}
+						
+					</svg>
 					{points}
 				</div>
 				<div
-					className="fixed z-40 top-0 left-0 h-2 bg-colors-green"
+					className="fixed z-40 rounded-full top-0 left-0 h-2 bg-colors-green"
 					style={{
-						width: (parseFloat(time) / music.duration) * 100 + "%",
+						width:(parseFloat(time-md4*3) / (md4)) * 100 + "%",
+					}}></div>
+					<div
+					className="fixed z-40 rounded-full top-0 right-0 w-2 bg-colors-green"
+					style={{
+						height:(parseFloat(time) / (md4)) * 100 + "%",
+					}}></div>
+					<div
+					className="fixed z-40 rounded-full bottom-0 right-0 h-2 bg-colors-green"
+					style={{
+						width:(parseFloat(time-md4) / (md4)) * 100 + "%",
+					}}></div>
+					<div
+					className="fixed z-40 rounded-full  bottom-0 left-0 w-2 bg-colors-green"
+					style={{
+						height:(parseFloat(time -2*md4) / (md4)) * 100 + "%",
 					}}></div>
 			</div>
 			
 		</>
+		
 	);
 }
 

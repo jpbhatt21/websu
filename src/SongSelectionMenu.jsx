@@ -23,12 +23,12 @@ import {
 import PlayArea from "./PlayArea";
 let typetimer = null;
 let sctimer = null;
+let musicTimer = null;
 let minis = null;
 let defaultElementClass =
 	"bg-blank outline fade-in outline-1 outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50vh] shadow-lg nons snap-cetner overflow-hidden ";
 function SongSelectionMenu() {
 	function getFiles(files) {
-		//console.log(files);
 		for (let i = 0; i < files.length; i++) {
 			try {
 				if (files[i].name.includes(".osz")) {
@@ -65,94 +65,8 @@ function SongSelectionMenu() {
 		let osuFiles = [];
 		let assets = [];
 		let unzipOsz = zip.loadAsync(file).then(async function (zip) {
-			//console.log("hola");
 
-			let lz = Object.keys(zip.files);
-			let len = lz.length;
-			let counter = 0;
-			for (let i in zip.files) {
-				break;
-				zip.file(i)
-					.async("base64")
-					.then(function (blob) {
-						counter++;
-						if (i.includes(".osu") && init++ == 0) {
-							test.meta.push(
-								getBeatMapCollectionInfo({ file: blob })
-							);
-						}
-						filz = { name: i, file: blob };
-						if (!i.includes(".osu")) {
-							test.files[l - 1].push(filz);
-						} else {
-							osus.push(filz);
-						}
-						if (counter == len) {
-							test.meta[l - 1].parent = test.name[l - 1];
-							test.name[l - 1] = test.meta[l - 1].name;
-							test.meta[l - 1].id = l - 1;
-							let cur = [];
-							for (let i in osus) {
-								cur.push(
-									getIndividualBeatMapInfo(
-										osus[i].file,
-										l - 1
-									)
-								);
-							}
-							let ordered = [];
-							for (let i in cur) {
-								ordered.push(cur[i].difficulty);
-							}
-							ordered.sort();
-
-							for (let i in ordered) {
-								for (let j in cur) {
-									if (cur[j].difficulty == ordered[i]) {
-										if (i == 0) {
-											test.meta[l - 1].bg = cur[j].bg;
-										}
-										test.levels[l - 1].push(cur[j]);
-									}
-								}
-							}
-							const request = indexedDB.open(
-								"WebsuFileStorage",
-								2
-							);
-							request.onsuccess = function (event) {
-								////console.log("Success: " + event.type);
-								const db = event.target.result;
-								const transaction = db.transaction(
-									["osuFiles"],
-									"readwrite"
-								);
-								const objectStore =
-									transaction.objectStore("osuFiles");
-								try {
-									const request = objectStore.put({
-										name: test.name[l - 1],
-										files: test.files[l - 1],
-										meta: test.meta[l - 1],
-										levels: test.levels[l - 1],
-									});
-								} catch (e) {
-									const request = objectStore.add({
-										name: test.name[l - 1],
-										files: test.files[l - 1],
-										meta: test.meta[l - 1],
-										levels: test.levels[l - 1],
-									});
-								}
-								request.onsuccess = function (event) {
-									////console.log("Data has been written successfully");
-								};
-							};
-							addOsuFilesToSelectionList();
-						}
-					});
-			}
-
+			
 			for (let i in zip.files) {
 				let loadIndividualFiles = zip
 					.file(i)
@@ -192,7 +106,6 @@ function SongSelectionMenu() {
 			}
 
 			if (beatmapInfo[0].setId != beatmapInfo[i].setId) {
-				//console.log("Error: Different BeatmapSetID");
 				return;
 			}
 		}
@@ -209,17 +122,11 @@ function SongSelectionMenu() {
 		};
 		setMeta.levels = beatmapInfo;
 		setMeta.backgroundImage = preview[beatmapInfo[0].backgroundImage];
-		//console.log(setMeta);
 
 		preview = { setId: setMeta.setId, files: preview };
 		assets = { setId: setMeta.setId, files: assets };
-		//console.log(setMeta);
-		//console.log(osuFiles);
-		//console.log(preview);
-		//console.log(assets);
 		const request = indexedDB.open("osuStorage", 2);
 		request.onsuccess = function (event) {
-			////console.log("Success: " + event.type);
 			const db = event.target.result;
 			const transaction = db.transaction(
 				["Assets", "Files", "Meta", "Preview"],
@@ -261,7 +168,6 @@ function SongSelectionMenu() {
 		let result = null;
 		const request = indexedDB.open("osuStorage", 2);
 		request.onsuccess = function (event) {
-			////console.log("Success: " + event.type);
 			const db = event.target.result;
 			db
 				.transaction(collectionName)
@@ -273,7 +179,6 @@ function SongSelectionMenu() {
 		while (result == null) {
 			await new Promise((r) => setTimeout(r, 10));
 		}
-		//console.log(result);
 		return "ok";
 	}
 	const [metaData, setMetaData] = useState([]);
@@ -284,7 +189,7 @@ function SongSelectionMenu() {
 	const [start, setStart] = useState(false);
 	const [focus, setFocus] = useState(false);
 	const [prevMusic, setPrevMusic] = useState([]);
-	//console.log(globalIndex);
+	const [attempts, setAttempts] = useState(0);
 	function getMetaFiles() {
 		return metaFiles;
 	}
@@ -293,10 +198,8 @@ function SongSelectionMenu() {
 	} else {
 		backgroundImage.style.filter = "blur(12px) brightness(0.5)";
 	}
-	console.log(metaFiles);
 	function keyaction(e) {
 		if (previewSearch.style.opacity == 1) {
-			console.log(start);
 			if (!start && e.key == "Escape") {
 				searchbox.value = "";
 				searchbox.blur();
@@ -312,7 +215,7 @@ function SongSelectionMenu() {
 			if (e.repeat) return;
 
 			if (e.key == "Escape") {
-				let root = document.querySelector("#root");
+				let root = document.querySelector("#playArea");
 				if (root.style.animationPlayState != "paused") {
 					pause(root);
 				} else {
@@ -405,8 +308,14 @@ function SongSelectionMenu() {
 		};
 	}, [focus]);
 	useEffect(() => {
+		
 		if (!start && prevMusic.length > 0) {
-			playSong(prevMusic[0], prevMusic[1], prevMusic[2]);
+			musicTimer = setTimeout(() => {
+				playSong(prevMusic[0], prevMusic[1], prevMusic[2]);
+			}, 100);
+		}
+		else if(musicTimer!=null){
+			clearTimeout(musicTimer);
 		}
 	}, [start]);
 	let list = metaData.map((element, index) => {
@@ -619,7 +528,6 @@ function SongSelectionMenu() {
 									);
 
 									let x = metaData[clost].levels[0];
-									////console.log(x.source);
 									setPreviewImage(
 										metaData[clost].setId,
 										x.backgroundImage,
@@ -650,7 +558,7 @@ function SongSelectionMenu() {
 									await new Promise((r) =>
 										setTimeout(r, 100)
 									);
-									//console.log(metaData[clost].setId, 0,x.previewTime);
+									
 									playSong(
 										metaData[clost].setId,
 										0,
@@ -701,7 +609,6 @@ function SongSelectionMenu() {
 							id="searchbox"
 							placeholder="Search"
 							onChange={(e) => {
-								console.log("change");
 								if (typetimer !== null) {
 									clearTimeout(typetimer);
 								}
@@ -723,7 +630,6 @@ function SongSelectionMenu() {
 									}
 									let res = minis.search(e.target.value);
 									let temp = [];
-									//console.log("test", res);
 									for (let i in res) {
 										temp.push(
 											metaFiles.find(
@@ -800,13 +706,27 @@ function SongSelectionMenu() {
 				<div
 					id="pauseMenu"
 					className="w-full h-full z-[9999] flex flex-row-reverse justify-center gap-5 text-xl font-bold items-center text-[#b3b3b3]  fixed bg-black bg-opacity-50 opacit y-0 duration-300 backdrop-blur-md pointer-events-none opacity-0">
-					<div className="w-16 h-16 bg-post flex  items-center justify-center outline outline-1 bg-opacity-50 outline-colors-red rounded-md text-center leading-[3.6rem]">
+					<div onClick={()=>{
+						pauseMenu.style.opacity = "0";
+						pauseMenu.style.pointerEvents = "none";
+						setStart(false);}} className="w-16 h-16 bg-post flex  items-center justify-center outline outline-1 bg-opacity-50 outline-colors-red rounded-md text-center leading-[3.6rem]">
 						{exit}
 					</div>
-					<div className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-yellow rounded-md text-center leading-[3.6rem]">
+					<div onClick={()=>{
+						pauseMenu.style.opacity = "0";
+						pauseMenu.style.pointerEvents = "none";
+						setStart(false);
+						setAttempts(attempts+1);
+						setTimeout(()=>{setStart(true);},10)
+					}} className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-yellow rounded-md text-center leading-[3.6rem]">
 						{replay}
 					</div>
-					<div className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-green rounded-md text-center leading-[3.6rem]">
+					<div onClick={()=>{
+						pauseMenu.style.opacity = "0";
+
+						pauseMenu.style.pointerEvents = "none";
+						setTimeout(()=>{play(playArea);},1000)
+					}} className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-green rounded-md text-center leading-[3.6rem]">
 						{playButton2}
 					</div>
 				</div>
@@ -831,6 +751,7 @@ function SongSelectionMenu() {
 					setId={metaData[globalIndex].setId}
 					id={metaData[globalIndex].levels[secondaryIndex].id}
 					setStart={setStart}
+					attempts={attempts}
 				/>
 			) : (
 				<></>
