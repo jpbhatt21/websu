@@ -286,9 +286,9 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 					{points}
 				</div>
 				<div
-					className="absolute top-0 left-0 h-2 bg-colors-green"
+					className="fixed z-40 top-0 left-0 h-2 bg-colors-green"
 					style={{
-						width: (time / music.duration) * 100 + "%",
+						width: (parseFloat(time) / music.duration) * 100 + "%",
 					}}></div>
 			</div>
 		</>
