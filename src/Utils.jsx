@@ -566,7 +566,21 @@ export async function decodeBeatMap(base64, setId) {
 	}
 	pSliderPathCache = { points: [], path: [] };
 	bSliderPathCache = { points: [], path: [] };
-	return [aprate / 1000, cs, hit2, temp, col, isVideo];
+	
+	if(colors.length==0)
+		colors="163, 190, 140|".repeat(4).split("|").slice(0,4)
+	else if(colors.length==1)
+		colors=(colors[0]+"|").repeat(4).split("|").slice(0,4)
+	else if(colors.length==2)
+	{
+		let avg = colors.map(x=>x.split(",").map(x=>parseInt(x))).reduce((a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]]).map(x=>x/2).map(x=>Math.round(x))
+		colors=[colors[0],avg.join(","),colors[1],avg.join(",")]
+	}
+	else if(colors.length==3)
+		colors=[colors[0],colors[1],colors[0],colors[2]]
+	else 
+	colors=colors.slice(0,4)
+	return [aprate / 1000, cs, hit2, temp, col, isVideo,colors];
 }
 
 function pSliderPath(start, mid, end) {

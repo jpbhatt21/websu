@@ -28,11 +28,11 @@ let minis = null;
 let defaultElementClass =
 	"bg-blank outline fade-in outline-1 outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50vh] shadow-lg nons snap-cetner overflow-hidden ";
 function SongSelectionMenu() {
-	function getFiles(files) {
+	function getFiles(files,mode=false) {
 		for (let i = 0; i < files.length; i++) {
 			try {
 				if (files[i].name.includes(".osz")) {
-					getOszFileToUnzip(files[i], i);
+					getOszFileToUnzip(files[i], i,mode);
 				} else {
 					continue;
 					handleNonOszFiles(files[i]);
@@ -40,7 +40,7 @@ function SongSelectionMenu() {
 			} catch (e) {}
 		}
 	}
-	async function getOszFileToUnzip(file, diffe = 0) {
+	async function getOszFileToUnzip(file, diffe = 0,mode) {
 		// let filz = [];
 		// let test = allFiles;
 		// test.name.push(file.name);
@@ -65,8 +65,6 @@ function SongSelectionMenu() {
 		let osuFiles = [];
 		let assets = [];
 		let unzipOsz = zip.loadAsync(file).then(async function (zip) {
-
-			
 			for (let i in zip.files) {
 				let loadIndividualFiles = zip
 					.file(i)
@@ -150,18 +148,25 @@ function SongSelectionMenu() {
 			} catch (e) {
 				const request = objectStore.add(setMeta);
 			}
-			setMeta.id = metaData.length;
-			setMetaData((prev) => [...prev, setMeta]);
-			setMetaFiles((prev) => [...prev, setMeta]);
-			minis.add(setMeta);
-			fakeClick(metaData.length + 1, false);
-			setSearchKey(searchKey + 1);
 			objectStore = transaction.objectStore("Preview");
 			try {
 				const request = objectStore.put(preview);
 			} catch (e) {
 				const request = objectStore.add(preview);
 			}
+			setMeta.id = metaData.length;
+			setMetaData((prev) => [...prev, setMeta]);
+			setMetaFiles((prev) => [...prev, setMeta]);
+			try{minis.add(setMeta);}
+			catch(e){}
+			console.log(mode)
+			if(mode)
+				return
+			else{
+				console.log("here")
+			fakeClick(Math.max(metaData.length,1), false);
+			setSearchKey(searchKey + 1);}
+			
 		};
 	}
 	async function fetchFromDB(collectionName, setID, object) {
@@ -222,7 +227,9 @@ function SongSelectionMenu() {
 					pauseMenu.style.opacity = "0";
 
 					pauseMenu.style.pointerEvents = "none";
-					setTimeout(()=>{play(root);},1000)
+					setTimeout(() => {
+						play(root);
+					}, 1000);
 				}
 			}
 			if (e.key == "x" || e.key == "z") {
@@ -242,6 +249,7 @@ function SongSelectionMenu() {
 
 	useEffect(() => {
 		if (!focus) return;
+		
 		document.addEventListener("keydown", keyaction);
 		const request = indexedDB.open("osuStorage", 2);
 		request.onupgradeneeded = function (event) {
@@ -308,13 +316,11 @@ function SongSelectionMenu() {
 		};
 	}, [focus]);
 	useEffect(() => {
-		
 		if (!start && prevMusic.length > 0) {
 			musicTimer = setTimeout(() => {
 				playSong(prevMusic[0], prevMusic[1], prevMusic[2]);
 			}, 100);
-		}
-		else if(musicTimer!=null){
+		} else if (musicTimer != null) {
 			clearTimeout(musicTimer);
 		}
 	}, [start]);
@@ -327,7 +333,7 @@ function SongSelectionMenu() {
 					onClick={() => {
 						fakeClick(index, false);
 					}}
-					className=" w-full h-20    outline outline-1 outline-bcol   rounded-t-lg"
+					className=" w-full h-20  flex   outline outline-1 outline-bcol   rounded-t-lg"
 					style={{
 						backgroundImage:
 							"url(data:image/png;base64," +
@@ -344,6 +350,37 @@ function SongSelectionMenu() {
 							{element.artist + " - " + element.creator}
 						</div>
 					</div>
+					<div
+					id={"delete" + index}
+					onClick={(e) => {
+						e.stopPropagation();
+						const request = indexedDB.open("osuStorage", 2);
+						request.onsuccess = function (event) {
+							const db = event.target.result;
+							const transaction = db.transaction(
+								["Assets", "Files", "Meta", "Preview"],
+								"readwrite"
+							);
+							let objectStore = transaction.objectStore("Assets");
+							objectStore.delete(element.setId);
+							objectStore = transaction.objectStore("Files");
+							objectStore.delete(element.setId);
+							objectStore = transaction.objectStore("Meta");
+							objectStore.delete(element.setId);
+							objectStore = transaction.objectStore("Preview");
+							objectStore.delete(element.setId);
+							let temp = metaData;
+							temp.splice(index, 1);
+							setMetaData(temp);
+							setMetaFiles(temp);
+							
+							
+							
+							setSearchKey(searchKey + 1);
+							fakeClick(0, true);
+						};
+					}}
+					className="h-full w-32 bg-black"></div>
 				</div>
 				<div className="p-2 max-h-[calc(50vh-80px)] overflow-y-scroll  pt-3">
 					<div
@@ -558,7 +595,7 @@ function SongSelectionMenu() {
 									await new Promise((r) =>
 										setTimeout(r, 100)
 									);
-									
+
 									playSong(
 										metaData[clost].setId,
 										0,
@@ -631,10 +668,12 @@ function SongSelectionMenu() {
 									let res = minis.search(e.target.value);
 									let temp = [];
 									for (let i in res) {
+										let val=metaFiles.find(
+											(x) => x.setId == res[i].setId
+										)
+										if(val!=undefined && val!=null)
 										temp.push(
-											metaFiles.find(
-												(x) => x.setId == res[i].setId
-											)
+											val
 										);
 									}
 									setMetaData(temp);
@@ -657,11 +696,11 @@ function SongSelectionMenu() {
 						onClick={() => {
 							setMetaData(metaFiles);
 							let ind = -1;
-							if (metaData[0].setId == metaFiles[0].setId)
-								ind = 0;
+							setSearchKey(0);
+							if (metaData[0].setId == metaFiles[0].setId) return;
 							setGlobalIndex(ind);
 							setSecondaryIndex(0);
-							setSearchKey(0);
+
 							fakeClick(0, true);
 						}}></div>
 				</div>
@@ -672,7 +711,7 @@ function SongSelectionMenu() {
 					<label
 						//style={{ display: !props.playing ? "" : "none" }}
 						htmlFor="inpp"
-						className="fixed pointer-events-auto  bg-opacity-75  bg-post border text-bact border-bcol h-fit  z-[11]  rounded-md shadow-lg bottom-2 left-2  cursor-pointer  px-6 py-4">
+						className="fixed pointer-events-auto  bg-opacity-75 w-32  bg-post border text-bact border-bcol h-fit  z-[11]  rounded-md shadow-lg bottom-2 left-2  cursor-pointer   text-center py-4">
 						<input
 							multiple
 							type="file"
@@ -683,8 +722,41 @@ function SongSelectionMenu() {
 								getFiles(e.target.files);
 							}}
 						/>
-						Upload .osz
+						Upload
 					</label>
+					<button
+						//style={{ display: !props.playing ? "" : "none" }}
+						style={{opacity:metaData.length<1?1:0,pointerEvents:metaData.length<1?"auto":"none"}}
+						onClick={(e)=>{
+							fetch(
+								"/demo1.osz" // Fetches the file
+							)
+								.then((res) => res.blob()) // Gets the response and returns it as a blob
+								.then((blob) => {
+									
+										
+									let file=new File([blob], "demo1.osz", {type: "application/octet-stream"});
+									console.log(file);
+									getFiles([file]);
+									
+								});
+								fetch(
+									"/demo2.osz" // Fetches the file
+								)
+									.then((res) => res.blob()) // Gets the response and returns it as a blob
+									.then(async(blob) => {
+										let file=new File([blob], "demo1.osz", {type: "application/octet-stream"});
+										console.log(file);
+										getFiles([file],true);
+										
+									});
+								
+								return
+						}}
+						className="fixed pointer-events-auto  bg-opacity-75 w-32  bg-post border text-bact border-bcol h-fit  z-[11] duration-300 rounded-md shadow-lg bottom-2 left-36  cursor-pointer   text-center py-4">
+						
+						Load Demo
+					</button>
 					<div
 						className="absolute hidden w-16 aspect-square bg-black"
 						style={{
@@ -706,27 +778,49 @@ function SongSelectionMenu() {
 				<div
 					id="pauseMenu"
 					className="w-full h-full z-[9999] flex flex-row-reverse justify-center gap-5 text-xl font-bold items-center text-[#b3b3b3]  fixed bg-black bg-opacity-50 opacit y-0 duration-300 backdrop-blur-md pointer-events-none opacity-0">
-					<div onClick={()=>{
-						pauseMenu.style.opacity = "0";
-						pauseMenu.style.pointerEvents = "none";
-						setStart(false);}} className="w-16 h-16 bg-post flex  items-center justify-center outline outline-1 bg-opacity-50 outline-colors-red rounded-md text-center leading-[3.6rem]">
+					<div
+						onClick={async () => {
+							pauseMenu.style.opacity = "0";
+							pauseMenu.style.pointerEvents = "none";
+							if (backgroundVideoSource1.src != "") {
+								backgroundVideo.pause();
+								backgroundVideoSource1.src = "";
+								backgroundImage.style.display = "";
+								await new Promise((resolve) => {
+									setTimeout(() => {
+										resolve();
+									}, 10);
+								});
+								backgroundImage.style.opacity = 1;
+							}
+							setStart(false);
+						}}
+						className="w-16 h-16 bg-post flex  items-center justify-center outline outline-1 bg-opacity-50 outline-colors-red rounded-md text-center leading-[3.6rem]">
 						{exit}
 					</div>
-					<div onClick={()=>{
-						pauseMenu.style.opacity = "0";
-						pauseMenu.style.pointerEvents = "none";
-						setStart(false);
-						setAttempts(attempts+1);
-						setTimeout(()=>{setStart(true);},10)
-					}} className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-yellow rounded-md text-center leading-[3.6rem]">
+					<div
+						onClick={() => {
+							pauseMenu.style.opacity = "0";
+							pauseMenu.style.pointerEvents = "none";
+							setStart(false);
+							setAttempts(attempts + 1);
+							setTimeout(() => {
+								setStart(true);
+							}, 10);
+						}}
+						className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-yellow rounded-md text-center leading-[3.6rem]">
 						{replay}
 					</div>
-					<div onClick={()=>{
-						pauseMenu.style.opacity = "0";
+					<div
+						onClick={() => {
+							pauseMenu.style.opacity = "0";
 
-						pauseMenu.style.pointerEvents = "none";
-						setTimeout(()=>{play(playArea);},1000)
-					}} className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-green rounded-md text-center leading-[3.6rem]">
+							pauseMenu.style.pointerEvents = "none";
+							setTimeout(() => {
+								play(playArea);
+							}, 1000);
+						}}
+						className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-green rounded-md text-center leading-[3.6rem]">
 						{playButton2}
 					</div>
 				</div>
