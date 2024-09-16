@@ -9,7 +9,9 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 	const [len, setLen] = useState(0);
 	const [timingPoints, setTimingPoints] = useState([]);
 	const [colors, setColors] = useState([]);
-	const [completionColors, setCompletionColors] = useState("163, 190, 140|".repeat(4).split("|").slice(0,4));
+	const [completionColors, setCompletionColors] = useState(
+		"163, 190, 140|".repeat(4).split("|").slice(0, 4)
+	);
 	const [time, setTime] = useState(0.01);
 	let delay = 0;
 	useEffect(() => {
@@ -57,6 +59,9 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 					setCompletionColors(x[6]);
 					console.log(x[6]);
 					setTime(0);
+					var AudioContext =
+						window.AudioContext || window.webkitAudioContext;
+					var audioCtx = new AudioContext();
 					// var AudioContext =
 					// 	window.AudioContext || window.webkitAudioContext;
 					// var audioCtx = new AudioContext();
@@ -193,7 +198,6 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 				className="brightness-75 dura pointer-events-auto"
 				d={x[3]}
 				strokeWidth={1}
-				
 				strokeDasharray={"2 4"}
 				stroke={"rgba(" + colors[x[2]] + ",0.1)"}
 				fill="transparent"
@@ -312,26 +316,45 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 					className="fixed z-40 rounded-full top-0 left-0 h-2 bg-colors-green"
 					style={{
 						width: (parseFloat(time - md4 * 3) / md4) * 100 + "%",
-						background: "linear-gradient(90deg, rgb("+completionColors[3]+") 0vw,  rgb("+completionColors[0]+") 100vw",
-
+						background:
+							"linear-gradient(90deg, rgb(" +
+							completionColors[3] +
+							") 0vw,  rgb(" +
+							completionColors[0] +
+							") 100vw",
 					}}></div>
 				<div
 					className="fixed z-40 rounded-full top-0 right-0 w-2 "
 					style={{
 						height: (parseFloat(time) / md4) * 100 + "%",
-						background: "linear-gradient(180deg, rgb("+completionColors[0]+") 0vh,  rgb("+completionColors[1]+") 100vh",
+						background:
+							"linear-gradient(180deg, rgb(" +
+							completionColors[0] +
+							") 0vh,  rgb(" +
+							completionColors[1] +
+							") 100vh",
 					}}></div>
 				<div
 					className="fixed z-40 rounded-full bottom-0 right-0 h-2 bg-colors-green"
 					style={{
 						width: (parseFloat(time - md4) / md4) * 100 + "%",
-						background: "linear-gradient(270deg, rgb("+completionColors[1]+") 0vw,  rgb("+completionColors[2]+") 100vw",
+						background:
+							"linear-gradient(270deg, rgb(" +
+							completionColors[1] +
+							") 0vw,  rgb(" +
+							completionColors[2] +
+							") 100vw",
 					}}></div>
 				<div
 					className="fixed z-40 rounded-full  bottom-0 left-0 w-2 bg-colors-green"
 					style={{
 						height: (parseFloat(time - 2 * md4) / md4) * 100 + "%",
-						background: "linear-gradient(0deg, rgb("+completionColors[2]+") 0vh,  rgb("+completionColors[3]+") 100vh",
+						background:
+							"linear-gradient(0deg, rgb(" +
+							completionColors[2] +
+							") 0vh,  rgb(" +
+							completionColors[3] +
+							") 100vh",
 					}}></div>
 			</div>
 		</>

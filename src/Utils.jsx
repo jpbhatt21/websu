@@ -1,5 +1,6 @@
 export let backgroundImage = document.getElementById("backgroundImage");
 export let music = new Audio();
+
 let pSliderPathCache = { points: [], path: [] };
 let bSliderPathCache = { points: [], path: [] };
 let css = 0;
@@ -88,16 +89,14 @@ export function getIndividualBeatMapInfo(file2, assets) {
 		.filter((x) => x.includes("Tags:"))[0]
 		.split(":")[1]
 		.trim();
-	let bgImgLine=lines.findIndex((line) => line.includes("[Events]")) + 2;
-	if(lines[bgImgLine].includes("Video")||lines[bgImgLine].split(",").length<5)
+	let bgImgLine = lines.findIndex((line) => line.includes("[Events]")) + 2;
+	if (
+		lines[bgImgLine].includes("Video") ||
+		lines[bgImgLine].split(",").length < 5
+	)
 		bgImgLine++;
-	imp.backgroundImage = lines[
-		bgImgLine
-	]
-		.split(",")[2]
-		.slice(1, -1)
-		.trim();
-	
+	imp.backgroundImage = lines[bgImgLine].split(",")[2].slice(1, -1).trim();
+
 	console.log(imp.backgroundImage);
 	imp.backgroundImage = cleanse(imp.backgroundImage);
 	imp.backgroundImage = assets.filter(
@@ -140,14 +139,16 @@ export function getIndividualBeatMapInfo(file2, assets) {
 	return imp;
 }
 
-export async function setBackground(data) {
+export async function setBackground(data, mode = false) {
+	console.log("in");
 	if (backgroundImage.src == "data:image/png;base64," + data) return;
-
-	backgroundImage.style.transitionDuration = "0.3s";
+	if (mode && backgroundImage.src != data)
+		backgroundImage.style.transitionDuration = "0.3s";
 	backgroundImage.style.opacity = 0;
 
 	await new Promise((r) => setTimeout(r, 300));
-	backgroundImage.src = "data:image/png;base64," + data;
+	if (mode) backgroundImage.src = data;
+	else backgroundImage.src = "data:image/png;base64," + data;
 	backgroundImage.style.transitionDuration = "0s";
 	backgroundImage.style.scale = "1.2";
 
@@ -158,8 +159,23 @@ export async function setBackground(data) {
 	backgroundImage.style.opacity = 1;
 }
 
-export async function setPreviewImage(setID, index, secondaryIndex) {
+export async function setPreviewImage(
+	setID,
+	index,
+	secondaryIndex,
+	mode = false
+) {
 	let result = null;
+	if (mode) {
+		if (previewImage.src == index) return;
+		if (secondaryIndex > 0) setBackground(index);
+		previewImage.style.opacity = 0;
+		setTimeout(() => {
+			previewImage.src = index;
+			previewImage.style.opacity = 1;
+		}, 300);
+		return;
+	}
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = function (event) {
 		const db = event.target.result;
@@ -182,18 +198,37 @@ export async function setPreviewImage(setID, index, secondaryIndex) {
 			};
 	};
 }
-export function playSong(setID, index, previewTime) {
-	const request = indexedDB.open("osuStorage", 2);
-	request.onsuccess = async function (event) {
+export async function playSong(setID, index, previewTime, mode = false) {
+	if (mode) {
+		let song = setID;
+		if (music.src == song) return;
 		while (music.volume >= 0.1) {
 			music.volume -= 0.1;
 			await new Promise((r) => setTimeout(r, 10));
 		}
 		music.volume = 0;
+		music.setAttribute("src", song);
+		music.load();
+		music.play();
+		while (music.volume <= 0.9) {
+			music.volume += 0.1;
+			await new Promise((r) => setTimeout(r, 10));
+		}
+		music.volume = 1;
+		return;
+	}
+	const request = indexedDB.open("osuStorage", 2);
+	request.onsuccess = async function (event) {
 		const db = event.target.result;
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
 			async function (event) {
 				let song = event.target.result.files[index];
+				if (music.src == "data:audio/ogg;base64," + song) return;
+				while (music.volume >= 0.1) {
+					music.volume -= 0.1;
+					await new Promise((r) => setTimeout(r, 10));
+				}
+				music.volume = 0;
 				music.setAttribute("src", "data:audio/ogg;base64," + song);
 				music.load();
 				music.currentTime = previewTime / 1000;
@@ -234,7 +269,7 @@ export function setBackgroundVideo(file, setId) {
 				let video = event.target.result.files.find(
 					(x) => x.name == file
 				);
-				console.log(video.file)
+				console.log(video.file);
 				backgroundVideoSource1.src =
 					"data:video/avi;base64," + video.file;
 				backgroundVideo.load();
@@ -250,77 +285,98 @@ export function setBackgroundVideo(file, setId) {
 			};
 	};
 }
-export function fakeClick(index, index2) {
+export function fakeClick(index, index2, mode = false) {
 	setTimeout(() => {
 		if (index2) {
+			if (mode) {
+				scrollMenu2.scrollTo({ top: 0.1 * 88 });
+				return;
+			}
 			scrollMenu.scrollTo({ top: 0.1 * 88 });
-		} else scrollMenu.scrollTo({ top: index * 88, behavior: "smooth" });
+		} else if (mode) {
+			scrollMenu2.scrollTo({ top: index * 88, behavior: "smooth" });
+		} else {
+			scrollMenu.scrollTo({ top: index * 88, behavior: "smooth" });
+		}
 	}, 20);
 }
+export let crossIcon = (
+	<svg viewBox="0 -0.5 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				d="M6.96967 16.4697C6.67678 16.7626 6.67678 17.2374 6.96967 17.5303C7.26256 17.8232 7.73744 17.8232 8.03033 17.5303L6.96967 16.4697ZM13.0303 12.5303C13.3232 12.2374 13.3232 11.7626 13.0303 11.4697C12.7374 11.1768 12.2626 11.1768 11.9697 11.4697L13.0303 12.5303ZM11.9697 11.4697C11.6768 11.7626 11.6768 12.2374 11.9697 12.5303C12.2626 12.8232 12.7374 12.8232 13.0303 12.5303L11.9697 11.4697ZM18.0303 7.53033C18.3232 7.23744 18.3232 6.76256 18.0303 6.46967C17.7374 6.17678 17.2626 6.17678 16.9697 6.46967L18.0303 7.53033ZM13.0303 11.4697C12.7374 11.1768 12.2626 11.1768 11.9697 11.4697C11.6768 11.7626 11.6768 12.2374 11.9697 12.5303L13.0303 11.4697ZM16.9697 17.5303C17.2626 17.8232 17.7374 17.8232 18.0303 17.5303C18.3232 17.2374 18.3232 16.7626 18.0303 16.4697L16.9697 17.5303ZM11.9697 12.5303C12.2626 12.8232 12.7374 12.8232 13.0303 12.5303C13.3232 12.2374 13.3232 11.7626 13.0303 11.4697L11.9697 12.5303ZM8.03033 6.46967C7.73744 6.17678 7.26256 6.17678 6.96967 6.46967C6.67678 6.76256 6.67678 7.23744 6.96967 7.53033L8.03033 6.46967ZM8.03033 17.5303L13.0303 12.5303L11.9697 11.4697L6.96967 16.4697L8.03033 17.5303ZM13.0303 12.5303L18.0303 7.53033L16.9697 6.46967L11.9697 11.4697L13.0303 12.5303ZM11.9697 12.5303L16.9697 17.5303L18.0303 16.4697L13.0303 11.4697L11.9697 12.5303ZM13.0303 11.4697L8.03033 6.46967L6.96967 7.53033L11.9697 12.5303L13.0303 11.4697Z"
+				fill="currentColor"></path>
+		</g>
+	</svg>
+);
 export let deleteIcon = (
-	<svg 
-  viewBox="0 0 24 24" 
-  fill="none" 
-  xmlns="http://www.w3.org/2000/svg"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <path 
-      d="M10 12V17" 
-      stroke="currentColor" 
-      strokeWidth="1" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    ></path>
-    <path 
-      d="M14 12V17" 
-      stroke="currentColor" 
-      strokeWidth="1" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    ></path>
-    <path 
-      d="M4 7H20" 
-      stroke="currentColor" 
-      strokeWidth="1" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    ></path>
-    <path 
-      d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" 
-      stroke="currentColor" 
-      strokeWidth="1" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    ></path>
-    <path 
-      d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" 
-      stroke="currentColor" 
-      strokeWidth="1" 
-      strokeLinecap="round" 
-      strokeLinejoin="round"
-    ></path>
-  </g>
-</svg>
-)
+	<svg
+		className=" scale-75"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				d="M10 12V17"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+			<path
+				d="M14 12V17"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+			<path
+				d="M4 7H20"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+			<path
+				d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+			<path
+				d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+		</g>
+	</svg>
+);
 export let loader = (
-	<svg 
-	width="40"
-	className="spin"
-  viewBox="0 0 24 24" 
-  fill="none" 
-  xmlns="http://www.w3.org/2000/svg"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <path 
-      d="M12 21C10.5316 20.9987 9.08574 20.6382 7.78865 19.9498C6.49156 19.2614 5.38261 18.2661 4.55853 17.0507C3.73446 15.8353 3.22029 14.4368 3.06088 12.977C2.90147 11.5172 3.10167 10.0407 3.644 8.67604C4.18634 7.31142 5.05434 6.10024 6.17229 5.14813C7.29024 4.19603 8.62417 3.53194 10.0577 3.21378C11.4913 2.89563 12.9809 2.93307 14.3967 3.32286C15.8124 3.71264 17.1113 4.44292 18.18 5.45C18.3205 5.59062 18.3993 5.78125 18.3993 5.98C18.3993 6.17875 18.3205 6.36937 18.18 6.51C18.1111 6.58075 18.0286 6.63699 17.9376 6.67539C17.8466 6.71378 17.7488 6.73357 17.65 6.73357C17.5512 6.73357 17.4534 6.71378 17.3624 6.67539C17.2714 6.63699 17.189 6.58075 17.12 6.51C15.8591 5.33065 14.2303 4.62177 12.508 4.5027C10.7856 4.38362 9.07478 4.86163 7.66357 5.85624C6.25237 6.85085 5.22695 8.30132 4.75995 9.96345C4.29296 11.6256 4.41292 13.3979 5.09962 14.9819C5.78633 16.5659 6.99785 17.865 8.53021 18.6604C10.0626 19.4558 11.8222 19.6989 13.5128 19.3488C15.2034 18.9987 16.7218 18.0768 17.8123 16.7383C18.9028 15.3998 19.4988 13.7265 19.5 12C19.5 11.8011 19.579 11.6103 19.7197 11.4697C19.8603 11.329 20.0511 11.25 20.25 11.25C20.4489 11.25 20.6397 11.329 20.7803 11.4697C20.921 11.6103 21 11.8011 21 12C21 14.3869 20.0518 16.6761 18.364 18.364C16.6761 20.0518 14.387 21 12 21Z" 
-      fill="currentColor"
-    ></path>
-  </g>
-</svg>
+	<svg
+		width="40"
+		className="spin"
+		viewBox="0 0 24 24"
+		fill="none"
+		xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				d="M12 21C10.5316 20.9987 9.08574 20.6382 7.78865 19.9498C6.49156 19.2614 5.38261 18.2661 4.55853 17.0507C3.73446 15.8353 3.22029 14.4368 3.06088 12.977C2.90147 11.5172 3.10167 10.0407 3.644 8.67604C4.18634 7.31142 5.05434 6.10024 6.17229 5.14813C7.29024 4.19603 8.62417 3.53194 10.0577 3.21378C11.4913 2.89563 12.9809 2.93307 14.3967 3.32286C15.8124 3.71264 17.1113 4.44292 18.18 5.45C18.3205 5.59062 18.3993 5.78125 18.3993 5.98C18.3993 6.17875 18.3205 6.36937 18.18 6.51C18.1111 6.58075 18.0286 6.63699 17.9376 6.67539C17.8466 6.71378 17.7488 6.73357 17.65 6.73357C17.5512 6.73357 17.4534 6.71378 17.3624 6.67539C17.2714 6.63699 17.189 6.58075 17.12 6.51C15.8591 5.33065 14.2303 4.62177 12.508 4.5027C10.7856 4.38362 9.07478 4.86163 7.66357 5.85624C6.25237 6.85085 5.22695 8.30132 4.75995 9.96345C4.29296 11.6256 4.41292 13.3979 5.09962 14.9819C5.78633 16.5659 6.99785 17.865 8.53021 18.6604C10.0626 19.4558 11.8222 19.6989 13.5128 19.3488C15.2034 18.9987 16.7218 18.0768 17.8123 16.7383C18.9028 15.3998 19.4988 13.7265 19.5 12C19.5 11.8011 19.579 11.6103 19.7197 11.4697C19.8603 11.329 20.0511 11.25 20.25 11.25C20.4489 11.25 20.6397 11.329 20.7803 11.4697C20.921 11.6103 21 11.8011 21 12C21 14.3869 20.0518 16.6761 18.364 18.364C16.6761 20.0518 14.387 21 12 21Z"
+				fill="currentColor"></path>
+		</g>
+	</svg>
 );
 export let exit = (
 	<svg
@@ -422,6 +478,38 @@ export let playButton2 = (
 		</g>
 	</svg>
 );
+export let offlineButton = (
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M6.24223 4.5H17.7578L19.5 8.85556V18L18.75 18.75H5.25L4.5 18V8.85556L6.24223 4.5ZM7.25777 6L6.35777 8.25H17.6422L16.7422 6H7.25777ZM18 9.75H6V17.25H18V9.75ZM9.59473 13.6553L10.6554 12.5946L11.25 13.1892V11.25H12.75V13.1894L13.3447 12.5946L14.4054 13.6553L12.0001 16.0606L9.59473 13.6553Z"
+				fill="currentColor"></path>
+		</g>
+	</svg>
+);
+export let onlineButton = (
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M9.83824 18.4467C10.0103 18.7692 10.1826 19.0598 10.3473 19.3173C8.59745 18.9238 7.07906 17.9187 6.02838 16.5383C6.72181 16.1478 7.60995 15.743 8.67766 15.4468C8.98112 16.637 9.40924 17.6423 9.83824 18.4467ZM11.1618 17.7408C10.7891 17.0421 10.4156 16.1695 10.1465 15.1356C10.7258 15.0496 11.3442 15 12.0001 15C12.6559 15 13.2743 15.0496 13.8535 15.1355C13.5844 16.1695 13.2109 17.0421 12.8382 17.7408C12.5394 18.3011 12.2417 18.7484 12 19.0757C11.7583 18.7484 11.4606 18.3011 11.1618 17.7408ZM9.75 12C9.75 12.5841 9.7893 13.1385 9.8586 13.6619C10.5269 13.5594 11.2414 13.5 12.0001 13.5C12.7587 13.5 13.4732 13.5593 14.1414 13.6619C14.2107 13.1384 14.25 12.5841 14.25 12C14.25 11.4159 14.2107 10.8616 14.1414 10.3381C13.4732 10.4406 12.7587 10.5 12.0001 10.5C11.2414 10.5 10.5269 10.4406 9.8586 10.3381C9.7893 10.8615 9.75 11.4159 9.75 12ZM8.38688 10.0288C8.29977 10.6478 8.25 11.3054 8.25 12C8.25 12.6946 8.29977 13.3522 8.38688 13.9712C7.11338 14.3131 6.05882 14.7952 5.24324 15.2591C4.76698 14.2736 4.5 13.168 4.5 12C4.5 10.832 4.76698 9.72644 5.24323 8.74088C6.05872 9.20472 7.1133 9.68686 8.38688 10.0288ZM10.1465 8.86445C10.7258 8.95042 11.3442 9 12.0001 9C12.6559 9 13.2743 8.95043 13.8535 8.86447C13.5844 7.83055 13.2109 6.95793 12.8382 6.2592C12.5394 5.69894 12.2417 5.25156 12 4.92432C11.7583 5.25156 11.4606 5.69894 11.1618 6.25918C10.7891 6.95791 10.4156 7.83053 10.1465 8.86445ZM15.6131 10.0289C15.7002 10.6479 15.75 11.3055 15.75 12C15.75 12.6946 15.7002 13.3521 15.6131 13.9711C16.8866 14.3131 17.9412 14.7952 18.7568 15.2591C19.233 14.2735 19.5 13.1679 19.5 12C19.5 10.8321 19.233 9.72647 18.7568 8.74093C17.9413 9.20477 16.8867 9.6869 15.6131 10.0289ZM17.9716 7.46178C17.2781 7.85231 16.39 8.25705 15.3224 8.55328C15.0189 7.36304 14.5908 6.35769 14.1618 5.55332C13.9897 5.23077 13.8174 4.94025 13.6527 4.6827C15.4026 5.07623 16.921 6.08136 17.9716 7.46178ZM8.67765 8.55325C7.61001 8.25701 6.7219 7.85227 6.02839 7.46173C7.07906 6.08134 8.59745 5.07623 10.3472 4.6827C10.1826 4.94025 10.0103 5.23076 9.83823 5.5533C9.40924 6.35767 8.98112 7.36301 8.67765 8.55325ZM15.3224 15.4467C15.0189 16.637 14.5908 17.6423 14.1618 18.4467C13.9897 18.7692 13.8174 19.0598 13.6527 19.3173C15.4026 18.9238 16.921 17.9186 17.9717 16.5382C17.2782 16.1477 16.3901 15.743 15.3224 15.4467ZM12 21C16.9706 21 21 16.9706 21 12C21 7.02944 16.9706 3 12 3C7.02944 3 3 7.02944 3 12C3 16.9706 7.02944 21 12 21Z"
+				fill="currentColor"></path>
+		</g>
+	</svg>
+);
 export async function decodeBeatMap(base64, setId) {
 	musicLoaded = false;
 	let osuFile = window.atob(base64);
@@ -440,14 +528,11 @@ export async function decodeBeatMap(base64, setId) {
 	let isVideo = false;
 	if (events[2].includes("Video")) {
 		isVideo = true;
-		let name=cleanse(events[2].split(",")[2]);
-		if(name.includes(".avi"))
-		{
-			isVideo=false;
-			videoLoaded=true;
-		}
-		else
-			setBackgroundVideo(name, setId);
+		let name = cleanse(events[2].split(",")[2]);
+		if (name.includes(".avi")) {
+			isVideo = false;
+			videoLoaded = true;
+		} else setBackgroundVideo(name, setId);
 	} else videoLoaded = true;
 
 	let difficulty = osuFile.slice(
@@ -625,21 +710,22 @@ export async function decodeBeatMap(base64, setId) {
 	}
 	pSliderPathCache = { points: [], path: [] };
 	bSliderPathCache = { points: [], path: [] };
-	
-	if(colors.length==0)
-		colors="163, 190, 140|".repeat(4).split("|").slice(0,4)
-	else if(colors.length==1)
-		colors=(colors[0]+"|").repeat(4).split("|").slice(0,4)
-	else if(colors.length==2)
-	{
-		let avg = colors.map(x=>x.split(",").map(x=>parseInt(x))).reduce((a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]]).map(x=>x/2).map(x=>Math.round(x))
-		colors=[colors[0],avg.join(","),colors[1],avg.join(",")]
-	}
-	else if(colors.length==3)
-		colors=[colors[0],colors[1],colors[0],colors[2]]
-	else 
-	colors=colors.slice(0,4)
-	return [aprate / 1000, cs, hit2, temp, col, isVideo,colors];
+
+	if (colors.length == 0)
+		colors = "163, 190, 140|".repeat(4).split("|").slice(0, 4);
+	else if (colors.length == 1)
+		colors = (colors[0] + "|").repeat(4).split("|").slice(0, 4);
+	else if (colors.length == 2) {
+		let avg = colors
+			.map((x) => x.split(",").map((x) => parseInt(x)))
+			.reduce((a, b) => [a[0] + b[0], a[1] + b[1], a[2] + b[2]])
+			.map((x) => x / 2)
+			.map((x) => Math.round(x));
+		colors = [colors[0], avg.join(","), colors[1], avg.join(",")];
+	} else if (colors.length == 3)
+		colors = [colors[0], colors[1], colors[0], colors[2]];
+	else colors = colors.slice(0, 4);
+	return [aprate / 1000, cs, hit2, temp, col, isVideo, colors];
 }
 
 function pSliderPath(start, mid, end) {
