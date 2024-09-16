@@ -261,8 +261,10 @@ function SongSelectionMenu() {
 	}
 	async function keyaction2(e) {
 		console.log("click");
+		searchbox.value = music.paused
 		if (!inter && music.paused && music.src != "") {
-			music.currentTime += (new Date().getTime() - loadTime) / 1000 - 1.5;
+			try{
+				music.currentTime += (new Date().getTime() - loadTime) / 1000 - 1.5;
 			music.play();
 			music.volume = 0;
 			while (music.volume <= 0.9) {
@@ -270,9 +272,16 @@ function SongSelectionMenu() {
 				await new Promise((r) => setTimeout(r, 10));
 			}
 			music.volume = 1;
-			setInter(true);
-			document.removeEventListener("mousedown", keyaction2);
+
+			}
+			catch(e){
+				}
+				setInter(true);
+		document.removeEventListener("click", keyaction2);
+				
+			
 		}
+		
 	}
 
 	useEffect(() => {
@@ -280,7 +289,7 @@ function SongSelectionMenu() {
 		//document.documentElement.requestFullscreen();
 		loadTime = new Date().getTime();
 		document.addEventListener("keydown", keyaction);
-		document.addEventListener("mousedown", keyaction2);
+		document.addEventListener("click", keyaction2);
 		const request = indexedDB.open("osuStorage", 2);
 		request.onupgradeneeded = function (event) {
 			const db = event.target.result;
@@ -871,7 +880,11 @@ function SongSelectionMenu() {
 
 								if (clost != globalIndex) {
 									let x = metaData[clost].levels[0];
-
+									playSong(
+										metaData[clost].setId,
+										0,
+										x.previewTime
+									);
 									setBackground(
 										metaData[clost].backgroundImage
 									);
@@ -908,11 +921,7 @@ function SongSelectionMenu() {
 										setTimeout(r, 100)
 									);
 
-									playSong(
-										metaData[clost].setId,
-										0,
-										x.previewTime
-									);
+									
 									setPrevMusic([
 										metaData[clost].setId,
 										0,
@@ -1037,7 +1046,12 @@ function SongSelectionMenu() {
 
 								if (clost != globalIndex) {
 									let x = null; //webSearchData[clost].levels[0];
-
+									playSong(
+										webSearchData[clost].songPreview,
+										0,
+										0,
+										true
+									);
 									setBackground(
 										webSearchData[clost].backgroundImage,
 										true
@@ -1079,12 +1093,7 @@ function SongSelectionMenu() {
 										setTimeout(r, 100)
 									);
 
-									playSong(
-										webSearchData[clost].songPreview,
-										0,
-										0,
-										true
-									);
+									
 
 									return;
 									setPrevMusic([
@@ -1159,7 +1168,7 @@ function SongSelectionMenu() {
 									});
 								}
 							}}
-							className="bg-post p-1 outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0 flex items-center justify-center outline hover:text-bact  rounded-lg aspect-square h-2/3"
+							className="bg-post p-1 outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-bact  rounded-lg aspect-square h-2/3"
 							style={{
 								color: deleteMode ? "#b3b3b3" : "",
 								outlineColor: deleteMode ? "#939393" : "",
@@ -1168,6 +1177,7 @@ function SongSelectionMenu() {
 							}}>
 							{deleteIcon}
 						</div>
+						
 						<div
 							className="bg-post p-1 outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-bact  rounded-lg aspect-square h-2/3"
 							style={{

@@ -199,23 +199,37 @@ export async function setPreviewImage(
 	};
 }
 export async function playSong(setID, index, previewTime, mode = false) {
-	if (mode) {
-		let song = setID;
+	let de2=async (song)=>{
 		if (music.src == song) return;
 		while (music.volume >= 0.1) {
-			music.volume -= 0.1;
+			music.volume -= 0.05;
 			await new Promise((r) => setTimeout(r, 10));
 		}
 		music.volume = 0;
+	}
+	if (mode) {
+		let song = setID;
+		de2(song)
+		setTimeout(async () => {
 		music.setAttribute("src", song);
 		music.load();
 		music.play();
 		while (music.volume <= 0.9) {
-			music.volume += 0.1;
+			music.volume += 0.05;
 			await new Promise((r) => setTimeout(r, 10));
 		}
 		music.volume = 1;
+	}, 200);
 		return;
+	}
+	let diver=async(song)=>{
+		if (music.src == "data:audio/wav;base64," + song) return;
+				while (music.volume >= 0.1) {
+					music.volume -= 0.05;
+					await new Promise((r) => setTimeout(r, 10));
+				}
+				music.volume = 0;
+				return
 	}
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = async function (event) {
@@ -223,21 +237,20 @@ export async function playSong(setID, index, previewTime, mode = false) {
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
 			async function (event) {
 				let song = event.target.result.files[index];
-				if (music.src == "data:audio/ogg;base64," + song) return;
-				while (music.volume >= 0.1) {
-					music.volume -= 0.1;
-					await new Promise((r) => setTimeout(r, 10));
-				}
-				music.volume = 0;
-				music.setAttribute("src", "data:audio/ogg;base64," + song);
-				music.load();
-				music.currentTime = previewTime / 1000;
-				music.play();
-				while (music.volume <= 0.9) {
-					music.volume += 0.1;
-					await new Promise((r) => setTimeout(r, 10));
-				}
-				music.volume = 1;
+				diver(song)
+				
+				setTimeout(async () => {
+					
+					music.setAttribute("src", "data:audio/wav;base64," + song);
+					music.load();
+					music.currentTime = previewTime/1000;
+					music.play();
+					while (music.volume <= 0.9) {
+						music.volume += 0.05;
+						await new Promise((r) => setTimeout(r, 10));
+					}
+					music.volume = 1;
+				}, 200);
 			};
 	};
 }
@@ -252,7 +265,7 @@ export function setMusic(file, setId) {
 				let song = event.target.result.files.find(
 					(x) => x.name == file
 				);
-				music.setAttribute("src", "data:audio/ogg;base64," + song.file);
+				music.setAttribute("src", "data:audio/wav;base64," + song.file);
 				music.load();
 				music.pause();
 				music.currentTime = 0;
