@@ -260,9 +260,7 @@ function SongSelectionMenu() {
 		}
 	}
 	async function keyaction2(e) {
-		console.log("click");
-		searchbox.value = music.paused
-		if (!inter && music.paused && music.src != "") {
+		if (!inter && music.paused ) {
 			try{
 				music.currentTime += (new Date().getTime() - loadTime) / 1000 - 1.5;
 			music.play();
@@ -1359,7 +1357,7 @@ function SongSelectionMenu() {
 							}}></div>
 						
 					</div>
-					{focus && metaFiles.length > 0 ? <Preview /> : <></>}
+					{focus && ((metaFiles.length > 0 && !onlineMode)||(onlineMode)) ? <Preview /> : <></>}
 				</div>
 				<div
 					style={{ opacity: start ? 0 : 1 }}
