@@ -19,6 +19,7 @@ import {
 	replay,
 	playButton,
 	playButton2,
+	deleteIcon,
 } from "./Utils";
 import PlayArea from "./PlayArea";
 let typetimer = null;
@@ -195,6 +196,7 @@ function SongSelectionMenu() {
 	const [focus, setFocus] = useState(false);
 	const [prevMusic, setPrevMusic] = useState([]);
 	const [attempts, setAttempts] = useState(0);
+	const [deleteMode, setDeleteMode] = useState(false);
 	function getMetaFiles() {
 		return metaFiles;
 	}
@@ -635,7 +637,15 @@ function SongSelectionMenu() {
 					id="previewSearch"
 					className="bg-post duration-300 bg-opacity-25  h-[60px] outline-bcol outline   backdrop-blur-md outline-1 w-full rounded-br-md top-0 left-0  fixed z-[12]">
 					{focus && metaFiles.length > 0 ? <Preview /> : <></>}
-
+					<div
+					onClick={() => {
+						setDeleteMode(!deleteMode);}
+					}
+					className="bg-post p-1 outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-bact hover:outline-[#9393934C] hover:bg-opacity-30 rounded-lg w-[40px] h-[40px] absolute right-[calc(20vw+20px)] top-[10px]"
+					style={{color:deleteMode?"white":"",outlineColor:deleteMode?"#939393":"",backgroundColor:deleteMode?"#2525254C":""}}
+					>
+						{deleteIcon}
+					</div>
 					<div className="bg-post p-1 pl-2 outline-bcol outline-1   outline bg-opacity-30 rounded-lg w-[20vw] h-[40px] absolute right-[10px] top-[10px]">
 						<div
 							id="searchBar"

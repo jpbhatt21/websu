@@ -88,12 +88,17 @@ export function getIndividualBeatMapInfo(file2, assets) {
 		.filter((x) => x.includes("Tags:"))[0]
 		.split(":")[1]
 		.trim();
+	let bgImgLine=lines.findIndex((line) => line.includes("[Events]")) + 2;
+	if(lines[bgImgLine].includes("Video")||lines[bgImgLine].split(",").length<5)
+		bgImgLine++;
 	imp.backgroundImage = lines[
-		lines.findIndex((line) => line.includes("[Events]")) + 2
+		bgImgLine
 	]
 		.split(",")[2]
 		.slice(1, -1)
 		.trim();
+	
+	console.log(imp.backgroundImage);
 	imp.backgroundImage = cleanse(imp.backgroundImage);
 	imp.backgroundImage = assets.filter(
 		(x) => x.name == imp.backgroundImage
@@ -229,8 +234,9 @@ export function setBackgroundVideo(file, setId) {
 				let video = event.target.result.files.find(
 					(x) => x.name == file
 				);
+				console.log(video.file)
 				backgroundVideoSource1.src =
-					"data:video/mp4;base64," + video.file;
+					"data:video/avi;base64," + video.file;
 				backgroundVideo.load();
 				backgroundVideo.play();
 
@@ -251,7 +257,53 @@ export function fakeClick(index, index2) {
 		} else scrollMenu.scrollTo({ top: index * 88, behavior: "smooth" });
 	}, 20);
 }
-
+export let deleteIcon = (
+	<svg 
+  viewBox="0 0 24 24" 
+  fill="none" 
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+  <g id="SVGRepo_iconCarrier">
+    <path 
+      d="M10 12V17" 
+      stroke="currentColor" 
+      strokeWidth="1" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    ></path>
+    <path 
+      d="M14 12V17" 
+      stroke="currentColor" 
+      strokeWidth="1" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    ></path>
+    <path 
+      d="M4 7H20" 
+      stroke="currentColor" 
+      strokeWidth="1" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    ></path>
+    <path 
+      d="M6 10V18C6 19.6569 7.34315 21 9 21H15C16.6569 21 18 19.6569 18 18V10" 
+      stroke="currentColor" 
+      strokeWidth="1" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    ></path>
+    <path 
+      d="M9 5C9 3.89543 9.89543 3 11 3H13C14.1046 3 15 3.89543 15 5V7H9V5Z" 
+      stroke="currentColor" 
+      strokeWidth="1" 
+      strokeLinecap="round" 
+      strokeLinejoin="round"
+    ></path>
+  </g>
+</svg>
+)
 export let loader = (
 	<svg 
 	width="40"
@@ -388,7 +440,14 @@ export async function decodeBeatMap(base64, setId) {
 	let isVideo = false;
 	if (events[2].includes("Video")) {
 		isVideo = true;
-		setBackgroundVideo(cleanse(events[2].split(",")[2]), setId);
+		let name=cleanse(events[2].split(",")[2]);
+		if(name.includes(".avi"))
+		{
+			isVideo=false;
+			videoLoaded=true;
+		}
+		else
+			setBackgroundVideo(name, setId);
 	} else videoLoaded = true;
 
 	let difficulty = osuFile.slice(
