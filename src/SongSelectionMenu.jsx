@@ -23,16 +23,18 @@ import {
 	crossIcon,
 	offlineButton,
 	onlineButton,
+	loader2,
 } from "./Utils";
 import PlayArea from "./PlayArea";
 import { uri } from "./App";
+import MusicPlayer from "./MusicPlayer";
 let typetimer = null;
 let sctimer = null;
 let musicTimer = null;
 let minis = null;
 let loadTime = null;
 let defaultElementClass =
-	"bg-blank outline fade-in outline-1 mb-[8px] mr-[10px] ml-[10px] outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50vh] shadow-lg nons snap-cetner overflow-hidden ";
+	"bg-blank outline fade-in outline-1 mb-[8px] mr-[10px] ml-[10px] outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50svh] shadow-lg nons snap-cetner overflow-hidden ";
 function SongSelectionMenu() {
 	function getFiles(files, mode = false) {
 		for (let i = 0; i < files.length; i++) {
@@ -260,26 +262,21 @@ function SongSelectionMenu() {
 		}
 	}
 	async function keyaction2(e) {
-		if (!inter && music.paused ) {
-			try{
-				music.currentTime += (new Date().getTime() - loadTime) / 1000 - 1.5;
-			music.play();
-			music.volume = 0;
-			while (music.volume <= 0.9) {
-				music.volume += 0.1;
-				await new Promise((r) => setTimeout(r, 10));
-			}
-			music.volume = 1;
-
-			}
-			catch(e){
+		if (!inter && music.paused) {
+			try {
+				music.play();
+				music.volume = 0;
+				while (music.volume <= 0.9) {
+					music.volume += 0.1;
+					await new Promise((r) => setTimeout(r, 10));
 				}
+				music.volume = 1;
+				if(music.paused)
+					return
 				setInter(true);
-		document.removeEventListener("click", keyaction2);
-				
-			
+				document.removeEventListener("click", keyaction2);
+			} catch (e) {}
 		}
-		
 	}
 
 	useEffect(() => {
@@ -462,9 +459,9 @@ function SongSelectionMenu() {
 							</div>
 						</div>
 
-						<div className="p-2 max-h-[calc(50vh-80px)] overflow-y-scroll  pt-3">
+						<div className="p-2 max-h-[calc(50svh-80px)] overflow-y-scroll  pt-3">
 							<div
-								className="levhol l   w-full p-2 -mt-2  "
+								className="lesvhol l   w-full p-2 -mt-2  "
 								style={{
 									height:
 										96 +
@@ -651,9 +648,9 @@ function SongSelectionMenu() {
 							</div>
 						</div>
 
-						<div className="p-2 max-h-[calc(50vh-80px)] overflow-y-scroll  pt-3">
+						<div className="p-2 max-h-[calc(50svh-80px)] overflow-y-scroll  pt-3">
 							<div
-								className="levhol l   w-full p-2 -mt-2  "
+								className="lesvhol l   w-full p-2 -mt-2  "
 								style={{
 									height:
 										96 +
@@ -672,11 +669,7 @@ function SongSelectionMenu() {
 												setStart(true);
 											} else {
 												setSecondaryIndex(index2);
-												setPreviewImage(
-													metaData[index].setId,
-													x.backgroundImage,
-													index2
-												);
+
 												previewCircleSize.style.width =
 													x.circleSize * 10 + "%";
 												previewApproachRate.style.width =
@@ -686,13 +679,21 @@ function SongSelectionMenu() {
 												previewAccuracy.style.width =
 													x.difficulty * 10 + "%";
 												previewMapper.innerHTML =
-													x.mapper;
-												previewSource.innerHTML =
-													utf8.decode(x.source);
+													element.creator;
+												try {
+													previewSource.innerHTML =
+														utf8.decode(
+															element.source
+														);
+												} catch (_) {}
 												previewVersion2.innerHTML =
 													x.level;
-												previewTags.innerHTML =
-													utf8.decode(x.tags);
+												try {
+													previewTags.innerHTML =
+														utf8.decode(
+															element.tags
+														);
+												} catch (_) {}
 												previewSong.innerHTML =
 													element.title;
 												previewArtist.innerHTML =
@@ -782,7 +783,7 @@ function SongSelectionMenu() {
 				<div
 					key={searchKey}
 					id="scrollMenu"
-					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]    "
+					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50svh-88px)]    "
 					onScroll={(e) => {
 						if (deleteMode || metaData.length < 1) return;
 
@@ -919,7 +920,6 @@ function SongSelectionMenu() {
 										setTimeout(r, 100)
 									);
 
-									
 									setPrevMusic([
 										metaData[clost].setId,
 										0,
@@ -941,7 +941,7 @@ function SongSelectionMenu() {
 
 					<div
 						id="emptyy2"
-						className=" h-[110vh]"
+						className=" h-[110svh]"
 						onDragCapture={(e) => {
 							e.preventDefault();
 						}}></div>
@@ -949,7 +949,7 @@ function SongSelectionMenu() {
 				<div
 					key={searchKey + "2"}
 					id="scrollMenu2"
-					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]    "
+					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50svh-88px)]    "
 					onScroll={(e) => {
 						if (onlineMode && webSearchData.length < 1) return;
 						scrollMenu2.style.scrollSnapType = "none";
@@ -1032,9 +1032,10 @@ function SongSelectionMenu() {
 										children[i].style.height = 80 + "px";
 									}
 								}
-								children[clost].style.height = 80; //96 +
-								//webSearchData[clost].levels.length * 68 +
-								("px");
+								children[clost].style.height =
+									96 +
+									webSearchData[clost].levels.length * 68 +
+									"px";
 								scrollMenu2.style.marginTop =
 									-children[clost].getBoundingClientRect()
 										.height /
@@ -1043,7 +1044,7 @@ function SongSelectionMenu() {
 									"px";
 
 								if (clost != globalIndex) {
-									let x = null; //webSearchData[clost].levels[0];
+									let x = webSearchData[clost].levels[0];
 									playSong(
 										webSearchData[clost].songPreview,
 										0,
@@ -1061,37 +1062,38 @@ function SongSelectionMenu() {
 										true
 									);
 
-									if (webSearchData.length < 1) {
-										previewCircleSize.style.width =
-											x.circleSize * 10 + "%";
-										previewApproachRate.style.width =
-											x.approachRate * 10 + "%";
-										previewHPDrain.style.width =
-											x.hpDrainRate * 10 + "%";
-										previewAccuracy.style.width =
-											x.difficulty * 10 + "%";
-										previewMapper.innerHTML = x.mapper;
-										previewSource.innerHTML = utf8.decode(
-											x.source
-										);
-										previewVersion2.innerHTML = x.level;
-										previewTags.innerHTML = utf8.decode(
-											x.tags
-										);
-										previewSong.innerHTML =
-											webSearchData[clost].title;
-										previewArtist.innerHTML =
-											webSearchData[clost].artist;
-										previewVersion.innerHTML = x.level;
-									}
+									previewCircleSize.style.width =
+										x.circleSize * 10 + "%";
+									previewApproachRate.style.width =
+										x.approachRate * 10 + "%";
+									previewHPDrain.style.width =
+										x.hpDrainRate * 10 + "%";
+									previewAccuracy.style.width =
+										x.difficulty * 10 + "%";
+									previewMapper.innerHTML =
+										webSearchData[clost].creator;
+									console.log(webSearchData[clost].source);
+									try {
+										previewSource.innerHTML =
+											webSearchData[clost].source;
+									} catch (_) {}
+									previewVersion2.innerHTML = x.level;
+									try {
+										previewTags.innerHTML =
+											webSearchData[clost].tags;
+									} catch (_) {}
+									previewSong.innerHTML =
+										webSearchData[clost].title;
+									previewArtist.innerHTML =
+										webSearchData[clost].artist;
+									previewVersion.innerHTML = x.level;
+
 									setGlobalIndex(clost);
 
 									setSecondaryIndex(0);
 									await new Promise((r) =>
 										setTimeout(r, 100)
 									);
-
-									
 
 									return;
 									setPrevMusic([
@@ -1115,7 +1117,7 @@ function SongSelectionMenu() {
 
 					<div
 						id="emptyy"
-						className=" h-[110vh]"
+						className=" h-[110svh]"
 						onDragCapture={(e) => {
 							e.preventDefault();
 						}}></div>
@@ -1130,7 +1132,8 @@ function SongSelectionMenu() {
 						style={{
 							pointerEvents: start ? "none" : "auto",
 						}}
-						className="bg-post flex items-center justify-end gap-2 pr-2 duration-300 bg-opacity-25 z-20   border-bcol h-[60px] max-h-[10vh] border-b   backdrop-blur-md border-1 w-full  top-0 left-0  ">
+						className="bg-post flex items-center justify-end gap-2 pr-2 duration-300 bg-opacity-25 z-20   border-bcol h-[60px] max-h-[10svh] border-b   backdrop-blur-md border-1 w-full  top-0 left-0  ">
+						<MusicPlayer />
 						<div
 							onClick={() => {
 								let dm = deleteMode;
@@ -1175,7 +1178,7 @@ function SongSelectionMenu() {
 							}}>
 							{deleteIcon}
 						</div>
-						
+
 						<div
 							className="bg-post p-1 outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-bact  rounded-lg aspect-square h-2/3"
 							style={{
@@ -1260,6 +1263,9 @@ function SongSelectionMenu() {
 											return;
 										}
 										if (onlineMode) {
+											looking.style.height = "3.5svh";
+											looking.style.opacity = "1";
+
 											fetch(uri + "/search", {
 												method: "POST",
 												headers: {
@@ -1275,17 +1281,59 @@ function SongSelectionMenu() {
 												)
 												.then((data) => {
 													resetView();
+													looking.style.height = "";
+													looking.style.opacity = "";
 
 													let res = data;
 													let maps = [];
-													console.log(
-														JSON.parse(
-															res.result[0]
-														)
-													);
+
 													for (let i in res.result) {
 														let x = JSON.parse(
 															res.result[i]
+														);
+														if (i == 1)
+															console.log(x);
+														let lev = [];
+														for (let j in x.beatmaps) {
+															if (
+																x.beatmaps[j]
+																	.mode_int !=
+																0
+															)
+																continue;
+															lev.push({
+																approachRate:
+																	x.beatmaps[
+																		j
+																	].ar,
+																circleSize:
+																	x.beatmaps[
+																		j
+																	].cs,
+																difficulty:
+																	x.beatmaps[
+																		j
+																	].accuracy,
+																hpDrainRate:
+																	x.beatmaps[
+																		j
+																	].drain,
+																id: x.beatmaps[
+																	j
+																].id,
+																level: x
+																	.beatmaps[j]
+																	.version,
+																mapper: x.creator,
+																source: x.source,
+																tags: x.tags,
+																setId: x.id,
+															});
+														}
+														lev.sort(
+															(a, b) =>
+																a.difficulty -
+																b.difficulty
 														);
 														maps.push({
 															artist: x.artist,
@@ -1293,7 +1341,7 @@ function SongSelectionMenu() {
 																x.covers
 																	.cover_2x,
 															creator: x.creator,
-															levels: [],
+															levels: lev,
 															setId: x.id,
 															source: x.source,
 															tags: x.tags,
@@ -1303,7 +1351,6 @@ function SongSelectionMenu() {
 																x.preview_url,
 														});
 													}
-													console.log(maps[0]);
 													setWebSearchData(maps);
 													setSearchKey(searchKey + 1);
 													let ind = -1;
@@ -1355,9 +1402,13 @@ function SongSelectionMenu() {
 
 								fakeClick(0, true);
 							}}></div>
-						
 					</div>
-					{focus && ((metaFiles.length > 0 && !onlineMode)||(onlineMode)) ? <Preview /> : <></>}
+					{focus &&
+					((metaFiles.length > 0 && !onlineMode) || onlineMode) ? (
+						<Preview />
+					) : (
+						<></>
+					)}
 				</div>
 				<div
 					style={{ opacity: start ? 0 : 1 }}
@@ -1366,7 +1417,7 @@ function SongSelectionMenu() {
 					<label
 						//style={{ display: !props.playing ? "" : "none" }}
 						htmlFor="inpp"
-						className="pointer-events-auto  bg-opacity-75  aspect-[2.2/1] flex items-center justify-center  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10vh] z-[11]  rounded-md shadow-lg  cursor-pointer   text-center ">
+						className="pointer-events-auto  bg-opacity-75  aspect-[2.2/1] flex items-center justify-center  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10svh] z-[11]  rounded-md shadow-lg  cursor-pointer   text-center ">
 						<input
 							multiple
 							type="file"
@@ -1379,11 +1430,13 @@ function SongSelectionMenu() {
 						/>
 						Upload
 					</label>
-					<div className="text-bhov fixed bottom-0 right-0 duration-300 flex flex-col bg-post  bg-opacity-75  h-[4vh] pt-[0.5vh] w-[24vh]  overflow-clip rounded-tl-md"
-					style={{opacity:!inter?"1":"0"}}
-					>
-							<div className="h-fit text-[2vh] w-full text-center  overflow-clip font-thin">Click anywhere to unmute</div>
+					<div
+						className="text-bhov fixed bottom-0 right-0 duration-300 flex flex-col bg-post  bg-opacity-75  h-[4svh] pt-[0.5svh] w-[24svh]  overflow-clip rounded-tl-md"
+						style={{ opacity: !inter ? "1" : "0" }}>
+						<div className="h-fit text-[2svh] w-full text-center  overflow-clip font-thin">
+							Click anywhere to unmute
 						</div>
+					</div>
 					<button
 						//style={{ display: !props.playing ? "" : "none" }}
 						style={{
@@ -1417,9 +1470,29 @@ function SongSelectionMenu() {
 
 							return;
 						}}
-						className=" pointer-events-auto  bg-opacity-75 aspect-[2.2/1]  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10vh]  z-[11] duration-300 rounded-md shadow-lg  cursor-pointer   text-center ">
+						className=" pointer-events-auto  bg-opacity-75 aspect-[2.2/1]  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10svh]  z-[11] duration-300 rounded-md shadow-lg  cursor-pointer   text-center ">
 						Load Demo
 					</button>
+					<div
+						id="messagebox"
+						className="text-bhov fixed bottom-0 text-[1.5svh] right-0 duration-300 flex flex-col justify-center item  bg-post  bg-opacity-75  h-fit px-[0.5svh] w-[21svh]  w-fit  overflow-clip rounded-tl-md">
+						<div
+							id="looking"
+							className="duration-300 opacity-0 overflow-hidden h-0 flex items-center">
+							<div className="h-[3.5svh] scale-[60%]">
+								{loader2}
+							</div>{" "}
+							Looking for beatmaps
+						</div>
+						<div
+							id="fetchingSong"
+							className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
+							<div className=" h-[3.5svh] scale-[60%]">
+								{loader2}
+							</div>{" "}
+							Fetching preview audio
+						</div>
+					</div>
 					<div
 						className="absolute hidden w-16 aspect-square bg-black"
 						style={{

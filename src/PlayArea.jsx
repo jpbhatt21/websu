@@ -332,7 +332,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 							completionColors[0] +
 							") 0vh,  rgb(" +
 							completionColors[1] +
-							") 100vh",
+							") 100svh",
 					}}></div>
 				<div
 					className="fixed z-40 rounded-full bottom-0 right-0 h-2 bg-colors-green"
@@ -354,7 +354,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 							completionColors[2] +
 							") 0vh,  rgb(" +
 							completionColors[3] +
-							") 100vh",
+							") 100svh",
 					}}></div>
 			</div>
 		</>
