@@ -24,9 +24,10 @@ import {
 	offlineButton,
 	onlineButton,
 	loader2,
+	donwloadIcon,
 } from "./Utils";
 import PlayArea from "./PlayArea";
-import { uri } from "./App";
+import { uri, uri2 } from "./App";
 import MusicPlayer from "./MusicPlayer";
 let typetimer = null;
 let sctimer = null;
@@ -34,7 +35,7 @@ let musicTimer = null;
 let minis = null;
 let loadTime = null;
 let defaultElementClass =
-	"bg-blank outline fade-in outline-1 mb-[8px] mr-[10px] ml-[10px] outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50svh] shadow-lg nons snap-cetner overflow-hidden ";
+	"bg-blank outline fade-in outline-1 mb-[8px] mr-[10px] ml-[10px] outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50vh] shadow-lg nons snap-cetner overflow-hidden ";
 function SongSelectionMenu() {
 	function getFiles(files, mode = false) {
 		for (let i = 0; i < files.length; i++) {
@@ -48,7 +49,7 @@ function SongSelectionMenu() {
 			} catch (e) {}
 		}
 	}
-	async function getOszFileToUnzip(file, diffe = 0, mode) {
+	async function getOszFileToUnzip(file, diffe = 0, mode, mode2 = false) {
 		// let filz = [];
 		// let test = allFiles;
 		// test.name.push(file.name);
@@ -78,7 +79,7 @@ function SongSelectionMenu() {
 					.file(i)
 					.async("base64")
 					.then(function (blob) {
-						if (i.includes(".osu")) {
+						if (i.slice(i.length - 4, i.length) === ".osu") {
 							osuFiles.push(blob);
 						} else {
 							assets.push({ name: i, file: blob });
@@ -90,7 +91,7 @@ function SongSelectionMenu() {
 		await unzipOsz;
 		let beatmapInfo = [];
 		let preview = [];
-
+		//console.log(osuFiles);
 		for (let i in osuFiles) {
 			beatmapInfo.push(getIndividualBeatMapInfo(osuFiles[i], assets));
 
@@ -134,46 +135,65 @@ function SongSelectionMenu() {
 		const request = indexedDB.open("osuStorage", 2);
 		request.onsuccess = function (event) {
 			const db = event.target.result;
+			let pre = "";
+			if (mode2) pre = "Temp";
 			const transaction = db.transaction(
-				["Assets", "Files", "Meta", "Preview"],
+				[pre + "Assets", pre + "Files", pre + "Meta", pre + "Preview"],
 				"readwrite"
 			);
-			let objectStore = transaction.objectStore("Assets");
+			let objectStore = transaction.objectStore(pre + "Assets");
 			try {
 				const request = objectStore.put(assets);
 			} catch (e) {
 				const request = objectStore.add(assets);
 			}
-			objectStore = transaction.objectStore("Files");
+			objectStore = transaction.objectStore(pre + "Files");
 			try {
 				const request = objectStore.put(osuFiles);
 			} catch (e) {
 				const request = objectStore.add(osuFiles);
 			}
-			objectStore = transaction.objectStore("Meta");
+			objectStore = transaction.objectStore(pre + "Meta");
 			try {
 				const request = objectStore.put(setMeta);
 			} catch (e) {
 				const request = objectStore.add(setMeta);
 			}
-			objectStore = transaction.objectStore("Preview");
+			objectStore = transaction.objectStore(pre + "Preview");
 			try {
 				const request = objectStore.put(preview);
 			} catch (e) {
 				const request = objectStore.add(preview);
 			}
+
+			if (mode2 && mode) {
+				setTempFiles((prev) => [...prev, setMeta]);
+				setStart(true);
+			}
+
+			unzippingSet.style.height = "";
+			unzippingSet.style.opacity = "";
+			if (webSearchData.length > 0) exisiting.push(setMeta.setId);
+
 			setMeta.id = metaData.length;
 			setMetaData((prev) => [...prev, setMeta]);
 			setMetaFiles((prev) => [...prev, setMeta]);
 			try {
 				minis.add(setMeta);
 			} catch (e) {}
-			console.log(mode);
+			setSaved.style.opacity = "1";
+			setSaved.style.height = "3.5vh";
+			setTimeout(() => {
+				setSaved.style.opacity = "0";
+				setSaved.style.height = "0vh";
+			}, 1000);
+			//console.log(mode);
 			if (mode) return;
-			else {
-				console.log("here");
+			else if (scrollMenu.style.opacity == 1) {
+				//console.log("here");
 				fakeClick(Math.max(metaData.length, 1), false);
 				setSearchKey(searchKey + 1);
+			} else {
 			}
 		};
 	}
@@ -197,6 +217,7 @@ function SongSelectionMenu() {
 	const [metaData, setMetaData] = useState([]);
 	const [webSearchData, setWebSearchData] = useState([]);
 	const [metaFiles, setMetaFiles] = useState([]);
+	const [tempFiles, setTempFiles] = useState([]);
 	const [scrollIndex, setScrollIndex] = useState([]);
 	const [globalIndex, setGlobalIndex] = useState(-1);
 	const [secondaryIndex, setSecondaryIndex] = useState(0);
@@ -208,6 +229,9 @@ function SongSelectionMenu() {
 	const [attempts, setAttempts] = useState(0);
 	const [deleteMode, setDeleteMode] = useState(false);
 	const [inter, setInter] = useState(false);
+	const [osuDirect, setOsuDirect] = useState(!true);
+	const [exisiting, setExisting] = useState([]);
+	const [tempOnline, setTempOnline] = useState(false);
 	let loadLimit = parseInt(window.innerHeight / 88);
 	if (loadLimit < 6) loadLimit = 6;
 	function getMetaFiles() {
@@ -261,30 +285,13 @@ function SongSelectionMenu() {
 			}
 		}
 	}
-	async function keyaction2(e) {
-		if (!inter && music.paused) {
-			try {
-				music.play();
-				music.volume = 0;
-				while (music.volume <= 0.9) {
-					music.volume += 0.1;
-					await new Promise((r) => setTimeout(r, 10));
-				}
-				music.volume = 1;
-				if(music.paused)
-					return
-				setInter(true);
-				document.removeEventListener("click", keyaction2);
-			} catch (e) {}
-		}
-	}
 
 	useEffect(() => {
 		if (!focus) return;
 		//document.documentElement.requestFullscreen();
 		loadTime = new Date().getTime();
 		document.addEventListener("keydown", keyaction);
-		document.addEventListener("click", keyaction2);
+
 		const request = indexedDB.open("osuStorage", 2);
 		request.onupgradeneeded = function (event) {
 			const db = event.target.result;
@@ -298,6 +305,18 @@ function SongSelectionMenu() {
 				keyPath: "setId",
 			});
 			objectStore = db.createObjectStore("Preview", {
+				keyPath: "setId",
+			});
+			objectStore = db.createObjectStore("TempFiles", {
+				keyPath: "setId",
+			});
+			objectStore = db.createObjectStore("TempAssets", {
+				keyPath: "setId",
+			});
+			objectStore = db.createObjectStore("TempMeta", {
+				keyPath: "setId",
+			});
+			objectStore = db.createObjectStore("TempPreview", {
 				keyPath: "setId",
 			});
 			// objectStore.createIndex("name", "name", { unique: true });
@@ -347,12 +366,57 @@ function SongSelectionMenu() {
 						}, 2000);
 					}, 10);
 				};
+			db
+				.transaction("TempMeta")
+				.objectStore("TempMeta")
+				.getAll().onsuccess = async function (event) {
+				setTimeout(() => {
+					let result1 = event.target.result;
+
+					if (result1.length > 0) {
+						const request = indexedDB.open("osuStorage", 2);
+						request.onsuccess = function (event) {
+							const db = event.target.result;
+							const transaction = db.transaction(
+								[
+									"TempAssets",
+									"TempFiles",
+									"TempMeta",
+									"TempPreview",
+								],
+								"readwrite"
+							);
+							for (let i2 in result1) {
+								let element = result1[i2];
+								let objectStore =
+									transaction.objectStore("TempAssets");
+								objectStore.delete(element.setId);
+								objectStore =
+									transaction.objectStore("TempFiles");
+								objectStore.delete(element.setId);
+								objectStore =
+									transaction.objectStore("TempMeta");
+								objectStore.delete(element.setId);
+								objectStore =
+									transaction.objectStore("TempPreview");
+								objectStore.delete(element.setId);
+							}
+						};
+					}
+				}, 10);
+			};
 		};
 	}, [focus]);
 	useEffect(() => {
 		if (!start && prevMusic.length > 0) {
 			musicTimer = setTimeout(() => {
-				playSong(prevMusic[0], prevMusic[1], prevMusic[2]);
+				playSong(
+					prevMusic[0],
+					prevMusic[1],
+					prevMusic[2],
+					prevMusic[3],
+					prevMusic[4]
+				);
 			}, 100);
 		} else if (musicTimer != null) {
 			clearTimeout(musicTimer);
@@ -380,11 +444,11 @@ function SongSelectionMenu() {
 								backgroundPosition: "center",
 							}}>
 							<div className="h-full w-full flex flex-row items-center bg-blank pointer-events-none px-3  justify-between bg-opacity-60">
-								<div className="flex  flex-col h-full items-center py-2">
-									<div className="flex leading-[40px]  font-semibold text-[30px] pointer-events-none  self-start text-[#ccc] ">
+								<div className="flex w-full flex-col h-full items-center py-2">
+									<div className="flex leading-[40px] w-full   whitespace-nowrap text-ellipsis font-semibold text-[30px] pointer-events-none  self-start text-[#ccc] ">
 										{element.title}
 									</div>
-									<div className="flex leading-[20px]   self-start ml-2 text-[#bbb] mb-[20px]  pointer-events-none text-[18px]">
+									<div className="flex leading-[20px] w-full   whitespace-nowrap text-ellipsis  self-start ml-2 text-[#bbb] mb-[20px]  pointer-events-none text-[18px]">
 										{element.artist +
 											" - " +
 											element.creator}
@@ -459,9 +523,9 @@ function SongSelectionMenu() {
 							</div>
 						</div>
 
-						<div className="p-2 max-h-[calc(50svh-80px)] overflow-y-scroll  pt-3">
+						<div className="p-2 max-h-[calc(50vh-80px)] overflow-y-scroll  pt-3">
 							<div
-								className="lesvhol l   w-full p-2 -mt-2  "
+								className="levhol l   w-full p-2 -mt-2  "
 								style={{
 									height:
 										96 +
@@ -552,16 +616,18 @@ function SongSelectionMenu() {
 	let list2 = webSearchData.map((element, index) => {
 		return (
 			<div
-				key={"element" + element.setId}
-				id={"element" + index + element.setId}
+				key={"element2" + element.setId}
+				id={"element2" + index + element.setId}
 				className={defaultElementClass + " bg-opacity-10 h-20 "}>
 				{true ? (
 					<>
 						<div
-							onClick={() => {
+							onClick={(e) => {
+								//console.log(e.target);
+								if (e.target != e.currentTarget) return;
 								fakeClick(index, false, true);
 							}}
-							className=" w-full h-20  flex   outline outline-1 outline-bcol   rounded-t-lg"
+							className=" w-full h-20  flex    outline outline-1 outline-bcol   rounded-t-lg"
 							style={{
 								backgroundImage:
 									"url(" + element.backgroundImage + ")",
@@ -569,88 +635,80 @@ function SongSelectionMenu() {
 								backgroundPosition: "center",
 							}}>
 							<div className="h-full w-full flex flex-row items-center bg-blank pointer-events-none px-3  justify-between bg-opacity-60">
-								<div className="flex  flex-col h-full items-center py-2">
-									<div className="flex leading-[40px]  font-semibold text-[30px] pointer-events-none  self-start text-[#ccc] ">
+								<div
+									id={"delete2" + index}
+									className="h-1/2 duration-300 flex items-center justify-center overflow-hidden  text-bcol hover:text-colors-red aspect-square"
+									onClick={(e) => {
+										e.preventDefault();
+										if (
+											fetchingSet.style.height != "" ||
+											unzippingSet.style.height != ""
+										) {
+											waitDC.style.height = "6vh";
+											waitDC.style.opacity = "1";
+											setTimeout(() => {
+												waitDC.style.height = "";
+												waitDC.style.opacity = "";
+											}, 1000);
+											return;
+										}
+										fetchingSet.style.height = "3.5vh";
+										fetchingSet.style.opacity = "1";
+										fetch(
+											uri2 + "/d/" + element.setId // Fetches the file
+										)
+											.then((res) => res.blob()) // Gets the response and returns it as a blob
+											.then((blob) => {
+												fetchingSet.style.height = "";
+												fetchingSet.style.opacity = "";
+												let file = new File(
+													[blob],
+													"test.osz",
+													{
+														type: "application/octet-stream",
+													}
+												);
+												unzippingSet.style.height =
+													"3.5vh";
+												unzippingSet.style.opacity =
+													"1";
+												getOszFileToUnzip(
+													file,
+													0,
+													true,
+													false
+												);
+											});
+									}}
+									style={{
+										opacity: deleteMode ? "1" : "1",
+										pointerEvents: true ? "all" : "none",
+										aspectRatio: exisiting.includes(
+											element.setId
+										)
+											? "1 / 1000"
+											: "",
+									}}>
+									<div className="h-1/2 aspect-square">
+										{donwloadIcon}
+									</div>
+								</div>
+								<div className="flex ml-2 w-full flex-col h-full items-center py-2">
+									<div className="flex leading-[40px] w-full   whitespace-nowrap text-ellipsis  font-semibold text-[30px] pointer-events-none  self-start text-[#ccc] ">
 										{element.title}
 									</div>
-									<div className="flex leading-[20px]   self-start ml-2 text-[#bbb] mb-[20px]  pointer-events-none text-[18px]">
+									<div className="flex leading-[20px] w-full   whitespace-nowrap text-ellipsis   self-start ml-2 text-[#bbb] mb-[20px]  pointer-events-none text-[18px]">
 										{element.artist +
 											" - " +
 											element.creator}
 									</div>
 								</div>
-								<div
-									id={"delete" + index}
-									className="h-1/2 duration-300 hidden text-bcol hover:text-colors-red aspect-square"
-									onClick={(e) => {
-										e.preventDefault();
-										const request = indexedDB.open(
-											"osuStorage",
-											2
-										);
-										request.onsuccess = function (event) {
-											const db = event.target.result;
-											const transaction = db.transaction(
-												[
-													"Assets",
-													"Files",
-													"Meta",
-													"Preview",
-												],
-												"readwrite"
-											);
-											let objectStore =
-												transaction.objectStore(
-													"Assets"
-												);
-											objectStore.delete(element.setId);
-											objectStore =
-												transaction.objectStore(
-													"Files"
-												);
-											objectStore.delete(element.setId);
-											objectStore =
-												transaction.objectStore("Meta");
-											objectStore.delete(element.setId);
-											objectStore =
-												transaction.objectStore(
-													"Preview"
-												);
-											objectStore.delete(element.setId);
-											let temp = metaData;
-											temp = temp.filter(
-												(x) => x.setId != element.setId
-											);
-											let temp2 = metaFiles;
-											temp2 = temp2.filter(
-												(x) => x.setId != element.setId
-											);
-											let box = document.getElementById(
-												"element" + index
-											);
-											box.style.marginLeft = "150%";
-											box.style.marginBottom = "0px";
-											box.style.height = "0px";
-											setTimeout(() => {
-												setMetaData(temp);
-												setMetaFiles(temp2);
-											}, 300);
-										};
-									}}
-									style={{
-										opacity: deleteMode ? "1" : "0",
-										pointerEvents: deleteMode
-											? "all"
-											: "none",
-									}}>
-									{crossIcon}
-								</div>
 							</div>
 						</div>
 
-						<div className="p-2 max-h-[calc(50svh-80px)] overflow-y-scroll  pt-3">
+						<div className="p-2 max-h-[calc(50vh-80px)] overflow-y-scroll  pt-3">
 							<div
-								className="lesvhol l   w-full p-2 -mt-2  "
+								className="levhol l   w-full p-2 -mt-2  "
 								style={{
 									height:
 										96 +
@@ -666,7 +724,57 @@ function SongSelectionMenu() {
 										onClick={(e) => {
 											setSecondaryIndex(index2);
 											if (secondaryIndex == index2) {
-												setStart(true);
+												////console.log("https://catboy.best/d/ orrr"+uri2+"/d/")
+												let y = tempFiles.filter(
+													(x) =>
+														x.setId == element.setId
+												);
+												let z = metaFiles.filter(
+													(x) =>
+														x.setId == element.setId
+												);
+												if (z.length > 0) {
+													setTempOnline(false);
+													setStart(true);
+													return;
+												}
+												setTempOnline(true);
+
+												if (y.length > 0) {
+													setStart(true);
+													return;
+												}
+												fetchingSet.style.height =
+													"3.5vh";
+												fetchingSet.style.opacity = "1";
+												fetch(
+													uri2 + "/d/" + element.setId // Fetches the file
+												)
+													.then((res) => res.blob()) // Gets the response and returns it as a blob
+													.then((blob) => {
+														fetchingSet.style.height =
+															"";
+														fetchingSet.style.opacity =
+															"";
+														let file = new File(
+															[blob],
+															"test.osz",
+															{
+																type: "application/octet-stream",
+															}
+														);
+														unzippingSet.style.height =
+															"3.5vh";
+														unzippingSet.style.opacity =
+															"1";
+														getOszFileToUnzip(
+															file,
+															0,
+															true,
+															true
+														);
+													});
+												return;
 											} else {
 												setSecondaryIndex(index2);
 
@@ -758,7 +866,7 @@ function SongSelectionMenu() {
 			setBackground("", true);
 		} catch (_) {}
 		try {
-			playSong("", 0, 0, true);
+			playSong("", 0, 0, "-", true);
 		} catch (_) {}
 
 		try {
@@ -783,7 +891,7 @@ function SongSelectionMenu() {
 				<div
 					key={searchKey}
 					id="scrollMenu"
-					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50svh-88px)]    "
+					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]    "
 					onScroll={(e) => {
 						if (deleteMode || metaData.length < 1) return;
 
@@ -882,7 +990,8 @@ function SongSelectionMenu() {
 									playSong(
 										metaData[clost].setId,
 										0,
-										x.previewTime
+										x.previewTime,
+										metaData[clost].title
 									);
 									setBackground(
 										metaData[clost].backgroundImage
@@ -924,6 +1033,8 @@ function SongSelectionMenu() {
 										metaData[clost].setId,
 										0,
 										x.previewTime,
+										metaData[clost].title,
+										false,
 									]);
 									return;
 								}
@@ -941,7 +1052,7 @@ function SongSelectionMenu() {
 
 					<div
 						id="emptyy2"
-						className=" h-[110svh]"
+						className=" h-[110vh]"
 						onDragCapture={(e) => {
 							e.preventDefault();
 						}}></div>
@@ -949,7 +1060,7 @@ function SongSelectionMenu() {
 				<div
 					key={searchKey + "2"}
 					id="scrollMenu2"
-					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50svh-88px)]    "
+					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]    "
 					onScroll={(e) => {
 						if (onlineMode && webSearchData.length < 1) return;
 						scrollMenu2.style.scrollSnapType = "none";
@@ -1049,6 +1160,7 @@ function SongSelectionMenu() {
 										webSearchData[clost].songPreview,
 										0,
 										0,
+										webSearchData[clost].title,
 										true
 									);
 									setBackground(
@@ -1072,7 +1184,7 @@ function SongSelectionMenu() {
 										x.difficulty * 10 + "%";
 									previewMapper.innerHTML =
 										webSearchData[clost].creator;
-									console.log(webSearchData[clost].source);
+									//console.log(webSearchData[clost].source);
 									try {
 										previewSource.innerHTML =
 											webSearchData[clost].source;
@@ -1095,11 +1207,12 @@ function SongSelectionMenu() {
 										setTimeout(r, 100)
 									);
 
-									return;
 									setPrevMusic([
-										webSearchData[clost].setId,
+										webSearchData[clost].songPreview,
 										0,
-										x.previewTime,
+										0,
+										webSearchData[clost].title,
+										true,
 									]);
 									return;
 								}
@@ -1117,7 +1230,7 @@ function SongSelectionMenu() {
 
 					<div
 						id="emptyy"
-						className=" h-[110svh]"
+						className=" h-[110vh]"
 						onDragCapture={(e) => {
 							e.preventDefault();
 						}}></div>
@@ -1132,7 +1245,7 @@ function SongSelectionMenu() {
 						style={{
 							pointerEvents: start ? "none" : "auto",
 						}}
-						className="bg-post flex items-center justify-end gap-2 pr-2 duration-300 bg-opacity-25 z-20   border-bcol h-[60px] max-h-[10svh] border-b   backdrop-blur-md border-1 w-full  top-0 left-0  ">
+						className="bg-post flex items-center justify-end gap-2 pr-2 duration-300 bg-opacity-25 z-20   border-bcol h-[60px] max-h-[10vh] border-b   backdrop-blur-md border-1 w-full  top-0 left-0  ">
 						<MusicPlayer />
 						<div
 							onClick={() => {
@@ -1262,8 +1375,8 @@ function SongSelectionMenu() {
 
 											return;
 										}
-										if (onlineMode) {
-											looking.style.height = "3.5svh";
+										if (onlineMode && osuDirect) {
+											looking.style.height = "3.5vh";
 											looking.style.opacity = "1";
 
 											fetch(uri + "/search", {
@@ -1291,8 +1404,7 @@ function SongSelectionMenu() {
 														let x = JSON.parse(
 															res.result[i]
 														);
-														if (i == 1)
-															console.log(x);
+														
 														let lev = [];
 														for (let j in x.beatmaps) {
 															if (
@@ -1359,6 +1471,113 @@ function SongSelectionMenu() {
 													fakeClick(0, true, true);
 												});
 											return;
+										} else if (onlineMode) {
+											looking.style.height = "3.5vh";
+											looking.style.opacity = "1";
+
+											fetch(
+												uri2 +
+													"/api/v2/search?" +
+													new URLSearchParams({
+														query: searchbox.value,
+														limit: 50,
+														mode: 0,
+													}).toString(),
+												{
+													method: "GET",
+													headers: {
+														"Content-Type":
+															"application/json",
+													},
+												}
+											)
+												.then((response) =>
+													response.json()
+												)
+												.then((data) => {
+													resetView();
+													looking.style.height = "";
+													looking.style.opacity = "";
+
+													let res = data;
+													let maps = [];
+													let ex = [];
+													let yx = metaFiles.map(
+														(x) => x.setId
+													);
+													for (let i in res) {
+														let x = res[i];
+														if (yx.includes(x.id))
+															ex.push(x.id);
+
+														let lev = [];
+														for (let j in x.beatmaps) {
+															if (
+																x.beatmaps[j]
+																	.mode_int !=
+																0
+															)
+																continue;
+															lev.push({
+																approachRate:
+																	x.beatmaps[
+																		j
+																	].ar,
+																circleSize:
+																	x.beatmaps[
+																		j
+																	].cs,
+																difficulty:
+																	x.beatmaps[
+																		j
+																	].accuracy,
+																hpDrainRate:
+																	x.beatmaps[
+																		j
+																	].drain,
+																id: x.beatmaps[
+																	j
+																].id,
+																level: x
+																	.beatmaps[j]
+																	.version,
+																mapper: x.creator,
+																source: x.source,
+																tags: x.tags,
+																setId: x.id,
+															});
+														}
+														lev.sort(
+															(a, b) =>
+																a.difficulty -
+																b.difficulty
+														);
+														maps.push({
+															artist: x.artist,
+															backgroundImage:
+																x.covers[
+																	"cover@2x"
+																],
+															creator: x.creator,
+															levels: lev,
+															setId: x.id,
+															source: x.source,
+															tags: x.tags,
+															title: x.title,
+															songPreview:
+																"https:" +
+																x.preview_url,
+														});
+													}
+													setWebSearchData(maps);
+													setExisting(ex);
+													setSearchKey(searchKey + 1);
+													let ind = -1;
+													setGlobalIndex(ind);
+													setSecondaryIndex(0);
+													fakeClick(0, true, true);
+												});
+											return;
 										}
 										let res = minis.search(e.target.value);
 										let temp = [];
@@ -1417,7 +1636,7 @@ function SongSelectionMenu() {
 					<label
 						//style={{ display: !props.playing ? "" : "none" }}
 						htmlFor="inpp"
-						className="pointer-events-auto  bg-opacity-75  aspect-[2.2/1] flex items-center justify-center  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10svh] z-[11]  rounded-md shadow-lg  cursor-pointer   text-center ">
+						className="pointer-events-auto  bg-opacity-75  aspect-[2.2/1] flex items-center justify-center  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10vh] z-[11]  rounded-md shadow-lg  cursor-pointer   text-center ">
 						<input
 							multiple
 							type="file"
@@ -1431,9 +1650,9 @@ function SongSelectionMenu() {
 						Upload
 					</label>
 					<div
-						className="text-bhov fixed bottom-0 right-0 duration-300 flex flex-col bg-post  bg-opacity-75  h-[4svh] pt-[0.5svh] w-[24svh]  overflow-clip rounded-tl-md"
-						style={{ opacity: !inter ? "1" : "0" }}>
-						<div className="h-fit text-[2svh] w-full text-center  overflow-clip font-thin">
+						className="text-bhov fixed bottom-0 right-0 duration-300 flex flex-col bg-post  bg-opacity-75  h-[4vh] pt-[0.5vh] w-[24vh]  overflow-clip rounded-tl-md"
+						id="clickToUnmute">
+						<div className="h-fit text-[2vh] w-full text-center  overflow-clip font-thin">
 							Click anywhere to unmute
 						</div>
 					</div>
@@ -1453,7 +1672,7 @@ function SongSelectionMenu() {
 									let file = new File([blob], "demo1.osz", {
 										type: "application/octet-stream",
 									});
-									console.log(file);
+									//console.log(file);
 									getFiles([file]);
 								});
 							fetch(
@@ -1464,22 +1683,22 @@ function SongSelectionMenu() {
 									let file = new File([blob], "demo1.osz", {
 										type: "application/octet-stream",
 									});
-									console.log(file);
+									//console.log(file);
 									getFiles([file], true);
 								});
 
 							return;
 						}}
-						className=" pointer-events-auto  bg-opacity-75 aspect-[2.2/1]  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10svh]  z-[11] duration-300 rounded-md shadow-lg  cursor-pointer   text-center ">
+						className=" pointer-events-auto  bg-opacity-75 aspect-[2.2/1]  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10vh]  z-[11] duration-300 rounded-md shadow-lg  cursor-pointer   text-center ">
 						Load Demo
 					</button>
 					<div
 						id="messagebox"
-						className="text-bhov fixed bottom-0 text-[1.5svh] right-0 duration-300 flex flex-col justify-center item  bg-post  bg-opacity-75  h-fit px-[0.5svh] w-[21svh]  w-fit  overflow-clip rounded-tl-md">
+						className="text-bhov fixed bottom-0 text-[1.5vh] right-0 duration-300 flex flex-col justify-center item  bg-post  bg-opacity-75  h-fit px-[0.5vh] w-[21vh]  w-fit  overflow-clip rounded-tl-md">
 						<div
 							id="looking"
 							className="duration-300 opacity-0 overflow-hidden h-0 flex items-center">
-							<div className="h-[3.5svh] scale-[60%]">
+							<div className="h-[3.5vh] scale-[60%]">
 								{loader2}
 							</div>{" "}
 							Looking for beatmaps
@@ -1487,10 +1706,42 @@ function SongSelectionMenu() {
 						<div
 							id="fetchingSong"
 							className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
-							<div className=" h-[3.5svh] scale-[60%]">
+							<div className=" h-[3.5vh] scale-[60%]">
 								{loader2}
 							</div>{" "}
 							Fetching preview audio
+						</div>
+						<div
+							id="fetchingSet"
+							className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
+							<div className=" h-[3.5vh] scale-[60%]">
+								{loader2}
+							</div>{" "}
+							Downloading Beatmap
+						</div>
+						<div
+							id="unzippingSet"
+							className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
+							<div className=" h-[3.5vh] scale-[60%]">
+								{loader2}
+							</div>{" "}
+							Unzipping Beatmap Set
+						</div>
+						<div
+							id="setSaved"
+							className=" flex items-center opacity-0  text-colors-green overflow-hidden duration-300  h-0">
+							<div className=" h-[3.5vh] opacity-0 scale-[60%]">
+								{loader2}
+							</div>{" "}
+							Saved Successfully
+						</div>
+						<div
+							id="waitDC"
+							className=" flex items-center opacity-0  text-colors-yellow overflow-hidden duration-300  h-0">
+							<div className=" h-[3.5vh] opacity-0 scale-[60%]">
+								{loader2}
+							</div>{" "}
+							Wait for previous task to complete
 						</div>
 					</div>
 					<div
@@ -1578,10 +1829,20 @@ function SongSelectionMenu() {
 			</div>
 			{start ? (
 				<PlayArea
-					setId={metaData[globalIndex].setId}
-					id={metaData[globalIndex].levels[secondaryIndex].id}
+					setId={
+						onlineMode
+							? webSearchData[globalIndex].setId
+							: metaData[globalIndex].setId
+					}
+					id={
+						onlineMode
+							? webSearchData[globalIndex].levels[secondaryIndex]
+									.id
+							: metaData[globalIndex].levels[secondaryIndex].id
+					}
 					setStart={setStart}
 					attempts={attempts}
+					online={tempOnline}
 				/>
 			) : (
 				<></>

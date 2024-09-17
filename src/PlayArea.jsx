@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { backgroundImage, decodeBeatMap, music } from "./Utils";
-function PlayArea({ setId = 0, id = 0, setStart }) {
+function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 	const [approachRate, setApproachRate] = useState(0);
 	const [hpDrain, setHpDrain] = useState(0);
 	const [circleSize, setCircleSize] = useState(0);
@@ -20,12 +20,15 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 		const request = indexedDB.open("osuStorage", 2);
 		request.onsuccess = function (event) {
 			const db = event.target.result;
-			db.transaction("Files").objectStore("Files").get(setId).onsuccess =
+			let pre=""
+			if(online)
+				pre="Temp"
+			db.transaction(pre+"Files").objectStore(pre+"Files").get(setId).onsuccess =
 				async function (event) {
 					const file = event.target.result.files.find(
 						(x) => x.id == id
 					);
-					let x = await decodeBeatMap(file.file, setId);
+					let x = await decodeBeatMap(file.file, setId,online);
 
 					await new Promise((resolve) => {
 						setTimeout(() => {
@@ -57,7 +60,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 					setTimingPoints(x[3]);
 					setColors(x[4]);
 					setCompletionColors(x[6]);
-					console.log(x[6]);
+					//console.log(x[6]);
 					setTime(0);
 					var AudioContext =
 						window.AudioContext || window.webkitAudioContext;
@@ -332,7 +335,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 							completionColors[0] +
 							") 0vh,  rgb(" +
 							completionColors[1] +
-							") 100svh",
+							") 100vh",
 					}}></div>
 				<div
 					className="fixed z-40 rounded-full bottom-0 right-0 h-2 bg-colors-green"
@@ -354,7 +357,7 @@ function PlayArea({ setId = 0, id = 0, setStart }) {
 							completionColors[2] +
 							") 0vh,  rgb(" +
 							completionColors[3] +
-							") 100svh",
+							") 100vh",
 					}}></div>
 			</div>
 		</>

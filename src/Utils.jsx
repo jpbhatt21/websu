@@ -1,6 +1,6 @@
 export let backgroundImage = document.getElementById("backgroundImage");
 export let music = new Audio();
-
+import utf8 from "utf8";
 let pSliderPathCache = { points: [], path: [] };
 let bSliderPathCache = { points: [], path: [] };
 let css = 0;
@@ -97,11 +97,24 @@ export function getIndividualBeatMapInfo(file2, assets) {
 		bgImgLine++;
 	imp.backgroundImage = lines[bgImgLine].split(",")[2].slice(1, -1).trim();
 
-	console.log(imp.backgroundImage);
 	imp.backgroundImage = cleanse(imp.backgroundImage);
-	imp.backgroundImage = assets.filter(
-		(x) => x.name == imp.backgroundImage
-	)[0].file;
+	//console.log(assets);
+	try {
+		imp.backgroundImage = assets.filter(
+			(x) => cleanse(x.name) == imp.backgroundImage
+		)[0].file;
+	} catch (e) {
+		let maxIndex = 0;
+		let maxScore = 0;
+		assets.map((x, i) => {
+			let y = similarity(x.name, imp.backgroundImage);
+			if (y > maxScore) {
+				maxIndex = i;
+				maxScore = y;
+			}
+		});
+		imp.backgroundImage = assets[maxIndex].file;
+	}
 	imp.audioFile = assets.find((x) =>
 		x.name.includes(
 			lines
@@ -138,9 +151,54 @@ export function getIndividualBeatMapInfo(file2, assets) {
 	imp.file = file2;
 	return imp;
 }
+function testing(s1, s2) {
+	//console.log(similarity(s1, s2));
+	return false;
+}
+function similarity(s1, s2) {
+	var longer = s1;
+	var shorter = s2;
+	if (s1.length < s2.length) {
+		longer = s2;
+		shorter = s1;
+	}
+	var longerLength = longer.length;
+	if (longerLength == 0) {
+		return 1.0;
+	}
+	return (
+		(longerLength - editDistance(longer, shorter)) /
+		parseFloat(longerLength)
+	);
+}
+function editDistance(s1, s2) {
+	s1 = s1.toLowerCase();
+	s2 = s2.toLowerCase();
 
+	var costs = new Array();
+	for (var i = 0; i <= s1.length; i++) {
+		var lastValue = i;
+		for (var j = 0; j <= s2.length; j++) {
+			if (i == 0) costs[j] = j;
+			else {
+				if (j > 0) {
+					var newValue = costs[j - 1];
+					if (s1.charAt(i - 1) != s2.charAt(j - 1))
+						newValue =
+							Math.min(Math.min(newValue, lastValue), costs[j]) +
+							1;
+					costs[j - 1] = lastValue;
+					lastValue = newValue;
+				}
+			}
+		}
+		if (i > 0) costs[s2.length] = lastValue;
+	}
+	return costs[s2.length];
+}
+//console.log(utf8.decode("?vtelen.png\u0000"));
 export async function setBackground(data, mode = false) {
-	console.log("in");
+	//console.log("in");
 	if (backgroundImage.src == "data:image/png;base64," + data) return;
 	if (mode && backgroundImage.src != data)
 		backgroundImage.style.transitionDuration = "0.3s";
@@ -198,7 +256,7 @@ export async function setPreviewImage(
 			};
 	};
 }
-export async function playSong(setID, index, previewTime, mode = false) {
+export async function playSong(setID, index, previewTime, title, mode = false) {
 	let de2 = async (song) => {
 		if (music.src == song) return;
 		while (music.volume >= 0.1) {
@@ -217,6 +275,7 @@ export async function playSong(setID, index, previewTime, mode = false) {
 		de2(song);
 		setTimeout(async () => {
 			music.setAttribute("src", song);
+			music.title = title;
 			music.load();
 			music.play();
 			fetchingSong.style.height = "";
@@ -241,13 +300,16 @@ export async function playSong(setID, index, previewTime, mode = false) {
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = async function (event) {
 		const db = event.target.result;
+
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
 			async function (event) {
 				let song = event.target.result.files[index];
-				diver(song);
+				if(music.src.length>0)
+					diver(song);
 
 				setTimeout(async () => {
 					music.setAttribute("src", "data:audio/wav;base64," + song);
+					music.title = title;
 					music.load();
 					music.currentTime = previewTime / 1000;
 					music.play();
@@ -262,46 +324,48 @@ export async function playSong(setID, index, previewTime, mode = false) {
 }
 let musicLoaded = false;
 let videoLoaded = false;
-export function setMusic(file, setId) {
+export function setMusic(file, setId, mode) {
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = function (event) {
 		const db = event.target.result;
-		db.transaction("Assets").objectStore("Assets").get(setId).onsuccess =
-			function (event) {
-				let song = event.target.result.files.find(
-					(x) => x.name == file
-				);
-				music.setAttribute("src", "data:audio/wav;base64," + song.file);
-				music.load();
-				music.pause();
-				music.currentTime = 0;
-				musicLoaded = true;
-			};
+		let pre = "";
+		if (mode) pre = "Temp";
+		db
+			.transaction(pre + "Assets")
+			.objectStore(pre + "Assets")
+			.get(setId).onsuccess = function (event) {
+			let song = event.target.result.files.find((x) => x.name == file);
+			music.setAttribute("src", "data:audio/wav;base64," + song.file);
+			music.load();
+			music.pause();
+			music.currentTime = 0;
+			musicLoaded = true;
+		};
 	};
 }
-export function setBackgroundVideo(file, setId) {
+export function setBackgroundVideo(file, setId, mode) {
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = function (event) {
 		const db = event.target.result;
-		db.transaction("Assets").objectStore("Assets").get(setId).onsuccess =
-			async function (event) {
-				let video = event.target.result.files.find(
-					(x) => x.name == file
-				);
-				console.log(video.file);
-				backgroundVideoSource1.src =
-					"data:video/avi;base64," + video.file;
-				backgroundVideo.load();
-				backgroundVideo.play();
+		let pre = "";
+		if (mode) pre = "Temp";
+		db
+			.transaction(pre + "Assets")
+			.objectStore(pre + "Assets")
+			.get(setId).onsuccess = async function (event) {
+			let video = event.target.result.files.find((x) => x.name == file);
+			backgroundVideoSource1.src = "data:video/avi;base64," + video.file;
+			backgroundVideo.load();
+			backgroundVideo.play();
 
-				backgroundVideo.pause();
-				backgroundVideo.currentTime = 0;
+			backgroundVideo.pause();
+			backgroundVideo.currentTime = 0;
 
-				backgroundImage.style.opacity = 0;
-				await new Promise((r) => setTimeout(r, 300));
-				backgroundImage.style.display = "none";
-				videoLoaded = true;
-			};
+			backgroundImage.style.opacity = 0;
+			await new Promise((r) => setTimeout(r, 300));
+			backgroundImage.style.display = "none";
+			videoLoaded = true;
+		};
 	};
 }
 export function fakeClick(index, index2, mode = false) {
@@ -319,6 +383,49 @@ export function fakeClick(index, index2, mode = false) {
 		}
 	}, 20);
 }
+export let donwloadIcon = (
+	<svg 
+  viewBox="0 0 24 24" 
+  fill="none" 
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
+  <g id="SVGRepo_iconCarrier">
+    <g id="Interface / Download">
+      <path 
+        id="Vector" 
+        d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" 
+        stroke="currentColor" 
+        strokeWidth="2" 
+        strokeLinecap="round" 
+        strokeLinejoin="round"
+      ></path>
+    </g>
+  </g>
+</svg>
+);
+export let unmuteIcon = (
+	<svg
+		className="scale-[150%] h-full"
+		viewBox="0 0 24 24"
+		fill="currentColor"
+		xmlns="http://www.w3.org/2000/svg"
+		stroke="currentColor">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				d="M15 16.5858V7.41421C15 6.52331 13.9229 6.07714 13.2929 6.70711L11.2929 8.70711C11.1054 8.89464 10.851 9 10.5858 9H9C8.44772 9 8 9.44772 8 10V14C8 14.5523 8.44772 15 9 15H10.5858C10.851 15 11.1054 15.1054 11.2929 15.2929L13.2929 17.2929C13.9229 17.9229 15 17.4767 15 16.5858Z"
+				stroke="currentColor"
+				strokeWidth="2"
+				strokeLinecap="round"></path>
+		</g>
+	</svg>
+);
 export let crossIcon = (
 	<svg viewBox="0 -0.5 25 25" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -400,8 +507,8 @@ export let loader = (
 );
 export let loader2 = (
 	<svg
-		height="full"
-		className="spin"
+		
+		className="spin h-full"
 		viewBox="0 0 24 24"
 		fill="none"
 		xmlns="http://www.w3.org/2000/svg">
@@ -575,7 +682,7 @@ export let onlineButton = (
 		</g>
 	</svg>
 );
-export async function decodeBeatMap(base64, setId) {
+export async function decodeBeatMap(base64, setId, online) {
 	musicLoaded = false;
 	let osuFile = window.atob(base64);
 	osuFile = osuFile.split("\n");
@@ -589,7 +696,7 @@ export async function decodeBeatMap(base64, setId) {
 	);
 	gen = gen.map((line) => line.split(": "));
 	gen = Object.fromEntries(gen);
-	setMusic(cleanse(gen["AudioFilename"]), setId);
+	setMusic(cleanse(gen["AudioFilename"]), setId, online);
 	let isVideo = false;
 	if (events[2].includes("Video")) {
 		isVideo = true;
@@ -597,7 +704,7 @@ export async function decodeBeatMap(base64, setId) {
 		if (name.includes(".avi")) {
 			isVideo = false;
 			videoLoaded = true;
-		} else setBackgroundVideo(name, setId);
+		} else setBackgroundVideo(name, setId, online);
 	} else videoLoaded = true;
 
 	let difficulty = osuFile.slice(
@@ -631,7 +738,7 @@ export async function decodeBeatMap(base64, setId) {
 	let cs = 54.4 - 4.48 * parseInt(difficulty["CircleSize"]);
 	let oldcs = JSON.parse(JSON.stringify(cs));
 	cs = (cs * 384) / (384 - cs * 3);
-	console.log(cs / oldcs, (384 + cs * 3) / 384);
+	//console.log(cs / oldcs, (384 + cs * 3) / 384);
 	css = cs;
 	let hitObjects = osuFile.slice(
 		osuFile.findIndex((line) => line.includes("[HitObjects]")) + 1
