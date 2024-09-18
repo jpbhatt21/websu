@@ -17,13 +17,15 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 	useEffect(() => {
 		music.pause();
 		music.currentTime = 0;
-		const request = indexedDB.open("osuStorage", 2);
+		console.log(online,setId,id)
+		let pre="websu"
+			if(online)
+				pre = "tempWebsu"
+		const request = indexedDB.open(pre+"Storage", 2);
 		request.onsuccess = function (event) {
 			const db = event.target.result;
-			let pre=""
-			if(online)
-				pre="Temp"
-			db.transaction(pre+"Files").objectStore(pre+"Files").get(setId).onsuccess =
+			
+			db.transaction("Files").objectStore("Files").get(setId).onsuccess =
 				async function (event) {
 					const file = event.target.result.files.find(
 						(x) => x.id == id
@@ -41,6 +43,7 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 							resolve();
 						}, 1000);
 					});
+					console.log(x[2].filter((x)=>x[0]==0))
 					let timedSlidersCollection = [];
 
 					let timedHitObjectsCollection = [];

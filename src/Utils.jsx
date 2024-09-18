@@ -39,6 +39,38 @@ export function getBeatMapCollectionInfo(file) {
 
 	return imp;
 }
+export let colors= {
+	dark: {
+		100: "#4C566A",
+		200: "#434C5E",
+		300: "#3B4252",
+		400: "#2E3440",
+	},
+	light: {
+		100: "#ECEFF4",
+		200: "#E5E9F0",
+		300: "#D8DEE9",
+	},
+	blue: {
+		100: "#5E81AC",
+		200: "#81A1C1",
+		300: "#88C0D0",
+		400: "#8FBCBB",
+	},
+	colors: {
+		red: "#BF616A",
+		orange: "#D08770",
+		yellow: "#EBCB8B",
+		green: "#A3BE8C",
+		purple: "#B48EAD",
+	},
+blank: "#1b1b1b",
+	post: "#252525",
+	bcol: "#939393",
+	bhov: "#a3a3a3",
+	bact: "#b3b3b3",
+}
+
 export function cleanse(str) {
 	str = str.trim();
 	while (str[0] == "'" || str[0] == '"') str = str.slice(1);
@@ -116,6 +148,7 @@ export function getIndividualBeatMapInfo(file2, assets) {
 		});
 		imp.backgroundImage = assets[maxIndex].file;
 	}
+	try{
 	imp.audioFile = assets.find((x) =>
 		x.name.includes(
 			lines
@@ -124,6 +157,22 @@ export function getIndividualBeatMapInfo(file2, assets) {
 				.trim()
 		)
 	).file;
+}
+catch(e){
+	let maxIndex = 0;
+	let maxScore = 0;
+	assets.map((x, i) => {
+		let y = similarity(x.name, lines
+			.filter((x) => x.includes("AudioFilename:"))[0]
+			.split(":")[1]
+			.trim());
+		if (y > maxScore) {
+			maxIndex = i;
+			maxScore = y;
+		}
+	});
+	imp.audioFile = assets[maxIndex].file;
+}
 	imp.audioLeadIn = parseFloat(
 		lines
 			.filter((x) => x.includes("AudioLeadIn:"))[0]
@@ -234,7 +283,7 @@ export async function setPreviewImage(
 	 
 	if (mode) {
 		if (previewImage.src == index) return;
-		if (secondaryIndex == 0 && !settingsVal.showBackground) setBackground(index, mode);
+		if ( settingsVal.showBackground) setBackground(index, mode);
 		if(!settingsVal.showPreviewImage)
 			return
 		if (settingsVal.animateBackground) {
@@ -247,7 +296,7 @@ export async function setPreviewImage(
 
 		return;
 	}
-	const request = indexedDB.open("osuStorage", 2);
+	const request = indexedDB.open("websuStorage", 2);
 	request.onsuccess = function (event) {
 		const db = event.target.result;
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
@@ -280,6 +329,7 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 			await new Promise((r) => setTimeout(r, 10));
 		}
 		music.volume = 0;
+		return
 	};
 	if (mode) {
 		if (setID != "") {
@@ -288,7 +338,7 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 		}
 
 		let song = setID;
-		de2(song);
+		await de2(song);
 		setTimeout(async () => {
 			music.setAttribute("src", song);
 			music.title = title;
@@ -313,14 +363,14 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 		music.volume = 0;
 		return;
 	};
-	const request = indexedDB.open("osuStorage", 2);
+	const request = indexedDB.open("websuStorage", 2);
 	request.onsuccess = async function (event) {
 		const db = event.target.result;
 
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
 			async function (event) {
 				let song = event.target.result.files[index];
-				if (music.src.length > 0) diver(song);
+				if (music.src.length > 0) await diver(song);
 
 				setTimeout(async () => {
 					music.setAttribute("src", "data:audio/wav;base64," + song);
@@ -340,16 +390,33 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 let musicLoaded = false;
 let videoLoaded = false;
 export function setMusic(file, setId, mode) {
-	const request = indexedDB.open("osuStorage", 2);
+	let pre = "websu";
+		if (mode) pre = "tempWebsu";
+	const request = indexedDB.open(pre+"Storage", 2);
 	request.onsuccess = function (event) {
 		const db = event.target.result;
-		let pre = "";
-		if (mode) pre = "Temp";
+		
 		db
-			.transaction(pre + "Assets")
-			.objectStore(pre + "Assets")
+			.transaction("Assets")
+			.objectStore( "Assets")
 			.get(setId).onsuccess = function (event) {
 			let song = event.target.result.files.find((x) => x.name == file);
+			console.log(song)
+			if(song==undefined)
+			{
+				let maxIndex = 0;
+				let maxScore = 0;
+				event.target.result.files.map((x, i) => {
+					let y = similarity(x.name, file);
+					if (y > maxScore) {
+						maxIndex = i;
+						maxScore = y;
+					}
+				});
+
+				song = event.target.result.files[maxIndex];
+
+			}
 			music.setAttribute("src", "data:audio/wav;base64," + song.file);
 			music.load();
 			music.pause();
@@ -359,16 +426,32 @@ export function setMusic(file, setId, mode) {
 	};
 }
 export function setBackgroundVideo(file, setId, mode) {
-	const request = indexedDB.open("osuStorage", 2);
+	let pre = "websu";
+		if (mode) pre = "tempWebsu";
+	const request = indexedDB.open(pre+"Storage", 2);
 	request.onsuccess = function (event) {
 		const db = event.target.result;
-		let pre = "";
-		if (mode) pre = "Temp";
+		
 		db
-			.transaction(pre + "Assets")
-			.objectStore(pre + "Assets")
+			.transaction( "Assets")
+			.objectStore( "Assets")
 			.get(setId).onsuccess = async function (event) {
 			let video = event.target.result.files.find((x) => x.name == file);
+			if(video==undefined)
+			{
+				let maxIndex = 0;
+				let maxScore = 0;
+				event.target.result.files.map((x, i) => {
+					let y = similarity(x.name, file);
+					if (y > maxScore) {
+						maxIndex = i;
+						maxScore = y;
+					}
+				});
+
+				video = event.target.result.files[maxIndex];
+
+			}
 			backgroundVideoSource1.src = "data:video/avi;base64," + video.file;
 			backgroundVideo.load();
 			backgroundVideo.play();
@@ -383,21 +466,49 @@ export function setBackgroundVideo(file, setId, mode) {
 		};
 	};
 }
+export function setBackgroundImage(file,setId,mode){
+	let pre = "websu";
+		if (mode) pre = "tempWebsu";
+	const request = indexedDB.open(pre+"Storage", 2);
+	request.onsuccess = function (event) {
+		const db = event.target.result;
+		
+		db
+			.transaction("Assets")
+			.objectStore("Assets")
+			.get(setId).onsuccess = async function (event) {
+			let img = event.target.result.files.find((x) => x.name == file);
+			if(img==undefined)
+			{
+				let maxIndex = 0;
+				let maxScore = 0;
+				event.target.result.files.map((x, i) => {
+					let y = similarity(x.name, file);
+					if (y > maxScore) {
+						maxIndex = i;
+						maxScore = y;
+					}
+				});
+
+				img = event.target.result.files[maxIndex];
+
+			}
+			setBackground(img.file, false);
+			videoLoaded = true;
+		};
+	};
+}
 export function fakeClick(index, index2, mode = false) {
 	setTimeout(() => {
 		if (index2) {
-			if (mode) {
-				scrollMenu2.scrollTo({ top: 0.1 * 88 });
-				return;
-			}
+			
 			scrollMenu.scrollTo({ top: 0.1 * 88 });
-		} else if (mode) {
-			scrollMenu2.scrollTo({ top: index * 88, behavior: "smooth" });
-		} else {
+		}  else {
 			scrollMenu.scrollTo({ top: index * 88, behavior: "smooth" });
 		}
 	}, 20);
 }
+
 export let donwloadIcon = (
 	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
@@ -709,15 +820,27 @@ export async function decodeBeatMap(base64, setId, online) {
 	gen = gen.map((line) => line.split(": "));
 	gen = Object.fromEntries(gen);
 	setMusic(cleanse(gen["AudioFilename"]), setId, online);
+	let bgImgLine = osuFile.findIndex((line) => line.includes("[Events]")) + 2;
+	let offset=0
+	if (
+		osuFile[bgImgLine].includes("Video") ||
+		osuFile[bgImgLine].split(",").length < 5
+	)
+		offset++;
+	let bg = osuFile[bgImgLine+offset].split(",")[2].slice(1, -1).trim();
+
+	bg = cleanse(bg);
 	let isVideo = false;
-	if (events[2].includes("Video")) {
+	if (events[2-offset].includes("Video")) {
 		isVideo = true;
-		let name = cleanse(events[2].split(",")[2]);
+		let name = cleanse(events[2-offset].split(",")[2]);
 		if (name.includes(".avi")) {
 			isVideo = false;
-			videoLoaded = true;
 		} else setBackgroundVideo(name, setId, online);
-	} else videoLoaded = true;
+	}
+	if(!isVideo){
+		setBackgroundImage(bg,setId, online);
+	}
 
 	let difficulty = osuFile.slice(
 		osuFile.findIndex((line) => line.includes("[Difficulty]")) + 1,
