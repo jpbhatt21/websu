@@ -1,6 +1,7 @@
 export let backgroundImage = document.getElementById("backgroundImage");
 export let music = new Audio();
 import utf8 from "utf8";
+import { settingsVal } from "./SettingsVal";
 let pSliderPathCache = { points: [], path: [] };
 let bSliderPathCache = { points: [], path: [] };
 let css = 0;
@@ -200,18 +201,22 @@ function editDistance(s1, s2) {
 export async function setBackground(data, mode = false) {
 	//console.log("in");
 	if (backgroundImage.src == "data:image/png;base64," + data) return;
-	if (mode && backgroundImage.src != data)
+	if (mode && backgroundImage.src == data) return;
+	if (settingsVal.animateBackground) {
 		backgroundImage.style.transitionDuration = "0.3s";
-	backgroundImage.style.opacity = 0;
+		backgroundImage.style.opacity = 0;
 
-	await new Promise((r) => setTimeout(r, 300));
+		await new Promise((r) => setTimeout(r, 300));
+	}
 	if (mode) backgroundImage.src = data;
 	else backgroundImage.src = "data:image/png;base64," + data;
-	backgroundImage.style.transitionDuration = "0s";
-	backgroundImage.style.scale = "1.2";
+	if (settingsVal.animateBackground) {
+		backgroundImage.style.transitionDuration = "0s";
+		backgroundImage.style.scale = "1.2";
 
-	await new Promise((r) => setTimeout(r, 5));
-	backgroundImage.style.transitionDuration = "0.3s";
+		await new Promise((r) => setTimeout(r, 5));
+		backgroundImage.style.transitionDuration = "0.3s";
+	}
 	backgroundImage.style.scale = "1";
 
 	backgroundImage.style.opacity = 1;
@@ -224,35 +229,46 @@ export async function setPreviewImage(
 	mode = false
 ) {
 	let result = null;
+	if(!settingsVal.showPreviewImage && !settingsVal.showBackground)
+		return
+	 
 	if (mode) {
 		if (previewImage.src == index) return;
-		if (secondaryIndex > 0) setBackground(index);
-		previewImage.style.opacity = 0;
-		setTimeout(() => {
-			previewImage.src = index;
-			previewImage.style.opacity = 1;
-		}, 300);
+		if (secondaryIndex == 0 && !settingsVal.showBackground) setBackground(index, mode);
+		if(!settingsVal.showPreviewImage)
+			return
+		if (settingsVal.animateBackground) {
+			previewImage.style.opacity = 0;
+			await new Promise((r) => setTimeout(r, 300));
+		}
+
+		previewImage.src = index;
+		previewImage.style.opacity = 1;
+
 		return;
 	}
 	const request = indexedDB.open("osuStorage", 2);
 	request.onsuccess = function (event) {
 		const db = event.target.result;
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
-			function (event) {
+			async function (event) {
 				if (
 					previewImage.src ==
 					"data:image/png;base64," + event.target.result.files[index]
 				)
 					return;
-				if (secondaryIndex > 0)
-					setBackground(event.target.result.files[index]);
-				previewImage.style.opacity = 0;
-				setTimeout(() => {
-					previewImage.src =
-						"data:image/png;base64," +
-						event.target.result.files[index];
-					previewImage.style.opacity = 1;
-				}, 300);
+				if(settingsVal.showBackground)
+				setBackground(event.target.result.files[index], mode);
+				if(!settingsVal.showPreviewImage)
+					return
+				if (settingsVal.animateBackground) {
+					previewImage.style.opacity = 0;
+					await new Promise((r) => setTimeout(r, 300));
+				}
+
+				previewImage.src =
+					"data:image/png;base64," + event.target.result.files[index];
+				previewImage.style.opacity = 1;
 			};
 	};
 }
@@ -304,8 +320,7 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
 			async function (event) {
 				let song = event.target.result.files[index];
-				if(music.src.length>0)
-					diver(song);
+				if (music.src.length > 0) diver(song);
 
 				setTimeout(async () => {
 					music.setAttribute("src", "data:audio/wav;base64," + song);
@@ -384,26 +399,24 @@ export function fakeClick(index, index2, mode = false) {
 	}, 20);
 }
 export let donwloadIcon = (
-	<svg 
-  viewBox="0 0 24 24" 
-  fill="none" 
-  xmlns="http://www.w3.org/2000/svg"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <g id="Interface / Download">
-      <path 
-        id="Vector" 
-        d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12" 
-        stroke="currentColor" 
-        strokeWidth="2" 
-        strokeLinecap="round" 
-        strokeLinejoin="round"
-      ></path>
-    </g>
-  </g>
-</svg>
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<g id="Interface / Download">
+				<path
+					id="Vector"
+					d="M6 21H18M12 3V17M12 17L17 12M12 17L7 12"
+					stroke="currentColor"
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"></path>
+			</g>
+		</g>
+	</svg>
 );
 export let unmuteIcon = (
 	<svg
@@ -507,7 +520,6 @@ export let loader = (
 );
 export let loader2 = (
 	<svg
-		
 		className="spin h-full"
 		viewBox="0 0 24 24"
 		fill="none"
