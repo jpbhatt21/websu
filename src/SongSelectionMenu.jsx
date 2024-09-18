@@ -50,11 +50,11 @@ let loadTime = null;
 // window.addEventListener("resize", () => {
 // 	setSize();
 // });
-let cursor=document.getElementById("cursor");
-window.addEventListener("mousemove", (e) => {
-	cursor.style.left = e.clientX-20 + "px";
-	cursor.style.top = e.clientY-20 + "px";
-});
+// let cursor=document.getElementById("cursor");
+// window.addEventListener("mousemove", (e) => {
+// 	cursor.style.left = e.clientX-20 + "px";
+// 	cursor.style.top = e.clientY-20 + "px";
+// });
 // let alt = false;
 // function Particle(x, y, particleTrailWidth, strokeColor) {
 // 	this.x = x;
