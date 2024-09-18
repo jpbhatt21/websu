@@ -1,9 +1,12 @@
+import { settingsVal } from "./SettingsVal";
+
 let skewDeg = 8;
 function Preview() {
 	return (
 		<>
 		
 			<div
+
 				className="bg-post bg-opacity-25 max-h-[35vh] h-[20vw]  w-[55vw] fade-in2 text-center   border-t-0  ml-[-8vw] rounded-lg rounded-tr-none border border-bcol border-2 overflow-hidden"
 				style={{
 					transform:
@@ -14,6 +17,7 @@ function Preview() {
 						"deg) rotate(" +
 						skewDeg +
 						"deg)",
+						backgroundColor:!settingsVal.showBackground? "#252525":!settingsVal.blur? "#25252599":"",
 				}}>
 				<img
 					id="previewImage"
@@ -73,6 +77,9 @@ function Preview() {
 			<div
 				id="infobox"
 				className="bg-post bg-opacity-45 items-center  justify-evenly fade-in2 max-h-[44vh] min-h-[22vh] text-[2.2vh] lg:text-[1.8vh]  h-[18vw]  w-[43.5vw] flex flex-row  mt-1  ml-1 rounded-md border border-bcol border-1 "
+				style={{
+					backgroundColor:!settingsVal.showBackground? "#252525":!settingsVal.blur? "#25252599":""
+				}}
 				>
 				<div
 					id="circleSize"

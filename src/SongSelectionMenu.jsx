@@ -29,14 +29,16 @@ import {
 import PlayArea from "./PlayArea";
 import { uri, uri2 } from "./App";
 import MusicPlayer from "./MusicPlayer";
+import { settingsVal } from "./SettingsVal";
 let typetimer = null;
 let sctimer = null;
 let musicTimer = null;
 let minis = null;
 let loadTime = null;
-let defaultElementClass =
-	"bg-blank outline fade-in outline-1 mb-[8px] mr-[10px] ml-[10px] outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50vh] shadow-lg nons snap-cetner overflow-hidden ";
+
 function SongSelectionMenu() {
+	let defaultElementClass =
+	"bg-blank  outline fade-in outline-1 mb-[8px] mr-[10px] ml-[10px] outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50vh] shadow-lg nons snap-cetner overflow-hidden "+(settingsVal.showBackground?"bg-opacity-20":"");
 	function getFiles(files, mode = false) {
 		for (let i = 0; i < files.length; i++) {
 			try {
@@ -237,7 +239,7 @@ function SongSelectionMenu() {
 	function getMetaFiles() {
 		return metaFiles;
 	}
-	if (start) {
+	if (start || !settingsVal.blur) {
 		backgroundImage.style.filter = "blur(0px) brightness(0.5)";
 	} else {
 		backgroundImage.style.filter = "blur(12px) brightness(0.5)";
@@ -422,12 +424,26 @@ function SongSelectionMenu() {
 			clearTimeout(musicTimer);
 		}
 	}, [start]);
+	if(!settingsVal.showBanners && metaData.length>0 && metaData[0].backgroundImage!="" )
+	{
+		let temp=metaData.map((x)=>{
+			x.backgroundImage="";
+			return x;
+		})
+		let temp2=metaFiles.map((x)=>{
+			x.backgroundImage="";
+			return x;
+		})
+		setMetaData(temp);
+		setMetaFiles(temp2);
+		
+	}
 	let list = metaData.map((element, index) => {
 		return (
 			<div
 				key={"element" + element.setId}
 				id={"element" + index}
-				className={defaultElementClass + " bg-opacity-10 h-20 "}>
+				className={defaultElementClass+" h-20" }>
 				{Math.abs(scrollIndex - index) < loadLimit ? (
 					<>
 						<div
@@ -437,9 +453,9 @@ function SongSelectionMenu() {
 							className=" w-full h-20  flex   outline outline-1 outline-bcol   rounded-t-lg"
 							style={{
 								backgroundImage:
-									"url(data:image/png;base64," +
+									settingsVal.showBanners?"url(data:image/png;base64," +
 									element.backgroundImage +
-									")",
+									")":"",
 								backgroundSize: "cover",
 								backgroundPosition: "center",
 							}}>
@@ -537,7 +553,7 @@ function SongSelectionMenu() {
 									<div
 										key={"sub" + index + " " + index2}
 										id={"sub" + index + " " + index2}
-										className=" flex flex-col  justify-evenly rounded-md p-1 px-3 bg-blank bg-opacity-25 duration-300 w-full  text-[#eee] mb-2 h-[60px]"
+										className=" flex flex-col  justify-evenly rounded-md p-1 px-3 bg-post bg-opacity-25 duration-300 w-full  text-[#eee] mb-2 h-[60px]"
 										onClick={(e) => {
 											setSecondaryIndex(index2);
 											if (secondaryIndex == index2) {
@@ -577,7 +593,7 @@ function SongSelectionMenu() {
 											backgroundColor:
 												secondaryIndex == index2
 													? "#94a3b844"
-													: "",
+													: settingsVal.showBackground?"":"#252525",
 										}}>
 										<div className=" pointer-events-none leading-[20px]">
 											{x.level}
@@ -873,12 +889,31 @@ function SongSelectionMenu() {
 			setPreviewImage(0, "", 0, true);
 		} catch (_) {}
 	}
+	let st=null
+	let count=0
+	function fps(time){
+		if(st==null){
+			st=time
+		}
+		count++
+		if(time-st>1000){
+			previewVersion.innerHTML=(count/(time-st)*1000).toFixed(2)
+			st=time
+			count=0
+		}
+		requestAnimationFrame(fps)
+	}
+	let onLD = () => {
+		requestAnimationFrame(fps)
+	}
 	return (
 		<>
 			{" "}
 			<div id="screen1">
 				<div
 					className="duration-300 fixed   text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
+					
+					onLoad={onLD()}
 					style={{
 						opacity:
 							onlineMode && webSearchData.length < 1
@@ -894,7 +929,7 @@ function SongSelectionMenu() {
 					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]    "
 					onScroll={(e) => {
 						if (deleteMode || metaData.length < 1) return;
-
+						
 						scrollMenu.style.scrollSnapType = "none";
 						let children = scrollMenu.children;
 						let rect = [];
@@ -910,6 +945,84 @@ function SongSelectionMenu() {
 						}
 
 						setScrollIndex(clost);
+						if (!settingsVal.scrollAnimations) {
+							if (
+								scrollMenu.scrollTop <
+								(children.length - 1) * 88 +
+									children[clost].getBoundingClientRect()
+										.height
+							) {
+								scrollMenu.style.top = 0;
+								for (let i = 0; i < children.length - 1; i++) {
+									children[i].className =
+										defaultElementClass + " bg-opacity-10";
+
+									children[i].style.height = 80 + "px";
+								}
+								children[clost].classList.replace("bg-blank", "bg-colors-green");
+								children[clost].classList.replace("bg-opacity-10", "bg-opacity-30");
+							}
+							if (sctimer !== null) {
+								clearTimeout(sctimer);
+							}
+							sctimer = setTimeout(async function () {
+								scrollMenu.style.scrollSnapType = "y mandatory";
+								await new Promise((r) => setTimeout(r, 10));
+								sctimer = null;
+								if (clost != globalIndex) {
+									let x = metaData[clost].levels[0];
+									playSong(
+										metaData[clost].setId,
+										0,
+										x.previewTime,
+										metaData[clost].title
+									);
+
+									setPreviewImage(
+										metaData[clost].setId,
+										x.backgroundImage,
+										0
+									);
+
+									previewCircleSize.style.width =
+										x.circleSize * 10 + "%";
+									previewApproachRate.style.width =
+										x.approachRate * 10 + "%";
+									previewHPDrain.style.width =
+										x.hpDrainRate * 10 + "%";
+									previewAccuracy.style.width =
+										x.difficulty * 10 + "%";
+									previewMapper.innerHTML = x.mapper;
+									previewSource.innerHTML = utf8.decode(
+										x.source
+									);
+									previewVersion2.innerHTML = x.level;
+									previewTags.innerHTML = utf8.decode(x.tags);
+									previewSong.innerHTML =
+										metaData[clost].title;
+									previewArtist.innerHTML =
+										metaData[clost].artist;
+									previewVersion.innerHTML = x.level;
+
+									setGlobalIndex(clost);
+
+									setSecondaryIndex(0);
+									await new Promise((r) =>
+										setTimeout(r, 100)
+									);
+
+									setPrevMusic([
+										metaData[clost].setId,
+										0,
+										x.previewTime,
+										metaData[clost].title,
+										false,
+									]);
+									return;
+								}
+							}, 1000);
+							return;
+						}
 						if (
 							scrollMenu.scrollTop <
 							(children.length - 1) * 88 +
@@ -993,9 +1106,7 @@ function SongSelectionMenu() {
 										x.previewTime,
 										metaData[clost].title
 									);
-									setBackground(
-										metaData[clost].backgroundImage
-									);
+									
 									setPreviewImage(
 										metaData[clost].setId,
 										x.backgroundImage,
@@ -1163,10 +1274,7 @@ function SongSelectionMenu() {
 										webSearchData[clost].title,
 										true
 									);
-									setBackground(
-										webSearchData[clost].backgroundImage,
-										true
-									);
+									
 									setPreviewImage(
 										webSearchData[clost].setId,
 										webSearchData[clost].backgroundImage,
@@ -1244,8 +1352,11 @@ function SongSelectionMenu() {
 					<div
 						style={{
 							pointerEvents: start ? "none" : "auto",
+							backgroundColor:!settingsVal.showBackground? "#252525":!settingsVal.blur? "#25252599":"",
+							backdropFilter: !settingsVal.blur? "blur(0px)":"",
+							WebkitBackdropFilter: !settingsVal.blur? " blur(0px) ":"",
 						}}
-						className="bg-post flex items-center justify-end gap-2 pr-2 duration-300 bg-opacity-25 z-20   border-bcol h-[60px] max-h-[10vh] border-b   backdrop-blur-md border-1 w-full  top-0 left-0  ">
+						className="bg-post flex items-center justify-end gap-2 pr-2 duration-300 bg-opacity-25 z-20   border-bcol h-[60px] max-h-[10vh] border-b  backdrop-blur-md  border-1 w-full  top-0 left-0  ">
 						<MusicPlayer />
 						<div
 							onClick={() => {
