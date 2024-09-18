@@ -850,6 +850,118 @@ function SongSelectionMenu() {
 			</div>
 		);
 	});
+	let startx;
+	let same = 0;
+	let val=false
+	let open=false
+	let lastVal=0;
+	let xyz2=null;
+	let prevH = [];
+	function scrolll(timestamp) {
+		if (startx === undefined) {
+			startx = timestamp;
+		}
+		const elapsed = timestamp - startx;
+		console.log(1000/elapsed)
+		startx = timestamp;
+		console.log(val)
+		let value = srccc.scrollTop;
+		let width = canvas.width;
+		let height = canvas.height;
+		let ctx = canvas.getContext("2d");
+		
+		let dist = Math.min((value) / 88,metaData.length-1);
+		let diff=0
+		if(val){
+			diff=(metaData[parseInt(dist)].levels.length)*68+8
+			val=false
+			let xyzz=async()=>{
+				for (let incx=1;incx<31;incx++){
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					
+					metaData.map((x, i) => {
+						ctx.fillStyle = "#444";
+						ctx.beginPath();
+			
+						ctx.roundRect(
+							width * 0.3  + 25 * Math.abs(dist - i)-(parseInt(dist)==i?(15+25*Math.abs(dist - i))*(incx/30):0),
+							88 * i + height / 2-88 - value+(i>parseInt(dist)?diff*(incx/30):0),
+							width * 0.7,
+							80+(i==parseInt(dist)?diff*(incx/30):0),
+							20
+						);
+						ctx.fill();
+					});
+					await new Promise((r) => setTimeout(r, 10));
+				}
+				open=true
+				lastVal=value
+			}
+			xyzz()
+		}
+		else if(open){
+			if(xyz2!=null)
+				return
+			value=lastVal
+			
+			diff=(metaData[parseInt(dist)].levels.length)*68+8
+			xyz2=async()=>{
+				for (let incx=30;incx>0;incx--){
+					ctx.clearRect(0, 0, canvas.width, canvas.height);
+					value = srccc.scrollTop;
+					let dist2= Math.min((value-44) / 88,metaData.length-1);
+					metaData.map((x, i) => {
+						ctx.fillStyle = "#444";
+						ctx.beginPath();
+			
+						ctx.roundRect(
+							width * 0.3  + 25 * Math.abs(dist2 - i)-(parseInt(dist)==i?(15+25*Math.abs(dist - i))*(incx/30):0),
+							88 * i + height / 2-88 - value+(i>parseInt(dist)?diff*(incx/30):0),
+							width * 0.7,
+							80+(i==parseInt(dist)?diff*(incx/30):0),
+							20
+						);
+						ctx.fill();
+					});
+					await new Promise((r) => setTimeout(r, 10));
+				}
+				open=false
+				xyz2=null
+			}
+			xyz2()
+
+		}
+		else
+		{ctx.clearRect(0, 0, canvas.width, canvas.height);
+			metaData.map((x, i) => {
+			
+			ctx.fillStyle = "#444";
+			ctx.beginPath();
+
+			ctx.roundRect(
+				width * 0.3  + 25 * Math.abs(dist - i),
+				88 * i + height / 2-88 - value+(i>parseInt(dist)?diff:0),
+				width * 0.7,
+				80+(i==parseInt(dist)?diff:0),
+				20
+			);
+			ctx.fill();
+		});}
+
+		
+	}
+	function onLd(load = true, value = 0) {
+		if (load) {
+			setTimeout(() => {
+				prevH="80|".repeat(metaData.length).split("|")
+				prevH.pop()
+				prevH=prevH.map((x)=>parseInt(x))
+				console.log(prevH)
+				window.requestAnimationFrame(scrolll);
+			}, 0);
+		} else {
+		}
+	}
 	function resetView() {
 		previewCircleSize.style.width = 0 + "%";
 		previewApproachRate.style.width = 0 + "%";
@@ -888,353 +1000,29 @@ function SongSelectionMenu() {
 					<div>Search the web </div>
 					<div> for beatmaps</div>
 				</div>
+
 				<div
-					key={searchKey}
-					id="scrollMenu"
-					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]    "
-					onScroll={(e) => {
-						if (deleteMode || metaData.length < 1) return;
-
-						scrollMenu.style.scrollSnapType = "none";
-						let children = scrollMenu.children;
-						let rect = [];
-						let closest = 2;
-						let clost = 0;
-						for (let i = 0; i < children.length - 1; i++) {
-							rect = children[i].getBoundingClientRect();
-							let dist = rect.bottom / (window.innerHeight / 2);
-							if (Math.abs(dist - 1) < closest) {
-								closest = Math.abs(dist - 1);
-								clost = i;
-							}
-						}
-
-						setScrollIndex(clost);
-						if (
-							scrollMenu.scrollTop <
-							(children.length - 1) * 88 +
-								children[clost].getBoundingClientRect().height
-						) {
-							scrollMenu.style.top = 0;
-							for (let i = 0; i < children.length - 1; i++) {
-								children[i].className =
-									defaultElementClass + " bg-opacity-10";
-
-								children[i].style.marginRight =
-									-Math.abs(clost - i) * 10 + "px";
-								children[i].style.marginLeft =
-									Math.abs(clost - i) * 10 + "px";
-								children[i].style.height = 80 + "px";
-							}
-							scrollMenu.style.marginTop = 0 + "px";
-							children[clost].className =
-								defaultElementClass + " bg-opacity-20";
-
-							children[clost].style.marginRight = 10 + "px";
-							children[clost].style.marginLeft = -30 + "px";
-
-							if (sctimer !== null) {
-								clearTimeout(sctimer);
-							}
-							sctimer = setTimeout(async function () {
-								scrollMenu.style.scrollSnapType = "y mandatory";
-								await new Promise((r) => setTimeout(r, 10));
-								sctimer = null;
-								let children = scrollMenu.children;
-								let rect = [];
-								let closest = 2;
-								let clost = 0;
-								for (let i = 0; i < children.length - 1; i++) {
-									rect = children[i].getBoundingClientRect();
-									let dist =
-										rect.bottom / (window.innerHeight / 2);
-									if (Math.abs(dist - 1) < closest) {
-										closest = Math.abs(dist - 1);
-										clost = i;
-									}
-								}
-								for (let i = 0; i < children.length - 1; i++) {
-									if (i != clost) {
-										children[i].className =
-											defaultElementClass +
-											" nons bg-opacity-10";
-										children[i].style.marginRight =
-											-Math.abs(clost - i) * 10 + "px";
-										children[i].style.marginLeft =
-											Math.abs(clost - i) * 10 + "px";
-										children[i].style.height = 80 + "px";
-									} else {
-										children[clost].className =
-											defaultElementClass +
-											" sel bg-opacity-20";
-										children[clost].style.marginRight =
-											10 + "px";
-										children[clost].style.marginLeft =
-											-50 + "px";
-										children[i].style.height = 80 + "px";
-									}
-								}
-								children[clost].style.height =
-									96 +
-									metaData[clost].levels.length * 68 +
-									"px";
-								scrollMenu.style.marginTop =
-									-children[clost].getBoundingClientRect()
-										.height /
-										2 +
-									50 +
-									"px";
-
-								if (clost != globalIndex) {
-									let x = metaData[clost].levels[0];
-									playSong(
-										metaData[clost].setId,
-										0,
-										x.previewTime,
-										metaData[clost].title
-									);
-									setBackground(
-										metaData[clost].backgroundImage
-									);
-									setPreviewImage(
-										metaData[clost].setId,
-										x.backgroundImage,
-										0
-									);
-
-									previewCircleSize.style.width =
-										x.circleSize * 10 + "%";
-									previewApproachRate.style.width =
-										x.approachRate * 10 + "%";
-									previewHPDrain.style.width =
-										x.hpDrainRate * 10 + "%";
-									previewAccuracy.style.width =
-										x.difficulty * 10 + "%";
-									previewMapper.innerHTML = x.mapper;
-									previewSource.innerHTML = utf8.decode(
-										x.source
-									);
-									previewVersion2.innerHTML = x.level;
-									previewTags.innerHTML = utf8.decode(x.tags);
-									previewSong.innerHTML =
-										metaData[clost].title;
-									previewArtist.innerHTML =
-										metaData[clost].artist;
-									previewVersion.innerHTML = x.level;
-
-									setGlobalIndex(clost);
-
-									setSecondaryIndex(0);
-									await new Promise((r) =>
-										setTimeout(r, 100)
-									);
-
-									setPrevMusic([
-										metaData[clost].setId,
-										0,
-										x.previewTime,
-										metaData[clost].title,
-										false,
-									]);
-									return;
-								}
-							}, 1000);
-						} else {
-							scrollMenu.scrollTop = children.length * 88;
-						}
+					id="srccc"
+					onScroll={(e)=>{
+						window.requestAnimationFrame(scrolll);
+						if(sctimer!=null)
+							clearTimeout(sctimer)
+						sctimer=setTimeout(()=>{
+							val=true
+							window.requestAnimationFrame(scrolll);
+						},1000)
 					}}
-					style={{
-						scrollSnapType: "y mandatory",
-						opacity: start || onlineMode ? 0 : 1,
-						pointerEvents: start || onlineMode ? "none" : "auto",
-					}}>
-					{list}
-
-					<div
-						id="emptyy2"
-						className=" h-[110vh]"
-						onDragCapture={(e) => {
-							e.preventDefault();
-						}}></div>
+					className="duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[50vw] items-end justify-end   grid   h-[150%] pt-[calc(50vh-88px)]">
+					<div style={{ height: 88 * metaData.length }}></div>
+					<div className="h-[110vh]"></div>
 				</div>
-				<div
-					key={searchKey + "2"}
-					id="scrollMenu2"
-					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-visible right-0  bg -post  pl-4   w-[100vw] items-end justify-end  grid   h-[150%] pt-[calc(50vh-88px)]    "
-					onScroll={(e) => {
-						if (onlineMode && webSearchData.length < 1) return;
-						scrollMenu2.style.scrollSnapType = "none";
-						let children = scrollMenu2.children;
-						let rect = [];
-						let closest = 2;
-						let clost = 0;
-						for (let i = 0; i < children.length - 1; i++) {
-							rect = children[i].getBoundingClientRect();
-							let dist = rect.bottom / (window.innerHeight / 2);
-							if (Math.abs(dist - 1) < closest) {
-								closest = Math.abs(dist - 1);
-								clost = i;
-							}
-						}
-
-						setScrollIndex(clost);
-						if (
-							scrollMenu2.scrollTop <
-							(children.length - 1) * 88 +
-								children[clost].getBoundingClientRect().height
-						) {
-							scrollMenu2.style.top = 0;
-							for (let i = 0; i < children.length - 1; i++) {
-								children[i].className =
-									defaultElementClass + " bg-opacity-10";
-
-								children[i].style.marginRight =
-									-Math.abs(clost - i) * 10 + "px";
-								children[i].style.marginLeft =
-									Math.abs(clost - i) * 10 + "px";
-								children[i].style.height = 80 + "px";
-							}
-							scrollMenu2.style.marginTop = 0 + "px";
-							children[clost].className =
-								defaultElementClass + " bg-opacity-20";
-
-							children[clost].style.marginRight = 10 + "px";
-							children[clost].style.marginLeft = -30 + "px";
-
-							if (sctimer !== null) {
-								clearTimeout(sctimer);
-							}
-							sctimer = setTimeout(async function () {
-								scrollMenu2.style.scrollSnapType =
-									"y mandatory";
-								await new Promise((r) => setTimeout(r, 10));
-								sctimer = null;
-								let children = scrollMenu2.children;
-								let rect = [];
-								let closest = 2;
-								let clost = 0;
-								for (let i = 0; i < children.length - 1; i++) {
-									rect = children[i].getBoundingClientRect();
-									let dist =
-										rect.bottom / (window.innerHeight / 2);
-									if (Math.abs(dist - 1) < closest) {
-										closest = Math.abs(dist - 1);
-										clost = i;
-									}
-								}
-								for (let i = 0; i < children.length - 1; i++) {
-									if (i != clost) {
-										children[i].className =
-											defaultElementClass +
-											" nons bg-opacity-10";
-										children[i].style.marginRight =
-											-Math.abs(clost - i) * 10 + "px";
-										children[i].style.marginLeft =
-											Math.abs(clost - i) * 10 + "px";
-										children[i].style.height = 80 + "px";
-									} else {
-										children[clost].className =
-											defaultElementClass +
-											" sel bg-opacity-20";
-										children[clost].style.marginRight =
-											10 + "px";
-										children[clost].style.marginLeft =
-											-50 + "px";
-										children[i].style.height = 80 + "px";
-									}
-								}
-								children[clost].style.height =
-									96 +
-									webSearchData[clost].levels.length * 68 +
-									"px";
-								scrollMenu2.style.marginTop =
-									-children[clost].getBoundingClientRect()
-										.height /
-										2 +
-									50 +
-									"px";
-
-								if (clost != globalIndex) {
-									let x = webSearchData[clost].levels[0];
-									playSong(
-										webSearchData[clost].songPreview,
-										0,
-										0,
-										webSearchData[clost].title,
-										true
-									);
-									setBackground(
-										webSearchData[clost].backgroundImage,
-										true
-									);
-									setPreviewImage(
-										webSearchData[clost].setId,
-										webSearchData[clost].backgroundImage,
-										0,
-										true
-									);
-
-									previewCircleSize.style.width =
-										x.circleSize * 10 + "%";
-									previewApproachRate.style.width =
-										x.approachRate * 10 + "%";
-									previewHPDrain.style.width =
-										x.hpDrainRate * 10 + "%";
-									previewAccuracy.style.width =
-										x.difficulty * 10 + "%";
-									previewMapper.innerHTML =
-										webSearchData[clost].creator;
-									//console.log(webSearchData[clost].source);
-									try {
-										previewSource.innerHTML =
-											webSearchData[clost].source;
-									} catch (_) {}
-									previewVersion2.innerHTML = x.level;
-									try {
-										previewTags.innerHTML =
-											webSearchData[clost].tags;
-									} catch (_) {}
-									previewSong.innerHTML =
-										webSearchData[clost].title;
-									previewArtist.innerHTML =
-										webSearchData[clost].artist;
-									previewVersion.innerHTML = x.level;
-
-									setGlobalIndex(clost);
-
-									setSecondaryIndex(0);
-									await new Promise((r) =>
-										setTimeout(r, 100)
-									);
-
-									setPrevMusic([
-										webSearchData[clost].songPreview,
-										0,
-										0,
-										webSearchData[clost].title,
-										true,
-									]);
-									return;
-								}
-							}, 1000);
-						} else {
-							scrollMenu2.scrollTop = children.length * 88;
-						}
-					}}
-					style={{
-						scrollSnapType: "y mandatory",
-						opacity: start || !onlineMode ? 0 : 1,
-						pointerEvents: start || !onlineMode ? "none" : "auto",
-					}}>
-					{list2}
-
-					<div
-						id="emptyy"
-						className=" h-[110vh]"
-						onDragCapture={(e) => {
-							e.preventDefault();
-						}}></div>
-				</div>
+				<canvas
+					id="canvas"
+					onLoad={onLd()}
+					height={window.innerHeight}
+					width={window.innerWidth / 2}
+					className=" pointer-events-none fixed z-0 right-0  duration-300"
+					style={{ zIndex: 0 }}></canvas>
 				<div
 					style={{
 						opacity: start ? 0 : 1,
@@ -1404,7 +1192,7 @@ function SongSelectionMenu() {
 														let x = JSON.parse(
 															res.result[i]
 														);
-														
+
 														let lev = [];
 														for (let j in x.beatmaps) {
 															if (
