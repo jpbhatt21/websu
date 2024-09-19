@@ -872,9 +872,8 @@ export async function decodeBeatMap(base64, setId, online) {
 	}
 	let cs = 54.4 - 4.48 * parseInt(difficulty["CircleSize"]);
 	let oldcs = JSON.parse(JSON.stringify(cs));
-	cs = (cs * 384) / (384 - cs * 3);
+	
 	//console.log(cs / oldcs, (384 + cs * 3) / 384);
-	css = cs;
 	let hitObjects = osuFile.slice(
 		osuFile.findIndex((line) => line.includes("[HitObjects]")) + 1
 	);
@@ -948,7 +947,7 @@ export async function decodeBeatMap(base64, setId, online) {
 			obx.push([j[0], j[1]]);
 			obx.push(parseInt(j[4]));
 			obx.push(j[5].split(":").map((j5x) => parseInt(j5x)));
-			obx[3] = [parseInt(obx[3][0]) + cs, parseInt(obx[3][1]) + cs];
+			obx[3] = [parseInt(obx[3][0]) , parseInt(obx[3][1]) ];
 		} else if (obx[0] == 1) {
 			typ = j[5][0];
 			slider = j[5]
@@ -1155,21 +1154,8 @@ function bSliderPath(points, val = true) {
 				(subs[i][3][1] + css * 1.5) +
 				" ";
 		}
-		if (subs[i].length == 5) {
-			path +=
-				" M " +
-				(subs[i][0][0] + css * 1.5) +
-				" " +
-				(subs[i][0][1] + css * 1.5) +
-				" C " +
-				getControlPoints(subs[i][1], subs[i][2], subs[i][3], 1) +
-				" " +
-				(subs[i][4][0] + css * 1.5) +
-				" " +
-				(subs[i][4][1] + css * 1.5) +
-				" ";
-		}
-		if (subs[i].length > 5) {
+		
+		if (subs[i].length > 4) {
 			let points2 = getStrutPoints(subs[i]);
 			path +=
 				" M " +
@@ -1196,7 +1182,7 @@ function getStrutPoints(points) {
 	// run de Casteljau's algorithm, starting with the base points
 	let len = points.length;
 	let finals = [];
-	for (let t = 0; t <= 1; t += 0.001) {
+	for (let t = 0; t <= 1; t += 0.01) {
 		for (let i = 0; i < len - 1; i++) {
 			for (let j = 0; j < len - 1 - i; j++) {
 				points[j] = [

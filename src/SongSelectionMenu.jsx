@@ -37,6 +37,22 @@ let scrPos = 0;
 let musicTimer = null;
 let minis = null;
 let loadTime = null;
+let initT=0
+function displayFps(time){
+	let fps = 1000 / (time - initT);
+	initT = time;
+	
+	if(fps<600){
+		document.getElementById("fps").innerHTML = parseInt(fps);
+	}
+	
+	window.requestAnimationFrame(displayFps);
+}
+function getFps(){
+	window.requestAnimationFrame(displayFps);
+	
+
+}
 // const canvas = document.getElementById("cw");
 // canvas.height = window.innerHeight;
 // canvas.width = window.innerWidth;
@@ -336,9 +352,9 @@ function SongSelectionMenu() {
 		} else {
 			if (e.repeat) return;
 
-			if (e.key == "Escape") {
+			if (e.key == "Escape" ) {
 				let root = document.querySelector("#playArea");
-				if (root.style.animationPlayState != "paused") {
+				if (root.style.animationPlayState != "paused" && !music.paused) {
 					pause(root);
 				} else {
 					pauseMenu.style.opacity = "0";
@@ -519,14 +535,14 @@ function SongSelectionMenu() {
 						(deleteMode && !onlineMode
 							? 1
 							: -Math.abs(scrollIndex - index)) *
-							10 +
+							20 +
 						"px",
 					marginLeft:
 						(deleteMode && !onlineMode
 							? 10
 							: scrollIndex == index
-							? "-30"
-							: Math.abs(scrollIndex - index) * 10) + "px",
+							? stationary?"-50":"-25"
+							: Math.abs(scrollIndex - index) * 20) + "px",
 					height:
 						(scrollIndex == index &&
 						stationary &&
@@ -1296,7 +1312,7 @@ function SongSelectionMenu() {
 														query: searchbox.value,
 														limit: 50,
 														mode: 0,
-														sort: ["nsfw:desc"],
+														// sort: ["nsfw:desc"],
 													}).toString(),
 												{
 													method: "GET",
@@ -1662,6 +1678,8 @@ function SongSelectionMenu() {
 			) : (
 				<></>
 			)}
+			<div
+			className="fixed z-[9999] rounded-md  text-white bottom-0 right-0 w-20 h-10 bg-post" id="fps" onLoad={getFps()}></div>
 		</>
 	);
 }

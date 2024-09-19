@@ -45,7 +45,7 @@ function MusicPlayer() {
 	}, []);
 	return (
 		<>
-			<div className=" text-[1.5vh] pt-[0.5vh]  flex gap-1  items-ce nter text-bcol  justify-center aspect-square h-[60px] max-h-[10vh]  absolute left-2">
+			<div className=" text-[1vh] pt-[0.5vh]  flex gap-1  items-ce nter text-bcol  justify-center aspect-square h-[60px] max-h-[10vh]  absolute left-2">
 				<div className="h-full w-[4vh]  select-none items-center justify-evenly flex flex-col">
 					<div
 						id="musicPlayState mt-1"
@@ -59,7 +59,7 @@ function MusicPlayer() {
 						}}>
 						{musicPlayState ? playButton : pauseButton}
 					</div>
-					<div id="musicCurrentTime" className="h-1/3 w-[4vh]">
+					<div id="musicCurrentTime" className="h-1/3 text-center w-[4vh]">
 						{(musicCurrentTime / 60 < 10 ? "0" : "") +
 							parseInt(musicCurrentTime / 60) +
 							":" +
@@ -107,7 +107,7 @@ function MusicPlayer() {
 							}}
 							className="h-[110%] bg-bact duration-300 rounded-sm aspect-[1/10] rotate-45 -ml-[50%]"></div>
 					</div>
-					<div id="musicDuration" className="w-[4vh] h-1/3">
+					<div id="musicDuration" className="w-[4vh] text-center h-1/3">
 						{(musicDuration / 60 < 10 ? "0" : "") +
 							parseInt(musicDuration / 60) +
 							":" +

@@ -1,6 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { backgroundImage, decodeBeatMap, music } from "./Utils";
-function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
+import { Container, Graphics, Sprite, Stage, Text } from "@pixi/react";
+
+let delay = 0;
+function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 	const [approachRate, setApproachRate] = useState(0);
 	const [hpDrain, setHpDrain] = useState(0);
 	const [circleSize, setCircleSize] = useState(0);
@@ -9,28 +12,151 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 	const [len, setLen] = useState(0);
 	const [timingPoints, setTimingPoints] = useState([]);
 	const [colors, setColors] = useState([]);
+	const [height, setHeight] = useState(window.innerHeight);
 	const [completionColors, setCompletionColors] = useState(
 		"163, 190, 140|".repeat(4).split("|").slice(0, 4)
 	);
-	const [time, setTime] = useState(0.01);
-	let delay = 0;
+	const [prev, setPrev] = useState(0);
+	let past=0
+	let b = approachRate / 2;
+	let c = approachRate / 4;
+	let d = b + c;
+	const [time, setTime] = useState(0.0001);
+	let scx = height / 480;
+	let ofs = (window.innerWidth - (4 * height) / 3) / 2;
+	function setScaleOp(diff) {
+		let opacity = 1;
+		if (-d < diff && diff < -b) {
+			opacity = bezier(1 + (diff + b) / c);
+		} else if (0 < diff && diff < c) {
+			opacity = bezier(1 - diff / c);
+		}
+		return opacity;
+	}
+	function getSc(diff) {
+		let sc = 1;
+		if (-d < diff && diff < 0) {
+			sc = 1 + 2 * bezier(-diff / d);
+		}
+		return sc;
+	}
+	function getOp2(diff) {
+		let op = 0;
+		if (-d < diff && diff < 0) {
+			op = bezier(1 + diff / d);
+		} else if (0 <= diff && diff < c) {
+			op = bezier(1 - diff / (c ));
+		}
+		return op;
+	}
+	function rgbToHex(rgb) {
+		try{
+			let t = rgb.split(",");
+		let r=parseInt(t[0]).toString(16)
+		let g=parseInt(t[1]).toString(16)
+		let b=parseInt(t[2]).toString(16)
+		if(r.length==1)r="0"+r
+		if(g.length==1)g="0"+g
+		if(b.length==1)b="0"+b
+		return (
+			"#" +r + g + b
+		);
+		}
+		catch(e){
+			return "#dddddd"
+		}
+	}
+	function bezier(t) {
+		return t * t * (3.0 - 2.0 * t);
+	}
+	const ar= useMemo(() => {
+		
+		return timedHitObjects.map((x) => {
+		let diff = time - x[1] - d;
+		let opacity = setScaleOp(diff);
+		let opacity2 = getOp2(diff);
+		let scale = getSc(diff);
+		if (!(-d < diff && diff < c)) return <></>;
+		else if (x[0] == 0)
+			return (
+				<Container
+					alpha={opacity}
+					zIndex={len - x[2] + 50}
+					x={x[3][0] * scx}
+					y={x[3][1] * scx}>
+					<Sprite
+						image="/hitcircle.png"
+						height={circleSize * scx}
+						width={circleSize * scx}
+						anchor={0.5}
+						tint={rgbToHex(colors[x[2]])}
+					/>
+					{timingPoints[x[2]] < 10 ? (
+						<Sprite
+							image={"/" + timingPoints[x[2]] + ".png"}
+							scale={{ x: 0.3 * scx, y: 0.3 * scx }}
+							anchor={0.5}
+						/>
+					) : timingPoints[x[2]] < 100 ? (
+						<>
+							<Sprite
+								image={
+									"/" +
+									parseInt(timingPoints[x[2]] / 10) +
+									".png"
+								}
+								scale={{ x: 0.3 * scx, y: 0.3 * scx }}
+								x={-20 * 0.3 * scx}
+								anchor={0.5}
+							/>
+							<Sprite
+								image={"/" + (timingPoints[x[2]] % 10) + ".png"}
+								scale={{ x: 0.3 * scx, y: 0.3 * scx }}
+								x={20 * 0.3 * scx}
+								anchor={0.5}
+							/>
+						</>
+					) : (
+						<></>
+					)}
+					<Sprite
+						image="/approachcircle.png"
+						height={(circleSize + 8) * scx}
+						width={(circleSize + 8) * scx}
+						alpha={scale>1?opacity2:0}
+						anchor={0.5}
+					/>
+					<Sprite
+						image="/approachcircle.png"
+						height={(circleSize + 8) * scx * scale}
+						width={(circleSize + 8) * scx * scale}
+						alpha={opacity2}
+						anchor={0.5}
+						tint={rgbToHex(colors[x[2]])}
+					/>
+				</Container>
+			);
+	}).reverse();}, [timedHitObjects, time]);
 	useEffect(() => {
+		const handleResize = () => {
+			setHeight(window.innerHeight);
+		};
+		window.addEventListener("resize", handleResize);
+
 		music.pause();
 		music.currentTime = 0;
-		console.log(online,setId,id)
-		let pre="websu"
-			if(online)
-				pre = "tempWebsu"
-		const request = indexedDB.open(pre+"Storage", 2);
+		let pre = "websu";
+		if (online) pre = "tempWebsu";
+		const request = indexedDB.open(pre + "Storage", 2);
 		request.onsuccess = function (event) {
 			const db = event.target.result;
-			
+
 			db.transaction("Files").objectStore("Files").get(setId).onsuccess =
 				async function (event) {
 					const file = event.target.result.files.find(
 						(x) => x.id == id
 					);
-					let x = await decodeBeatMap(file.file, setId,online);
+					let x = await decodeBeatMap(file.file, setId, online);
 
 					await new Promise((resolve) => {
 						setTimeout(() => {
@@ -43,10 +169,10 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 							resolve();
 						}, 1000);
 					});
-					console.log(x[2].filter((x)=>x[0]==0))
 					let timedSlidersCollection = [];
 
 					let timedHitObjectsCollection = [];
+					setTimedHitObjects(x[2]);
 					for (let i = 0; i < music.duration; i += 10) {
 						timedHitObjectsCollection.push(
 							x[2].filter((x2) => x2[1] > i - 5 && x2[1] < i + 15)
@@ -58,12 +184,11 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 						);
 					}
 					setLen(x[2].length);
-					setApproachRate(x[0]);
-					setCircleSize(x[1]);
+					setApproachRate(x[0] * 2);
+					setCircleSize(x[1] * 2);
 					setTimingPoints(x[3]);
 					setColors(x[4]);
 					setCompletionColors(x[6]);
-					//console.log(x[6]);
 					setTime(0);
 					var AudioContext =
 						window.AudioContext || window.webkitAudioContext;
@@ -107,30 +232,54 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 
 					// oscillatorNode.start(0);
 					//music.currentTime=music.duration-5
-					music.play();
+
+					
+					let pointerIndex = -1;
+					let t = 0;
+					music.pause();
+					let t1 = new Date().getTime();
+					let t2 = 0;
+					let pt=0
+					while (t <= x[0]) {
+						t2 = new Date().getTime();
+						t += (t2 - t1) / 1000;
+						t1 = t2;
+						setPrev(pt)
+						setTime(t);
+						pt=t
+						await new Promise((resolve) => {
+							setTimeout(() => {
+								resolve();
+							}, 0);
+						});
+					}
+					t = 0;
 					if (x[5]) {
 						backgroundVideo.play();
 					}
 
-					let pointerIndex = -1;
-					let t = 0;
+					music.play();
+					pt=0
 					while (music.currentTime < music.duration) {
 						t = parseFloat(music.currentTime.toFixed(2));
-						if (pointerIndex != parseInt(t / 10)) {
-							pointerIndex = parseInt(t / 10);
-							setTimedHitObjects(
-								timedHitObjectsCollection[pointerIndex]
-							);
+						// if (pointerIndex != parseInt(t / 10)) {
+						// 	pointerIndex = parseInt(t / 10);
+						// 	setTimedHitObjects(
+						// 		timedHitObjectsCollection[pointerIndex]
+						// 	);
 
-							setTimedSliders(
-								timedSlidersCollection[pointerIndex]
-							);
-						}
-						setTime(t);
+						// 	setTimedSliders(
+						// 		timedSlidersCollection[pointerIndex]
+						// 	);
+						// }
+						
+						setPrev(pt+x[0])
+						setTime(t + x[0]);
+						pt=t
 						await new Promise((resolve) => {
 							setTimeout(() => {
 								resolve();
-							}, 10);
+							}, 0);
 						});
 					}
 					await new Promise((resolve) => {
@@ -155,10 +304,12 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 					}
 				};
 		};
-		setTimeout(() => {
-			//load.style.opacity=0
-		}, 1000);
+
+		return () => {
+			window.removeEventListener("resize", handleResize);
+		};
 	}, []);
+
 	let getPoints = (x) => {
 		return x[3][0];
 	};
@@ -215,12 +366,12 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 		x[0] == 0 ? (
 			<div
 				key={"hit" + x[2]}
-				className=" absolute fadex opacity-0 aspect-square flex items-center justify-center text-bact  rounded-full outline outline-4 bg-post bg-opacity-50 pointer-events-none"
+				className=" absolute fadex opacity-0 -translate-x-1/2 -translate-y-1/2 aspect-square flex items-center justify-center text-bact  rounded-full outline outline-4 bg-post bg-opacity-50 pointer-events-none"
 				style={{
 					zIndex: len - x[2] + 50,
 					top: x[3][1],
 					left: x[3][0],
-					height: circleSize + "px",
+					height: 10 + "px",
 					outlineColor: "rgb(" + colors[x[2]] + ")",
 					display: time - x[1] > 0 ? "" : "none",
 					animation: "hit " + approachRate + "s" + " linear ",
@@ -289,7 +440,9 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 			<></>
 		)
 	);
+
 	let md4 = music.duration / 4;
+	
 	return (
 		<>
 			<div
@@ -299,13 +452,10 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 				<div
 					className="fixed flex flex-col justify-center items-center  "
 					style={{
-						transform:
-							"scale(" +
-							window.innerHeight / (384 + circleSize * 3) +
-							")",
+						transform: "scale(" + height / 480 + ")",
 
-						height: 384 + circleSize * 3 + "px",
-						width: 512 + circleSize * 3 + "px",
+						height: 480 + "px",
+						width: 640 + "px",
 					}}>
 					<svg
 						key={"scresen"}
@@ -314,10 +464,48 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 						fill="black"
 						xmlns="http://www.w3.org/2000/svg"
 						id="svghold">
-						{sliders}
+						{/* {sliders} */}
 					</svg>
-					{points}
 				</div>
+				<Stage
+					id="stg"
+					height={height}
+					width={window.innerWidth}
+					options={{
+						backgroundColor: "rgba(0,0,0)",
+						backgroundAlpha: 0,
+					}}>
+					<Container x={ofs + 64 * scx} y={64 * scx}>
+						<Graphics
+							draw={(g) => {
+								g.clear();
+								g.beginFill(0x000000, 0);
+								g.drawRect(
+									0,
+									0,
+									(4 * 384 * scx) / 3,
+									384 * scx
+								);
+								g.endFill();
+							}}
+						/>
+						<Graphics
+							draw={(g) => {
+								g.clear();
+								g.beginFill(0xff0000, 0);
+								g.drawRect(
+									0,
+									0,
+									(circleSize / 2) * scx,
+									(circleSize / 2) * scx
+								);
+								g.endFill();
+							}}
+						/>
+
+						{ar}
+					</Container>
+				</Stage>
 				<div
 					className="fixed z-40 rounded-full top-0 left-0 h-2 bg-colors-green"
 					style={{
@@ -362,6 +550,7 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 							completionColors[3] +
 							") 100vh",
 					}}></div>
+					
 			</div>
 		</>
 	);

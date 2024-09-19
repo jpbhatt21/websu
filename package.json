@@ -10,8 +10,10 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@pixi/react": "^7.1.2",
     "jszip": "^3.10.1",
     "minisearch": "^7.1.0",
+    "pixi.js": "^7.4.2",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "utf8": "^3.0.0"
