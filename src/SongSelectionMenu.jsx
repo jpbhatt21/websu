@@ -924,6 +924,7 @@ function SongSelectionMenu() {
 							parseInt(scrollMenu.scrollTop / 88),
 							select.length - 1
 						);
+						if(clost!=scrollIndex)
 						setScrollIndex(clost);
 						if (
 							scrollMenu.scrollTop <
