@@ -1641,6 +1641,15 @@ function SongSelectionMenu() {
 					</div>
 				</div>
 			</div>
+			<svg
+				height="600"
+				width="800"
+				className="fixed  z-[1000]  pointer-events-none"
+				fill="black"
+				xmlns="http://www.w3.org/2000/svg"
+				id="svghold">
+				
+			</svg>
 			{start ? (
 				<PlayArea
 					setId={

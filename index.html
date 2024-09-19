@@ -1,42 +1,37 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/Osu.png" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>osu</title>
-  </head>
-  <body>
-    <div  class="bg-blank w-screen h-screen fixed">
-      <audio></audio>
-			<div class="fixed h-screen  duration-500 transition-colors z-0 items-center justify-center  w-full ">
+	<head>
+		<meta charset="UTF-8" />
+		<link rel="icon" type="image/svg+xml" href="/Osu.png" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>osu</title>
+	</head>
+	<body>
+		<div class="bg-blank w-screen h-screen fixed">
+			<audio></audio>
+			<div
+				class="fixed h-screen duration-500 transition-colors z-0 items-center justify-center w-full">
 				<div class="backg">
 					<img
 						id="backgroundImage"
-						class="scale-[1.01] duration-300  h-screen w-full object-cover bg-center opacity-50"
-            
-					/>
+						class="scale-[1.01] duration-300 h-screen w-full object-cover bg-center opacity-50" />
 					<video
 						id="backgroundVideo"
 						class="h-screen w-full object-cover opacity-50 brightness-50">
 						<source
 							id="backgroundVideoSource1"
 							class="bgvid"
-							type="video/mp4"
-						/>
+							type="video/mp4" />
 					</video>
 				</div>
 			</div>
-    </div>
-    <div id="root" class="w-screen curs or-none h-screen fixed ">
-
-      
-    </div>
-	<div id="cursor" class="bg-dark-400 hidden outline outline-light-300 opacity-50 pointer-events-none h-10 w-10 cursor-none  rounded-full fixed ">
+		</div>
+		<div id="root" class="w-screen curs or-none h-screen fixed"></div>
 		
-	</div>
+		<div
+			id="cursor"
+			class="bg-dark-400 hidden outline outline-light-300 opacity-50 pointer-events-none h-10 w-10 cursor-none rounded-full fixed"></div>
 
-    
-    <script type="module" src="/src/main.jsx"></script>
-  </body>
+		<script type="module" src="/src/main.jsx"></script>
+	</body>
 </html>

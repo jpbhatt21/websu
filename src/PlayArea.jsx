@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { backgroundImage, decodeBeatMap, music } from "./Utils";
-function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
+let loaded=[]
+function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 	const [approachRate, setApproachRate] = useState(0);
 	const [hpDrain, setHpDrain] = useState(0);
+	
 	const [circleSize, setCircleSize] = useState(0);
 	const [timedHitObjects, setTimedHitObjects] = useState([]);
 	const [timedSliders, setTimedSliders] = useState([]);
@@ -17,20 +19,19 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 	useEffect(() => {
 		music.pause();
 		music.currentTime = 0;
-		console.log(online,setId,id)
-		let pre="websu"
-			if(online)
-				pre = "tempWebsu"
-		const request = indexedDB.open(pre+"Storage", 2);
+		console.log(online, setId, id);
+		let pre = "websu";
+		if (online) pre = "tempWebsu";
+		const request = indexedDB.open(pre + "Storage", 2);
 		request.onsuccess = function (event) {
 			const db = event.target.result;
-			
+
 			db.transaction("Files").objectStore("Files").get(setId).onsuccess =
 				async function (event) {
 					const file = event.target.result.files.find(
 						(x) => x.id == id
 					);
-					let x = await decodeBeatMap(file.file, setId,online);
+					let x = await decodeBeatMap(file.file, setId, online);
 
 					await new Promise((resolve) => {
 						setTimeout(() => {
@@ -43,9 +44,9 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 							resolve();
 						}, 1000);
 					});
-					console.log(x[2].filter((x)=>x[0]==0))
+					console.log(x[2].filter((x) => x[0] == 0));
 					let timedSlidersCollection = [];
-
+					loaded=("0".repeat(x[2].length).split("").map(x=>parseInt(x)))
 					let timedHitObjectsCollection = [];
 					for (let i = 0; i < music.duration; i += 10) {
 						timedHitObjectsCollection.push(
@@ -63,6 +64,8 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 					setTimingPoints(x[3]);
 					setColors(x[4]);
 					setCompletionColors(x[6]);
+					// document.querySelector(':root').style.setProperty("--circle-size",parseInt(circleSize/2 +10))
+					// document.querySelector(':root').style.setProperty("--c2ircle-size",parseInt(circleSize*2))
 					//console.log(x[6]);
 					setTime(0);
 					var AudioContext =
@@ -159,9 +162,6 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 			//load.style.opacity=0
 		}, 1000);
 	}, []);
-	let getPoints = (x) => {
-		return x[3][0];
-	};
 	let sliders = timedSliders.map((x, i) => (
 		<g
 			key={"slider" + x[2]}
@@ -211,80 +211,144 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 			/>
 		</g>
 	));
+	function getScale(t) {
+		let diff = time - t;
+		let sc = 1;
+		if (diff < (approachRate / 4) * 3) {
+			sc = 1 + 4 * (1 - diff / ((approachRate / 4) * 3));
+		}
+		return sc;
+	}
+	function getR(i){
+		let ld=loaded
+		console.log(loaded[i])
+		if(ld[i]==0)
+			{
+			ld[i]=1
+			loaded=ld
+			return circleSize*2
+		}
+		else
+		return (circleSize/2 +10)
+	}
 	let points = timedHitObjects.map((x, i) =>
-		x[0] == 0 ? (
-			<div
-				key={"hit" + x[2]}
-				className=" absolute fadex opacity-0 aspect-square flex items-center justify-center text-bact  rounded-full outline outline-4 bg-post bg-opacity-50 pointer-events-none"
-				style={{
-					zIndex: len - x[2] + 50,
-					top: x[3][1],
-					left: x[3][0],
-					height: circleSize + "px",
-					outlineColor: "rgb(" + colors[x[2]] + ")",
-					display: time - x[1] > 0 ? "" : "none",
-					animation: "hit " + approachRate + "s" + " linear ",
-				}}>
-				<div
-					className="absolute  h-full scale-[140%] opacity-0 outline-[2px] outline-bact  outline aspect-square rounded-full"
-					style={{
-						height: circleSize + "px",
-						animation: "fade " + approachRate + "s" + " linear ",
-					}}></div>
-				<div
-					className="absolute  h-full  outline-[2px] opacity-0 outline-bact  outline aspect-square rounded-full"
-					style={{
-						height: circleSize + "px",
-						outlineColor: "rgb(" + colors[x[2]] + ")",
-						animation: "hit2 " + approachRate + "s" + " ease-out ",
-					}}></div>
-				<div className="scale-150">{timingPoints[x[2]]}</div>
-			</div>
-		) : x[0] < 4 ? (
-			<div
-				key={"hit" + x[2]}
-				className=" absolute fadex duration-150 opacity-0 top-0 left-0  aspect-square flex items-center justify-center text-bact  rounded-full outline outline-4 bg-post bg-opacity-50 pointer-events-none"
-				style={{
-					zIndex: len - x[2] + 50,
+		time - x[1] < 0 ? (
+			<></>
+		) : x[0] == 0 ? (
+			time - x[1] > approachRate ? (
+				<></>
+			) : (
+				<>
+					<circle
+						key={"hit" + x[2]}
+						r={circleSize / 2}
+						cx={x[3][0]}
+						cy={x[3][1]}
+						stroke={"rgb(" + colors[x[2]] + ")"}
+						strokeWidth={4}
+						fill="#1b1b1b88"
+						className="absolute fadex opacity-0 aspect-square flex items-center justify-center text-bact rounded-full  bg-post bg-opacity-50 pointer-events-none"
+						style={{
+							zIndex: len - x[2] + 50,
+							animation: "hit " + approachRate + "s" + " linear ",
+						}}>
+						<text className="scale-150">{timingPoints[x[2]]}</text>
+					</circle>
+					<circle
+						className="absolute  h-full opacity-0 rounded-full"
+						r={circleSize / 2 + 10}
+						cx={x[3][0]}
+						cy={x[3][1]}
+						stroke={"#b3b3b3"}
+						fill="transparent"
+						strokeWidth={4}
+						style={{
+							zIndex: len - x[2] + 50,
+							animation:
+								"fade " + approachRate + "s" + " linear ",
+						}}></circle>
+					<circle
+						key={"hit2" + x[2]}
 
-					height: circleSize + "px",
-					outlineColor: "rgb(" + colors[x[2]] + ")",
-					display: time - x[1] > 0 ? "" : "none",
-					animation: "hit " + approachRate + "s" + " linear ",
-					animation:
-						"move " +
-						x[6] +
-						"s linear " +
-						(approachRate * 3) / 4 +
-						"s " +
-						x[5] +
-						" " +
-						(x[5] > 1 ? "alternate" : "forwards") +
-						" , sliderFadeIn " +
-						approachRate +
-						"s linear 0s 1 forwards , sliderFadeOut " +
-						approachRate / 4 +
-						"s linear " +
-						((approachRate * 3) / 4 + x[6] * x[5]) +
-						"s 1 forwards  ",
-					offsetRotate: "0deg",
-					offsetPath: "path('" + x[3] + "')",
-				}}>
-				<div
-					className="absolute  h-full scale-[140%] opacity-0 outline-[2px] outline-bact  outline aspect-square rounded-full"
+						className="absolute redstrk  h-full  duration-1000 opacity-0 rounded-full"
+						r={getR(x[2]) }
+						cx={x[3][0]}
+						cy={x[3][1]}
+						stroke={"rgb(" + colors[x[2]] + ")"}
+						fill="transparent"
+						strokeWidth={4}
+						style={{
+							zIndex: len - x[2] + 50,
+							animation:
+								"fade " + approachRate + "s" + " linear ",
+						}}>
+							    
+						</circle>
+				</>
+			)
+		) : x[0] < 4 ?(
+			time - x[1] > approachRate + x[6]*x[5] || true ? 
+				<></>
+			: 
+			<>
+				<circle
+					key={"hit" + x[2]}
+					className="absolute fadex duration-150 opacity-0 top-0 left-0 aspect-square flex items-center justify-center text-bact rounded-full  pointer-events-none"
+					cx="0"
+					cy="0"
+					r={circleSize / 2}
+					stroke={"rgb(" + colors[x[2]] + ")"}
+					strokeWidth="4"
+					fill="#1b1b1b"
+					fillOpacity={0.5}
 					style={{
-						height: circleSize + "px",
+						zIndex: len - x[2] + 50,
+						animation: `
+				  hit ${approachRate}s linear,
+				  move ${x[6]}s linear ${(approachRate * 3) / 4}s ${x[5]} ${
+							x[5] > 1 ? "alternate" : "forwards"
+						},
+				  sliderFadeIn ${approachRate}s linear 0s 1 forwards,
+				  sliderFadeOut ${approachRate / 4}s linear ${
+							(approachRate * 3) / 4 + x[6] * x[5]
+						}s 1 forwards
+				`,
+						offsetRotate: "0deg",
+						offsetPath: `path('${x[3]}')`,
+					}}></circle>
+				<circle
+					className="absolute  h-full opacity-0 rounded-full"
+					r={circleSize / 2 + 10}
+					cx="0"
+					cy="0"
+					stroke={"#b3b3b3"}
+					fill="transparent"
+					strokeWidth={4}
+					style={{
+						zIndex: len - x[2] + 50,
 						animation: "fade " + approachRate + "s" + " linear ",
-					}}></div>
-				<div
-					className="absolute  h-full  outline-[2px] opacity-0 outline-bact  outline aspect-square rounded-full"
+						offsetRotate: "0deg",
+						offsetPath: `path('${x[3]}')`,
+					}}></circle>
+				<circle
+					className="absolute  h-full opacity-0 rounded-full"
+					r={(circleSize / 2 + 10)}
+					cx="0"
+					cy="0"
+					stroke={"rgb(" + colors[x[2]] + ")"}
+					fill="transparent"
+					strokeWidth={4}
 					style={{
-						height: circleSize + "px",
-						outlineColor: "rgb(" + colors[x[2]] + ")",
-						animation: "hit2 " + approachRate + "s" + " ease-out ",
-					}}></div>
-				<div className="scale-150">{timingPoints[x[2]]}</div>
-			</div>
+						zIndex: len - x[2] + 50,
+						animation:
+								"fade " + approachRate + "s" + " linear ",
+						offsetRotate: "0deg",
+						offsetPath: `path('${x[3]}')`,
+					}}>
+							 <animate attributeType="xml" attributeName="r" from={circleSize*2} to={circleSize/2 +10} dur={approachRate+"s"} repeatCount="indefinite" />  
+
+					</circle>
+			</>
 		) : (
 			<></>
 		)
@@ -315,8 +379,8 @@ function PlayArea({ setId = 0, id = 0, setStart ,attempts,online}) {
 						xmlns="http://www.w3.org/2000/svg"
 						id="svghold">
 						{sliders}
+						{points}
 					</svg>
-					{points}
 				</div>
 				<div
 					className="fixed z-40 rounded-full top-0 left-0 h-2 bg-colors-green"

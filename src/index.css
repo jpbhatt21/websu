@@ -1,7 +1,10 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
+:root{
+  --circle-size:52;
+  --c2ircle-size:104
+}
 ::-webkit-scrollbar {
   width: 0px;
   height: 0px;
@@ -74,24 +77,29 @@
 }
 @keyframes hit2 {
   0% {
-    transform: scale(5);
+    r:150%;
     opacity: 0;
   }
   50% {
     opacity: 1;
   }
   75% {
-    transform: scale(1.4);
-
+    r:50%;
     opacity: 1;
   }
   76% {
-    transform: scale(1.4);
+    r:50%;
+    
+
+    
 
     opacity: 0;
   }
   100% {
-    transform: scale(1.4);
+    r:50%;
+    
+
+    
 
     opacity: 0;
   }
