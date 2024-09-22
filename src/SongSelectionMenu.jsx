@@ -7,130 +7,64 @@ import {
 	fakeClick,
 	getBeatMapCollectionInfo,
 	getIndividualBeatMapInfo,
-	loader,
 	playSong,
 	setBackground,
 	setPreviewImage,
 	music,
 	backgroundImage,
+	colors,
 	pause,
 	play,
-	exit,
-	replay,
-	playButton,
-	playButton2,
-	deleteIcon,
-	crossIcon,
-	offlineButton,
-	onlineButton,
-	loader2,
-	donwloadIcon,
-	colors,
 } from "./Utils";
+import { svg } from "./VectorGraphics";
 import PlayArea from "./PlayArea";
 import { uri, uri2 } from "./App";
 import MusicPlayer from "./MusicPlayer";
 import { settingsVal } from "./SettingsVal";
+
 let typetimer = null;
 let sctimer = null;
 let scrPos = 0;
 let musicTimer = null;
 let minis = null;
 let loadTime = null;
-let initT=0
-function displayFps(time){
-	let fps = 1000 / (time - initT);
+let past5 = [0, 0, 0, 0, 0];
+let initT = 0;
+function displayFps(time) {
+	let diff = time - initT;
+	let fps = 1000 / diff;
 	initT = time;
-	
-	if(fps<600){
-		document.getElementById("fps").innerHTML = parseInt(fps);
+
+	if (fps < 600) {
+		past5.shift();
+		past5.push(fps);
+		fps = past5.reduce((a, b) => a + b, 0) / 5;
+		if (Math.abs(fps - document.getElementById("fps").innerHTML) > 5) {
+			document.getElementById("fps").innerHTML = parseInt(fps);
+			document.getElementById("lat").innerHTML = parseInt(diff);
+		}
 	}
-	
 	window.requestAnimationFrame(displayFps);
 }
-function getFps(){
+function getFps() {
 	window.requestAnimationFrame(displayFps);
-	
-
 }
-// const canvas = document.getElementById("cw");
-// canvas.height = window.innerHeight;
-// canvas.width = window.innerWidth;
-// const context = canvas.getContext("2d");
-
-// function setSize() {
-// 	canvas.height = window.innerHeight;
-// 	canvas.width = window.innerWidth;
-// }
-// context.globalAlpha = 0;
-// window.addEventListener("resize", () => {
-// 	setSize();
-// });
-// let cursor=document.getElementById("cursor");
-// window.addEventListener("mousemove", (e) => {
-// 	cursor.style.left = e.clientX-20 + "px";
-// 	cursor.style.top = e.clientY-20 + "px";
-// });
-// let alt = false;
-// function Particle(x, y, particleTrailWidth, strokeColor) {
-// 	this.x = x;
-// 	this.y = y;
-// 	this.particleTrailWidth = particleTrailWidth;
-// 	this.strokeColor = strokeColor;
-
-// 	this.rotate = () => {
-// 		const ls = {
-// 			x: this.x,
-// 			y: this.y,
-// 		};
-// 		this.x = cursor.x + (alt ? 1 : 0);
-// 		alt = !alt;
-// 		this.y = cursor.y;
-
-// 		context.beginPath();
-// 		context.circleSize = 10;
-// 		context.arc(
-// 			this.x,
-// 			this.y,
-// 			this.particleTrailWidth * 5,
-// 			0,
-// 			Math.PI * 2
-// 		);
-// 		context.fillStyle = this.strokeColor;
-
-// 		context.fill();
-// 		context.lineWidth = this.particleTrailWidth;
-// 		context.strokeStyle = "#ffffff99";
-
-// 		context.stroke();
-// 	};
-// }
-
-// let particlesArray = [
-// 	new Particle(innerWidth / 2, innerHeight / 2, 4, colors.dark[200] + "99"),
-// ];
-// const cursor = {
-// 	x: innerWidth / 2,
-// 	y: innerHeight / 2,
-// };
-// function anim() {
-// 	context.clearRect(0, 0, canvas.width, canvas.height);
-
-// 	particlesArray.forEach((particle) => particle.rotate());
-// 	requestAnimationFrame(anim);
-// }
-// setSize();
-// anim();
 let onLD = () => {};
 function SongSelectionMenu() {
 	let defaultElementClass =
 		"bg-blank  outline fade-in outline-1 mb-[8px] mr-[10px] ml-[10px] outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50vh] shadow-lg nons snap-cetner overflow-hidden " +
 		(settingsVal.showBackground ? "bg-opacity-20" : "");
-	function getFiles(files, mode = false) {
+	async function getFiles(files, mode = false) {
+		setUnzipTotal((prev) => prev + files.length);
 		for (let i = 0; i < files.length; i++) {
 			try {
 				if (files[i].name.includes(".osz")) {
-					getOszFileToUnzip(files[i], i, mode);
+					await getOszFileToUnzip(
+						files[i],
+						mode,
+						false,
+						i == files.length - 1
+					);
 				} else {
 					continue;
 					handleNonOszFiles(files[i]);
@@ -138,31 +72,11 @@ function SongSelectionMenu() {
 			} catch (e) {}
 		}
 	}
-	async function getOszFileToUnzip(file, diffe = 0, mode, mode2 = false) {
-		// let filz = [];
-		// let test = allFiles;
-		// test.name.push(file.name);
-		// test.files.push([]);
-		// test.levels.push([]);
-		// let l = allFiles.name.length + diffe;
-		// document.getElementById(
-		// 	"sub" + globalIndex + " " + secondaryIndex
-		// ).style.backgroundColor = "";
-		// document.getElementById(
-		// 	"sub" + globalIndex + " " + 0
-		// ).style.backgroundColor = "rgb(148 163 184 / var(--tw-bg-opacity))";
-		// setGlobalIndex(-1);
-		// setSecondaryIndex(0);
-		// let len = 0;
-		// let meta = "";
-		// let init = 0;
-		// let osus = [];
-		// let lz = 0;
+	async function getOszFileToUnzip(file, mode, mode2 = false, end = false) {
 		let zip = new JSZip();
-
 		let osuFiles = [];
 		let assets = [];
-		let unzipOsz = zip.loadAsync(file).then(async function (zip) {
+		let unzipOsz = await zip.loadAsync(file).then(async function (zip) {
 			for (let i in zip.files) {
 				let loadIndividualFiles = zip
 					.file(i)
@@ -177,10 +91,8 @@ function SongSelectionMenu() {
 				await loadIndividualFiles;
 			}
 		});
-		await unzipOsz;
 		let beatmapInfo = [];
 		let preview = [];
-		//console.log(osuFiles);
 		for (let i in osuFiles) {
 			beatmapInfo.push(getIndividualBeatMapInfo(osuFiles[i], assets));
 
@@ -206,7 +118,6 @@ function SongSelectionMenu() {
 			}
 		}
 		beatmapInfo.sort((a, b) => a.difficulty - b.difficulty);
-
 		let setMeta = getBeatMapCollectionInfo({ file: osuFiles[0] });
 		osuFiles = {
 			setId: setMeta.setId,
@@ -218,92 +129,76 @@ function SongSelectionMenu() {
 		};
 		setMeta.levels = beatmapInfo;
 		setMeta.backgroundImage = preview[beatmapInfo[0].backgroundImage];
-
 		preview = { setId: setMeta.setId, files: preview };
 		assets = { setId: setMeta.setId, files: assets };
 		let pre = "websu";
 		if (mode2) pre = "tempWebsu";
-		const request = indexedDB.open(pre + "Storage", 2);
-		request.onsuccess = function (event) {
-			const db = event.target.result;
+		function setData() {
+			return new Promise((resolve, reject) => {
+				const request = indexedDB.open(pre + "Storage", 2);
+				request.onsuccess = function (event) {
+					const db = event.target.result;
+					const transaction = db.transaction(
+						["Assets", "Files", "Meta", "Preview"],
+						"readwrite"
+					);
+					transaction.oncomplete = function () {
+						resolve();
+					};
+					let objectStore = transaction.objectStore("Assets");
+					try {
+						const request = objectStore.put(assets);
+					} catch (e) {
+						const request = objectStore.add(assets);
+					}
+					objectStore = transaction.objectStore("Files");
+					try {
+						const request = objectStore.put(osuFiles);
+					} catch (e) {
+						const request = objectStore.add(osuFiles);
+					}
+					objectStore = transaction.objectStore("Meta");
+					try {
+						const request = objectStore.put(setMeta);
+					} catch (e) {
+						const request = objectStore.add(setMeta);
+					}
+					objectStore = transaction.objectStore("Preview");
+					try {
+						const request = objectStore.put(preview);
+					} catch (e) {
+						const request = objectStore.add(preview);
+					}
+					if (mode2 && mode) {
+						setTempFiles((prev) => [...prev, setMeta]);
+						setStart(true);
+					}
+					if (mode2) return;
+					if (webSearchData.length > 0) exisiting.push(setMeta.setId);
+					setMeta.id = metaData.length;
+					setMetaData((prev) => [
+						...prev.filter((x) => x.setId != setMeta.setId),
+						setMeta,
+					]);
+					setMetaFiles((prev) => [
+						...prev.filter((x) => x.setId != setMeta.setId),
+						setMeta,
+					]);
+					try {
+						minis.add(setMeta);
+					} catch (e) {}
 
-			const transaction = db.transaction(
-				["Assets", "Files", "Meta", "Preview"],
-				"readwrite"
-			);
-			let objectStore = transaction.objectStore("Assets");
-			try {
-				const request = objectStore.put(assets);
-			} catch (e) {
-				const request = objectStore.add(assets);
-			}
-			objectStore = transaction.objectStore("Files");
-			try {
-				const request = objectStore.put(osuFiles);
-			} catch (e) {
-				const request = objectStore.add(osuFiles);
-			}
-			objectStore = transaction.objectStore("Meta");
-			try {
-				const request = objectStore.put(setMeta);
-			} catch (e) {
-				const request = objectStore.add(setMeta);
-			}
-			objectStore = transaction.objectStore("Preview");
-			try {
-				const request = objectStore.put(preview);
-			} catch (e) {
-				const request = objectStore.add(preview);
-			}
-
-			if (mode2 && mode) {
-				setTempFiles((prev) => [...prev, setMeta]);
-				setStart(true);
-			}
-
-			unzippingSet.style.height = "";
-			unzippingSet.style.opacity = "";
-			if (mode2) return;
-			if (webSearchData.length > 0) exisiting.push(setMeta.setId);
-
-			setMeta.id = metaData.length;
-			setMetaData((prev) => [...prev, setMeta]);
-			setMetaFiles((prev) => [...prev, setMeta]);
-			try {
-				minis.add(setMeta);
-			} catch (e) {}
-			setSaved.style.opacity = "1";
-			setSaved.style.height = "3.5vh";
-			setTimeout(() => {
-				setSaved.style.opacity = "0";
-				setSaved.style.height = "0vh";
-			}, 1000);
-			//console.log(mode);
-			if (mode) return;
-			else if (scrollMenu.style.opacity == 1) {
-				//console.log("here");
-				fakeClick(Math.max(metaData.length, 1), false);
-				setSearchKey(searchKey + 1);
-			} else {
-			}
-		};
-	}
-	async function fetchFromDB(collectionName, setID, object) {
-		let result = null;
-		const request = indexedDB.open("osuStorage", 2);
-		request.onsuccess = function (event) {
-			const db = event.target.result;
-			db
-				.transaction(collectionName)
-				.objectStore(collectionName)
-				.get(setID).onsuccess = function (event) {
-				result = event.target.result;
-			};
-		};
-		while (result == null) {
-			await new Promise((r) => setTimeout(r, 10));
+					if (mode) return;
+					else if (scrollMenu.style.opacity == 1) {
+						fakeClick(Math.max(metaData.length, 1), false);
+						setSearchKey(searchKey + 1);
+					} else {
+					}
+				};
+			});
 		}
-		return "ok";
+		await setData();
+		setUnzipCounter((prev) => prev + 1);
 	}
 	const [metaData, setMetaData] = useState([]);
 	const [webSearchData, setWebSearchData] = useState([]);
@@ -325,24 +220,78 @@ function SongSelectionMenu() {
 	const [tempOnline, setTempOnline] = useState(false);
 	const [stationary, setStationary] = useState(false);
 	const [switchToggle, setSwitchToggle] = useState(false);
+	const [unzipCounter, setUnzipCounter] = useState(0);
+	const [unzipTotal, setUnzipTotal] = useState(0);
+	useEffect(() => {
+		if (unzipCounter == unzipTotal && unzipTotal > 0) {
+			unzippingSet.style.height = "";
+			unzippingSet.style.opacity = "";
+			setSaved.style.opacity = "1";
+			setSaved.style.height = "3.5vh";
+			setTimeout(() => {
+				setSaved.style.opacity = "0";
+				setSaved.style.height = "0vh";
+				setUnzipCounter(0);
+				setUnzipTotal(0);
+			}, 1000);
+		} else if (unzipTotal > 0) {
+			unzippingSet.style.height = "3.5vh";
+			unzippingSet.style.opacity = "1";
+		}
+	}, [unzipCounter, unzipTotal]);
+	const [downloadHead, setDownloadHead] = useState(0);
+	const [activeDownload, setActiveDownload] = useState(false);
+	const [downloadQueue, setDownloadQueue] = useState([]);
+	useEffect(() => {
+		if (
+			!activeDownload &&
+			downloadQueue.length > 0 &&
+			downloadHead >= downloadQueue.length
+		) {
+			setDownloadQueue([]);
+			setDownloadHead(0);
+			fetchingSet.style.height = "";
+			fetchingSet.style.opacity = "";
+		} else if (
+			downloadQueue.length > 0 &&
+			downloadHead < downloadQueue.length &&
+			!activeDownload
+		) {
+			fetchingSet.style.height = "3.5vh";
+			fetchingSet.style.opacity = "1";
+			setActiveDownload(true);
+			fetch(uri2 + "/d/" + downloadQueue[downloadHead][0])
+				.then((res) => res.blob())
+				.then((blob) => {
+					let file = new File([blob], "test.osz", {
+						type: "application/octet-stream",
+					});
+					setUnzipTotal((prev) => prev + 1);
+					setDownloadHead((prev) => prev + 1);
+					setActiveDownload(false);
+					getOszFileToUnzip(
+						file,
+						true,
+						downloadQueue[downloadHead][1]
+					);
+				});
+		}
+	}, [downloadHead, downloadQueue]);
 	let loadLimit = parseInt(window.innerHeight / 88);
 	if (loadLimit < 6) loadLimit = 6;
-	function getMetaFiles() {
-		return metaFiles;
-	}
 	if (start || !settingsVal.blur) {
 		backgroundImage.style.filter = "blur(0px) brightness(0.5)";
 	} else {
 		backgroundImage.style.filter = "blur(12px) brightness(0.5)";
 	}
 	function keyaction(e) {
-		//e.preventDefault();
 		if (previewSearch.style.opacity == 1) {
 			if (!start && e.key == "Escape") {
 				searchbox.value = "";
 				searchbox.blur();
-				resetButton.click();
-
+				if (!onlineMode) resetButton.click();
+				else setWebSearchData([]);
+				setSearchKey(searchKey + 1);
 				return;
 			}
 			if (!start) {
@@ -352,9 +301,12 @@ function SongSelectionMenu() {
 		} else {
 			if (e.repeat) return;
 
-			if (e.key == "Escape" ) {
+			if (e.key == "Escape") {
 				let root = document.querySelector("#playArea");
-				if (root.style.animationPlayState != "paused" && !music.paused) {
+				if (
+					root.style.animationPlayState != "paused" &&
+					!music.paused
+				) {
 					pause(root);
 				} else {
 					pauseMenu.style.opacity = "0";
@@ -378,10 +330,8 @@ function SongSelectionMenu() {
 			}
 		}
 	}
-
 	useEffect(() => {
 		if (!focus) return;
-		//document.documentElement.requestFullscreen();
 		loadTime = new Date().getTime();
 		document.addEventListener("keydown", keyaction);
 
@@ -541,7 +491,9 @@ function SongSelectionMenu() {
 						(deleteMode && !onlineMode
 							? 10
 							: scrollIndex == index
-							? stationary?"-50":"-25"
+							? stationary
+								? "-50"
+								: "-25"
 							: Math.abs(scrollIndex - index) * 20) + "px",
 					height:
 						(scrollIndex == index &&
@@ -579,48 +531,24 @@ function SongSelectionMenu() {
 										className="h-1/2 duration-300 flex items-center justify-center overflow-hidden  text-bcol hover:text-colors-red aspect-square"
 										onClick={(e) => {
 											e.preventDefault();
-											if (
-												fetchingSet.style.height !=
-													"" ||
-												unzippingSet.style.height != ""
-											) {
-												waitDC.style.height = "6vh";
-												waitDC.style.opacity = "1";
-												setTimeout(() => {
-													waitDC.style.height = "";
-													waitDC.style.opacity = "";
-												}, 1000);
-												return;
-											}
-											fetchingSet.style.height = "3.5vh";
-											fetchingSet.style.opacity = "1";
-											fetch(
-												uri2 + "/d/" + element.setId // Fetches the file
-											)
-												.then((res) => res.blob()) // Gets the response and returns it as a blob
-												.then((blob) => {
-													fetchingSet.style.height =
-														"";
-													fetchingSet.style.opacity =
-														"";
-													let file = new File(
-														[blob],
-														"test.osz",
-														{
-															type: "application/octet-stream",
-														}
-													);
-													unzippingSet.style.height =
-														"3.5vh";
-													unzippingSet.style.opacity =
-														"1";
-													getOszFileToUnzip(
-														file,
-														0,
-														true,
-														false
-													);
-												});
+											// if (
+											// 	fetchingSet.style.height !=
+											// 		"" ||
+											// 	unzippingSet.style.height != ""
+											// ) {
+											// 	waitDC.style.height = "6vh";
+											// 	waitDC.style.opacity = "1";
+											// 	setTimeout(() => {
+											// 		waitDC.style.height = "";
+											// 		waitDC.style.opacity = "";
+											// 	}, 1000);
+											// 	return;
+											// }
+
+											setDownloadQueue((prev) => [
+												...prev,
+												[element.setId, false],
+											]);
 										}}
 										style={{
 											opacity: deleteMode ? "1" : "1",
@@ -634,7 +562,7 @@ function SongSelectionMenu() {
 												: "",
 										}}>
 										<div className="h-1/2 aspect-square">
-											{donwloadIcon}
+											{svg.donwloadIcon}
 										</div>
 									</div>
 								) : (
@@ -718,7 +646,7 @@ function SongSelectionMenu() {
 												? "all"
 												: "none",
 									}}>
-									{crossIcon}
+									{svg.crossIcon}
 								</div>
 							</div>
 						</div>
@@ -765,41 +693,11 @@ function SongSelectionMenu() {
 														setStart(true);
 														return;
 													}
-													fetchingSet.style.height =
-														"3.5vh";
-													fetchingSet.style.opacity =
-														"1";
-													fetch(
-														uri2 +
-															"/d/" +
-															element.setId // Fetches the file
-													)
-														.then((res) =>
-															res.blob()
-														) // Gets the response and returns it as a blob
-														.then((blob) => {
-															fetchingSet.style.height =
-																"";
-															fetchingSet.style.opacity =
-																"";
-															let file = new File(
-																[blob],
-																"test.osz",
-																{
-																	type: "application/octet-stream",
-																}
-															);
-															unzippingSet.style.height =
-																"3.5vh";
-															unzippingSet.style.opacity =
-																"1";
-															getOszFileToUnzip(
-																file,
-																0,
-																true,
-																true
-															);
-														});
+													setDownloadQueue((prev) => [
+														...prev,
+														[element.setId, true],
+													]);
+
 													return;
 												}
 											} else {
@@ -892,28 +790,52 @@ function SongSelectionMenu() {
 	}
 	let st = null;
 	let count = 0;
-	function fps(time) {
-		if (st == null) {
-			st = time;
-		}
-		count++;
-		if (time - st > 1000) {
-			previewVersion.innerHTML = ((count / (time - st)) * 1000).toFixed(
-				2
-			);
-			st = time;
-			count = 0;
-		}
-		requestAnimationFrame(fps);
-	}
 
 	return (
 		<>
 			{" "}
 			<div id="screen1">
 				<div
-					className="duration-300 fixed overflow-hidden   text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
-					onLoad={onLD()}
+					className="duration-300 fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
+					style={{
+						opacity:
+							!onlineMode && !switchToggle && metaData.length < 1
+								? "0.5"
+								: "0",
+					}}>
+					<div>
+						<label
+							htmlFor="inpp"
+							className=" hover:text-white duration-300 pointer-events-auto">
+							Upload
+						</label>{" "}
+						a beatmap set,
+					</div>
+					<div>
+						<label
+							htmlFor="loadDemo"
+							className=" hover:text-white duration-300 pointer-events-auto">
+							load demo
+						</label>{" "}
+						, or{" "}
+					</div>
+					<div>
+						{" "}
+						switch to{" "}
+						<label
+							className=" hover:text-white duration-300 pointer-events-auto"
+							onClick={() => {
+								setSwitchToggle(true);
+								setTimeout(() => {
+									setOnlineMode(true);
+								}, 300);
+							}}>
+							online mode
+						</label>{" "}
+					</div>
+				</div>
+				<div
+					className="duration-300 fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
 					style={{
 						opacity:
 							onlineMode &&
@@ -922,26 +844,26 @@ function SongSelectionMenu() {
 								? "0.5"
 								: "0",
 					}}>
-					<div>Search the web </div>
-					<div> for beatmaps</div>
+					<div>Search the web</div>
+					<div>for beatmaps</div>
 				</div>
 				<div
 					key={searchKey}
 					id="scrollMenu"
 					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-hidden right-0  bg -post  pl-4   w-[100vw] items-end justify-end fade-in  grid   h-[150%] pt-[calc(50vh-88px)]    "
 					onScroll={(e) => {
-						if (onlineMode && webSearchData.length < 1) return;
-						if (!onlineMode && (deleteMode || metaData.length < 1))
-							return;
 						let select = onlineMode ? webSearchData : metaData;
-						scrollMenu.style.scrollSnapType = "none";
-						let children = scrollMenu.children;
 						let clost = Math.min(
 							parseInt(scrollMenu.scrollTop / 88),
 							select.length - 1
 						);
-						if(clost!=scrollIndex)
-						setScrollIndex(clost);
+						if (clost != scrollIndex) setScrollIndex(clost);
+						if (onlineMode && webSearchData.length < 1) return;
+						if (!onlineMode && (deleteMode || metaData.length < 1))
+							return;
+						
+						scrollMenu.style.scrollSnapType = "none";
+						let children = scrollMenu.children;
 						if (
 							scrollMenu.scrollTop <
 							(children.length - 1) * 88 +
@@ -1035,7 +957,11 @@ function SongSelectionMenu() {
 					style={{
 						scrollSnapType: "y mandatory",
 						opacity: start ? 0 : 1,
-						pointerEvents: start ? "none" : "auto",
+						pointerEvents:
+							start ||
+							(metaData.length < 1 && webSearchData.length < 1)
+								? "none"
+								: "auto",
 					}}>
 					{list}
 
@@ -1068,7 +994,7 @@ function SongSelectionMenu() {
 								? " blur(0px) "
 								: "",
 						}}
-						className="bg-post flex items-center justify-end gap-2 pr-2 duration-300 bg-opacity-25 z-20   border-bcol h-[60px] max-h-[10vh] border-b  backdrop-blur-md  border-1 w-full  top-0 left-0  ">
+						className="bg-post flex items-center justify-end gap-2 pr-2 duration-300 bg-opacity-25 z-20   border-bcol h-[60px] min-h-[5vh] max-h-[10vh] border-b-2  backdrop-blur-md   w-full  top-0 left-0  ">
 						<MusicPlayer />
 						<div
 							onClick={() => {
@@ -1097,7 +1023,7 @@ function SongSelectionMenu() {
 								backgroundColor: deleteMode ? "#2525254C" : "",
 								opacity: !switchToggle ? "1" : "0",
 							}}>
-							{deleteIcon}
+							{svg.deleteIcon}
 						</div>
 
 						<div
@@ -1105,7 +1031,7 @@ function SongSelectionMenu() {
 							style={{
 								opacity: !switchToggle ? "1" : "0.25",
 							}}>
-							{offlineButton}
+							{svg.offlineIcon}
 						</div>
 						<div
 							className="bg-post  outline-[#9393934C] outline-1 text-bcol duration-300  bg-opacity-50 flex  items-center  outline hover:text-bact  rounded-full aspect-video h-1/3"
@@ -1115,8 +1041,10 @@ function SongSelectionMenu() {
 								scrollMenu.style.opacity = 0;
 								setSavedPos(scrollMenu.scrollTop);
 								resetView();
+								music.src = "";
 								setSwitchToggle(!onlineMode);
 								setTimeout(() => {
+									if (sctimer) clearTimeout(sctimer);
 									setStationary(false);
 									setOnlineMode(!onlineMode);
 									setWebSearchData([]);
@@ -1160,7 +1088,7 @@ function SongSelectionMenu() {
 							style={{
 								opacity: switchToggle ? "1" : "0.25",
 							}}>
-							{onlineButton}
+							{svg.onlineIcon}
 						</div>
 						<div className="bg-post p-1 pl-2 outline-bcol outline-1 flex items-center   outline bg-opacity-30 rounded-lg w-[20vw] h-2/3 ">
 							<input
@@ -1442,32 +1370,41 @@ function SongSelectionMenu() {
 							id="resetButton"
 							className="w-16 h-16 bg-black hidden"
 							onClick={() => {
-								setMetaData(metaFiles);
 								let ind = -1;
 								setSearchKey(0);
-								if (metaData[0].setId == metaFiles[0].setId)
-									return;
+								if (onlineMode) setWebSearchData([]);
+								else {
+									setMetaData(metaFiles);
+									if (metaData[0].setId == metaFiles[0].setId)
+										return;
+								}
+								
 								setGlobalIndex(ind);
 								setSecondaryIndex(0);
 
 								fakeClick(0, true);
+								resetView();
 							}}></div>
 					</div>
-					{focus &&
-					((metaFiles.length > 0 && !onlineMode) || onlineMode) ? (
+
+					<div
+						className="duration-300"
+						style={{
+							opacity:
+								(switchToggle  && webSearchData.length > 0) || (!switchToggle && !onlineMode  && metaData.length > 0)
+									? 1
+									: 0,
+						}}>
 						<Preview />
-					) : (
-						<></>
-					)}
+					</div>
 				</div>
 				<div
 					style={{ opacity: start ? 0 : 1 }}
 					id="addOSZButton"
 					className="w-full flex items-end gap-3 p-3 duration-300 h-full fixed z-20 pointer-events-none">
 					<label
-						//style={{ display: !props.playing ? "" : "none" }}
 						htmlFor="inpp"
-						className="pointer-events-auto  bg-opacity-75  aspect-[2.2/1] flex items-center justify-center  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10vh] z-[11]  rounded-md shadow-lg  cursor-pointer   text-center ">
+						className="pointer-events-auto  bg-opacity-50  aspect-[2.2/1] flex items-center justify-center  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10vh] z-[11]  rounded-md shadow-lg  cursor-pointer   text-center ">
 						<input
 							multiple
 							type="file"
@@ -1480,101 +1417,38 @@ function SongSelectionMenu() {
 						/>
 						Upload
 					</label>
-					<div
-						className="text-bhov fixed bottom-0 right-0 duration-300 flex flex-col bg-post  bg-opacity-75  h-[4vh] pt-[0.5vh] w-[24vh]  overflow-clip rounded-tl-md"
-						id="clickToUnmute">
-						<div className="h-fit text-[2vh] w-full text-center  overflow-clip font-thin">
-							Click anywhere to unmute
-						</div>
-					</div>
+					
 					<button
-						//style={{ display: !props.playing ? "" : "none" }}
 						style={{
 							opacity: metaFiles.length < 1 ? 1 : 0,
 							pointerEvents:
 								metaFiles.length < 1 ? "auto" : "none",
 						}}
 						onClick={(e) => {
-							fetch(
-								"/demo1.osz" // Fetches the file
-							)
-								.then((res) => res.blob()) // Gets the response and returns it as a blob
+							fetch("/demo1.osz")
+								.then((res) => res.blob())
 								.then((blob) => {
 									let file = new File([blob], "demo1.osz", {
 										type: "application/octet-stream",
 									});
-									//console.log(file);
 									getFiles([file]);
 								});
-							fetch(
-								"/demo2.osz" // Fetches the file
-							)
-								.then((res) => res.blob()) // Gets the response and returns it as a blob
+							fetch("/demo2.osz")
+								.then((res) => res.blob())
 								.then(async (blob) => {
 									let file = new File([blob], "demo1.osz", {
 										type: "application/octet-stream",
 									});
-									//console.log(file);
 									getFiles([file], true);
 								});
 
 							return;
 						}}
-						className=" pointer-events-auto  bg-opacity-75 aspect-[2.2/1]  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10vh]  z-[11] duration-300 rounded-md shadow-lg  cursor-pointer   text-center ">
+						id="loadDemo"
+						className=" pointer-events-auto  bg-opacity-50 aspect-[2.2/1]  bg-post border text-bact border-bcol h-12  text-xs sm:text-sm lg:text-base max-h-[10vh]  z-[11] duration-300 rounded-md shadow-lg  cursor-pointer   text-center ">
 						Load Demo
 					</button>
-					<div
-						id="messagebox"
-						className="text-bhov fixed bottom-0 text-[1.5vh] right-0 duration-300 flex flex-col justify-center item  bg-post  bg-opacity-75  h-fit px-[0.5vh] w-[21vh]  w-fit  overflow-clip rounded-tl-md">
-						<div
-							id="looking"
-							className="duration-300 opacity-0 overflow-hidden h-0 flex items-center">
-							<div className="h-[3.5vh] scale-[60%]">
-								{loader2}
-							</div>{" "}
-							Looking for beatmaps
-						</div>
-						<div
-							id="fetchingSong"
-							className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
-							<div className=" h-[3.5vh] scale-[60%]">
-								{loader2}
-							</div>{" "}
-							Fetching preview audio
-						</div>
-						<div
-							id="fetchingSet"
-							className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
-							<div className=" h-[3.5vh] scale-[60%]">
-								{loader2}
-							</div>{" "}
-							Downloading Beatmap
-						</div>
-						<div
-							id="unzippingSet"
-							className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
-							<div className=" h-[3.5vh] scale-[60%]">
-								{loader2}
-							</div>{" "}
-							Unzipping Beatmap Set
-						</div>
-						<div
-							id="setSaved"
-							className=" flex items-center opacity-0  text-colors-green overflow-hidden duration-300  h-0">
-							<div className=" h-[3.5vh] opacity-0 scale-[60%]">
-								{loader2}
-							</div>{" "}
-							Saved Successfully
-						</div>
-						<div
-							id="waitDC"
-							className=" flex items-center opacity-0  text-colors-yellow overflow-hidden duration-300  h-0">
-							<div className=" h-[3.5vh] opacity-0 scale-[60%]">
-								{loader2}
-							</div>{" "}
-							Wait for previous task to complete
-						</div>
-					</div>
+
 					<div
 						className="absolute hidden w-16 aspect-square bg-black"
 						style={{
@@ -1590,7 +1464,7 @@ function SongSelectionMenu() {
 					id="load"
 					className="w-full opacity-0 duration-300 flex items-center justify-center z-30 pointer-events-none h-full fixed bg-black bg-opacity-25 ">
 					<div className=" text-bact text-[30px] font-bold bg-bcol  shadow-md border border-[#777] bg-opacity-25 rounded-lg p-3">
-						{loader}
+						{svg.loaderIcon}
 					</div>
 				</div>
 				<div
@@ -1614,7 +1488,7 @@ function SongSelectionMenu() {
 							setStart(false);
 						}}
 						className="w-16 h-16 bg-post flex  items-center justify-center outline outline-1 bg-opacity-50 outline-colors-red rounded-md text-center leading-[3.6rem]">
-						{exit}
+						{svg.exitIcon}
 					</div>
 					<div
 						onClick={() => {
@@ -1627,7 +1501,7 @@ function SongSelectionMenu() {
 							}, 10);
 						}}
 						className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-yellow rounded-md text-center leading-[3.6rem]">
-						{replay}
+						{svg.replayIcon}
 					</div>
 					<div
 						onClick={() => {
@@ -1639,7 +1513,7 @@ function SongSelectionMenu() {
 							}, 1000);
 						}}
 						className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-green rounded-md text-center leading-[3.6rem]">
-						{playButton2}
+						{svg.playIcon2}
 					</div>
 				</div>
 				<div
@@ -1679,7 +1553,82 @@ function SongSelectionMenu() {
 				<></>
 			)}
 			<div
-			className="fixed z-[9999] rounded-md  text-white bottom-0 right-0 w-20 h-10 bg-post" id="fps" onLoad={getFps()}></div>
+				id="messagebox"
+				className="text-bhov p-[0.5vh] fixed bottom-0 text-[1.5vh] right-0 duration-300 flex flex-col justify-center item  bg-post  bg-opacity-50  h-fit  w-[21vh]  w-fit  overflow-clip rounded-tl-md">
+				<div
+					id="looking"
+					className="duration-300 opacity-0 overflow-hidden h-0 flex items-center">
+					<div className="h-[3.5vh] scale-[60%]">
+						{svg.loaderIcon2}
+					</div>{" "}
+					Looking for beatmaps
+				</div>
+				<div
+					id="fetchingSong"
+					className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
+					<div className=" h-[3.5vh] scale-[60%]">
+						{svg.loaderIcon2}
+					</div>{" "}
+					Fetching preview audio
+				</div>
+				<div
+					id="fetchingSet"
+					className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
+					<div className=" h-[3.5vh] scale-[60%]">
+						{svg.loaderIcon2}
+					</div>{" "}
+					Downloading
+					<div id="unzipxCounter" className="ml-[1vh]">
+						{"(" + downloadHead + "/" + downloadQueue.length + ")"}
+					</div>
+				</div>
+				<div
+					id="unzippingSet"
+					className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
+					<div className=" h-[3.5vh] scale-[60%]">
+						{svg.loaderIcon2}
+					</div>{" "}
+					Unzipping
+					<div id="unzipxCounter" className="ml-[1vh]">
+						{"(" + unzipCounter + "/" + unzipTotal + ")"}
+					</div>
+				</div>
+				<div
+					id="setSaved"
+					className=" flex items-center opacity-0  text-colors-green overflow-hidden duration-300  h-0">
+					<div className=" h-[3.5vh] aspect-square  scale-[60%]">
+						{svg.tickIcon}
+					</div>{" "}
+					Saved Successfully
+				</div>
+				<div
+					id="waitDC"
+					className=" flex items-center opacity-0   overflow-hidden duration-300  h-0">
+					<div className=" h-[3.5vh]  scale-[75%] text-colors-red aspect-square">
+						{svg.crossIcon}
+					</div>{" "}
+					Downloader Busy
+				</div>
+				<div
+					id="clickToUnmute"
+					className=" flex items-center opacity- 0 ml-[1vh]   overflow-hidden duration-300  h-[3.5vh]">
+					
+					Click anywhere to unmute
+				</div>
+				
+				<div
+					onLoad={getFps()}
+					className=" flex items-center opacity -0 px-[1vh]  w-full overflow-hidden duration-300  h -0">
+					<div className="max-w-1/2 w-1/2 flex justify-start">
+						{"Latency:"}
+						<div className="ml-1" id="lat"></div>ms
+					</div>
+					<div className="max-w-1/2 w-1/2 flex justify-end">
+						{"FPS:"}
+						<div className="ml-1" id="fps"></div>
+					</div>
+				</div>
+			</div>
 		</>
 	);
 }
