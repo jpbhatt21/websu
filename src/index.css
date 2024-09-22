@@ -130,3 +130,30 @@
     opacity: 0;
   }
 }
+#cursor{
+  background: url("/public/cursor.png");
+  background-position:center;
+
+  background-size: 200%;
+}
+.trail{
+  background: url("/public/trail.png");
+  background-position:center;
+
+  background-size: 200%;
+  pointer-events: none;
+  transform: translateX(-50%) translateY(-50%);
+  aspect-ratio: 1/1;
+  position: fixed;
+  height: 7vh;
+  animation: trailFade 1s ease-in-out 0s 1 forwards;
+
+}
+
+@keyframes trailFade {
+  0%{opacity:1}
+  100%{
+    opacity:0
+  }
+  
+}

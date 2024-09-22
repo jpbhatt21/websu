@@ -76,7 +76,7 @@ function Preview() {
 			</div>
 			<div
 				id="infobox"
-				className="bg-post bg-opacity-45 items-center  justify-evenly fade-in2 max-h-[44vh] min-h-[22vh] text-[2.2vh] lg:text-[1.8vh]  h-[18vw]  w-[43.5vw] flex flex-row  mt-1  ml-1 rounded-md border border-bcol border-1 "
+				className={"bg-post bg-opacity-45 items-center  justify-evenly fade-in2 max-h-[44vh] min-h-[22vh] text-[2.2vh] lg:text-[1.8vh]  h-[18vw]  w-[43.5vw] flex flex-row  mt-1  ml-1 rounded-md border border-bcol border-1 "}
 				style={{
 					backgroundColor:!settingsVal.showBackground? "#252525":!settingsVal.blur? "#25252599":""
 				}}
@@ -88,37 +88,37 @@ function Preview() {
 					>
 					<div className="flex justify-start bg-bl ack max-h-[10vh] w-full  flex-col h-1/4  gap-[calc(min(1.5vh,8px))]">
 						Circle Size{" "}
-						<div className="bg-gray-500   max-h-[1.5vh] rounded-lg h-2 w-full">
+						<div className="bg-bdark    max-h-[1.5vh] rounded-lg h-2 w-full">
 							<div
 								id="previewCircleSize"
-								className="-ml-[1px]  duration-300 bg-slate-100 w-1/2 max-h-[1.5vh] h-2 rounded-lg"
+								className="-ml-[1px]  duration-300 bg-gray-200 w-1/2 max-h-[1.5vh] h-2 rounded-lg"
 								style={{ width: `0%` }}></div>
 						</div>
 					</div>
 					<div className="flex justify-start max-h-[10vh]  w-full flex-col h-1/4  gap-[calc(min(1.5vh,8px))]">
 						HP Drain
-						<div className="bg-gray-500 rounded-lg max-h-[1.5vh] h-2 w-full">
+						<div className="bg-bdark  rounded-lg max-h-[1.5vh] h-2 w-full">
 							<div
 								id="previewHPDrain"
-								className="-ml-[1px] duration-300 max-h-[1.5vh]  bg-slate-100 w-1/2 h-2 rounded-lg"
+								className="-ml-[1px] duration-300 max-h-[1.5vh]  bg-gray-200 w-1/2 h-2 rounded-lg"
 								style={{ width: `0%` }}></div>
 						</div>
 					</div>
 					<div className="flex justify-start max-h-[10vh]  w-full  flex-col h-1/4  gap-[calc(min(1.5vh,8px))]">
 						Approach Rate
-						<div className="bg-gray-500 max-h-[1.5vh] rounded-lg h-2 w-full">
+						<div className="bg-bdark  max-h-[1.5vh] rounded-lg h-2 w-full">
 							<div
 								id="previewApproachRate"
-								className="-ml-[1px] duration-300 max-h-[1.5vh] bg-slate-100 w-1/2 h-2 rounded-lg"
+								className="-ml-[1px] duration-300 max-h-[1.5vh] bg-gray-200 w-1/2 h-2 rounded-lg"
 								style={{ width: `0%` }}></div>
 						</div>
 					</div>
 					<div className="flex justify-start max-h-[10vh]  w-full flex-col h-1/4  gap-[calc(min(1.5vh,8px))]">
 						Accuracy
-						<div className="bg-gray-500 rounded-lg max-h-[1.5vh] h-2 w-full">
+						<div className="bg-bdark  rounded-lg max-h-[1.5vh] h-2 w-full">
 							<div
 								id="previewAccuracy"
-								className="-ml-[1px] duration-300 max-h-[1.5vh]  bg-slate-100 w-1/2 h-2 rounded-lg"
+								className="-ml-[1px] duration-300 max-h-[1.5vh]  bg-gray-200 w-1/2 h-2 rounded-lg"
 								style={{ width: `0%` }}></div>
 						</div>
 					</div>

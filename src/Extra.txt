@@ -1,0 +1,168 @@
+{/* <Stage
+				id="stg"
+				height={height}
+				width={window.innerWidth}
+				options={{
+					backgroundColor: 0x0000b0,
+					backgroundAlpha: 0.3,
+				}}>
+				{<Graphics
+					draw={(g) => {
+						g.lineStyle(2, 0x0000ff, 1);
+						g.moveTo(rectarr[0].s1[0], rectarr[0].s1[1]);
+
+						for (let i = 0; i < rectarr.length; i++) {
+							g.moveTo(rectarr[i].e1[0], rectarr[i].e1[1]);
+							g.lineTo(rectarr[i].s1[0], rectarr[i].s1[1]);
+							g.lineTo(rectarr[i].s2[0], rectarr[i].s2[1]);
+							g.lineTo(rectarr[i].e2[0], rectarr[i].e2[1]);
+							g.lineTo(rectarr[i].e1[0], rectarr[i].e1[1]);
+						}
+						g.lineStyle(2, 0xff0000, 1);
+
+						g.moveTo(final[0][0], final[0][1]);
+						for (let i = 1; i < final.length; i++) {
+							g.lineTo(final[i][0], final[i][1]);
+						}
+						// g.lineStyle(2, 0x00ff00, 1);
+						// g.moveTo(pts[0].x, pts[0].y);
+						// for (let i = 1; i < pts.length; i++) {
+						//   g.lineTo(pts[i].x, pts[i].y);
+						// }
+						// g.endFill();
+					}}
+				/>}
+				<SimpleMesh
+					shader={capShader[99]}
+					geometry={getCapGeometry(false)}
+					texture={text}
+					x={0}
+					y={0}
+				/>
+				<SimpleMesh
+					shader={shader[99]}
+					geometry={getGeometry(!true)}
+					texture={text}
+					x={0}
+					y={0}
+				/>
+				<SimpleMesh
+					shader={shader[99]}
+					geometry={getCapGeometry(true)}
+					texture={text}
+					x={0}
+					y={0}
+				/>
+				<Graphics
+					draw={(g) => {
+						g.lineStyle(2, 0x00ff00, 1);
+						console.log(rectarr)
+						g.moveTo(rectarr[0][0], rectarr[0][1]);
+						for (let i = 0; i < rectarr[1]; i+=12) {
+							g.moveTo(rectarr[0][i+4], rectarr[0][i+5]);
+							for(let j=0;j<12;j+=2){
+								g.lineTo(rectarr[0][i+j], rectarr[0][i+j+1]);
+
+							}
+						}
+					}}
+					/>
+				
+			</Stage> */}
+
+--------------------------
+            let height = window.innerHeight;
+
+	//console.log(rectarr.length/12)
+	function getGeometry(mode = false) {
+		const geometry = new geo();
+		if (!mode) {
+			geometry.addAttribute("aVertexPosition", rectarr[0], 2);
+			geometry.addAttribute(
+				"aUvs",
+				"000110101101"
+					.repeat(rectarr[1])
+					.split("")
+					.map((x) => parseInt(x)),
+				2
+			);
+		} else {
+			geometry.addAttribute("aVertexPosition", bez[0], 2);
+			geometry.addAttribute(
+				"aUvs",
+				"0|0|0|1|1|0|1|0|1|1|0|1|"
+					.repeat(bez[1])
+					.split("|")
+					.map((x) => parseInt(x)),
+				2
+			);
+		}
+		return geometry;
+	}
+	function getCapGeometry(mode=false) {
+		const geometry = new geo();
+		if (mode)
+		geometry.addAttribute("aVertexPosition", rectarr[2][1], 2);
+		else
+		geometry.addAttribute("aVertexPosition", rectarr[2][0], 2);
+		geometry.addAttribute("aUvs",[1,0,0,0,1,1,1,1,0,1,0,0], 2);
+		return geometry;
+	}
+
+    --------------------------
+    import { useEffect, useMemo, useState } from "react";
+import {
+	Geometry as geo,
+	Shader,
+	Texture,
+	ColorMatrixFilter,
+	AlphaFilter,
+} from "pixi.js";
+import { Stage, SimpleMesh, withFilters, Container, Sprit, Graphics } from "@pixi/react";
+import HitObj from "./HitObj";
+// window.addEventListener('resize', () => {
+//   console.log('resized')
+//   let stg=document.getElementById('stg')
+// stg.style.width = window.innerHeight/3 * 4
+// stg.style.height = window.innerHeight
+// }
+// )
+import { Assets } from "pixi.js";
+import { bSliderPath, lSliderPath, pSliderPath } from "./Sliders";
+import { capShader, shader, uniforms } from "./Utils";
+let text = Texture.from("/hitcircle.png");
+// Assets
+//  .load('https://pixijs.com/assets/bitmap-font/desyrel.xml')
+
+let b = [
+	
+	[233,191],
+	[312,174],
+	[389,149]
+];
+
+let rectarr = pSliderPath(b);
+console.log(rectarr);
+//console.log(rectarr)
+
+//console.log(pts);
+// let out = bez.outlineshapes(20);
+
+// let allpoints = [];
+// for (let i = 0; i < out.length; i++) {
+//   let startcap = [];
+//   startcap.push(out[i].startcap.points[0], out[i].startcap.points[2]);
+
+//   let forward = out[i].forward.getLUT(25);
+
+//   let back = out[i].back.getLUT(25);
+
+//   let endcap = [];
+//   endcap.push(out[i].endcap.points[0], out[i].endcap.points[2]);
+
+//   allpoints.push([...startcap, ...forward, ...endcap, ...back]);
+// }
+// const colFil= new ColorMatrixFilter()
+// colFil.tint("#ff0000")
+const Alph = new AlphaFilter();
+Alph.alpha = 1;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { music, pauseButton, playButton, unmuteIcon } from "./Utils";
-
+import { music } from "./Utils";
+import { svg } from "./VectorGraphics";
 function MusicPlayer() {
 	const [songName, setSongName] = useState("-");
 	const [musicPlayState, setMusicPlayState] = useState(false);
@@ -9,9 +9,9 @@ function MusicPlayer() {
 	const [muteUnmute, setMuteUnmute] = useState(false);
 	const [inter, setInter] = useState(false);
 	async function keyaction2(e) {
-        console.log("click")
 		if (!inter && music.paused) {
 			try {
+				
 				music.play();
 				music.volume = 0;
 				while (music.volume <= 0.9) {
@@ -22,18 +22,21 @@ function MusicPlayer() {
 				if (music.paused) return;
 				setInter(true);
 
-				document.removeEventListener("click", keyaction2);
+				
 			} catch (e) {}
 		}
 	}
 	useEffect(() => {
 		document.addEventListener("click", keyaction2);
-
 		setInterval(() => {
 			setMusicPlayState(music.paused);
+			if(!music.paused){
+				document.removeEventListener("click", keyaction2);
+			}
 			if (!inter && !music.paused) setInter(true);
 			if (!music.paused) {
 				clickToUnmute.style.opacity = "0";
+				clickToUnmute.style.height = "0";
 			}
 			setMusicCurrentTime(music.currentTime);
 			if (music.duration != musicDuration && music.duration > 0)
@@ -45,10 +48,10 @@ function MusicPlayer() {
 	}, []);
 	return (
 		<>
-			<div className=" text-[1.5vh] pt-[0.5vh]  flex gap-1  items-ce nter text-bcol  justify-center aspect-square h-[60px] max-h-[10vh]  absolute left-2">
+			<div className=" text-[1vh] pt-[0.5vh]  flex gap-1  items-ce nter text-bcol  justify-center aspect-square h-[60px] min-h-[5vh] max-h-[10vh]  absolute left-2">
 				<div className="h-full w-[4vh]  select-none items-center justify-evenly flex flex-col">
 					<div
-						id="musicPlayState mt-1"
+						id="musicPlayState mt-1" //Play-Pause button
 						className="h-1/3"
 						onClick={() => {
 							if (musicPlayState) {
@@ -57,9 +60,10 @@ function MusicPlayer() {
 								music.pause();
 							}
 						}}>
-						{musicPlayState ? playButton : pauseButton}
+						{musicPlayState ? svg.playIcon : svg.pauseIcon}
 					</div>
-					<div id="musicCurrentTime" className="h-1/3 w-[4vh]">
+					<div id="musicCurrentTime" className="h-1/3 flex text-[125%] mb-[0.25vh] items-center justify-center text-center w-[4vh]" //Music current time in mm:ss
+					>
 						{(musicCurrentTime / 60 < 10 ? "0" : "") +
 							parseInt(musicCurrentTime / 60) +
 							":" +
@@ -68,10 +72,11 @@ function MusicPlayer() {
 					</div>
 				</div>
 				<div className="h-full w-[20vh]  justify-evenly   flex flex-col">
-					<div id="songName" className="h-1/3 text-[100%] w-full overflow-hidden text-ellipsis whitespace-nowrap  flex items-center">{songName}</div>
+					<div id="songName" className="h-1/3 text-[150%] w-full overflow-hidden text-ellipsis whitespace-nowrap  flex items-center" //Song name
+					>{songName}</div>
 					<div className="h-1/3 flex items-center ">
                     <div
-						className="bg-gray-500 overflow-hidden  h-1/2 rounded-full  w-full"
+						className="bg-bdark overflow-hidden out line outl ine-1  h-1/2 rounded-full  w-full" //Seek-bar background
 						onClick={(e) => {
 							music.currentTime =
 								((e.clientX -
@@ -81,7 +86,7 @@ function MusicPlayer() {
 						}}>
 						<div
 							id="musicProgress"
-							className=" max-w-[100%] pointer-events-none duration-300 bg-slate-100 w-0 h-full rounded-full"
+							className=" max-w-[100%] pointer-events-none duration-300 bg-gray-200 w-0 h-full rounded-full" //Seek-bar
 							style={{
 								width:
 									(musicCurrentTime / musicDuration) * 100 +
@@ -92,22 +97,24 @@ function MusicPlayer() {
 				</div>
 				<div className="h-full w-[4vh] select-none  items-center justify-evenly   flex flex-col">
 					<div
-						id="muteUnmute"
+						id="muteUnmute" //Mute-Unmute Button
 						className="h-1/3 flex duration-300 items-center "
 						style={{
 							color: muteUnmute || !inter ? "#9393934C" : "",
 						}}
 						onClick={() => {
+							if(!inter)return
 							music.muted = !music.muted;
 						}}>
-						{unmuteIcon}
+						{svg.unmuteIcon}
 						<div
 							style={{
 								height: muteUnmute || !inter ? "" : "0%",
 							}}
 							className="h-[110%] bg-bact duration-300 rounded-sm aspect-[1/10] rotate-45 -ml-[50%]"></div>
 					</div>
-					<div id="musicDuration" className="w-[4vh] h-1/3">
+					<div id="musicDuration" className="w-[4vh] flex text-[125%] mb-[0.25vh] items-center justify-center text-center h-1/3" //Music Duration in mm:ss
+					>
 						{(musicDuration / 60 < 10 ? "0" : "") +
 							parseInt(musicDuration / 60) +
 							":" +
