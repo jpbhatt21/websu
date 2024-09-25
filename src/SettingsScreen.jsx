@@ -113,7 +113,11 @@ function SettingsScreen({setUpdateSettings}) {
 								sst={setUpdateSettings}
 							/>
 						))}
-						<div className="h-full mb-8" />
+						<div className="h-full w-full mb-8"
+						style={{
+							height:"calc(100% - 35rem )"
+						}}
+						/>
 					</div>
 				</div>
 			</div>
