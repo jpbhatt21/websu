@@ -1,8 +1,8 @@
 export let backgroundImage = document.getElementById("backgroundImage");
 export let music = new Audio();
-import { settingsVal } from "./SettingsVal";
 import { Shader, Texture } from "pixi.js";
 import { bSliderPath, lSliderPath, pSliderPath, setCs } from "./Sliders";
+import { settings } from "../SettingsValues";
 let musicLoaded = false;
 let videoLoaded = false;
 export const vertexSrc = `
@@ -205,52 +205,66 @@ export function getIndividualBeatMapInfo(file2, assets) {
 		.filter((x) => x.includes("Version:"))[0]
 		.split(":")[1]
 		.trim();
+
 	imp.circleSize = parseFloat(
 		lines
 			.filter((x) => x.includes("CircleSize:"))[0]
 			.split(":")[1]
 			.trim()
 	);
+
 	imp.approachRate = parseFloat(
 		lines
 			.filter((x) => x.includes("ApproachRate:"))[0]
 			.split(":")[1]
 			.trim()
 	);
+
 	imp.hpDrainRate = parseFloat(
 		lines
 			.filter((x) => x.includes("HPDrainRate:"))[0]
 			.split(":")[1]
 			.trim()
 	);
+
 	imp.mapper = lines
 		.filter((x) => x.includes("Creator:"))[0]
 		.split(":")[1]
 		.trim();
+
 	imp.source = lines
 		.filter((x) => x.includes("Source:"))[0]
 		.split(":")[1]
 		.trim();
+
 	imp.tags = lines
 		.filter((x) => x.includes("Tags:"))[0]
 		.split(":")[1]
 		.trim();
+
 	let bgImgLine = lines.findIndex((line) => line.includes("[Events]")) + 2;
+
+
 	if (
 		lines[bgImgLine].includes("Video") ||
-		lines[bgImgLine].split(",").length < 5
+		lines[bgImgLine].includes(".mp4")||lines[bgImgLine].includes(".mov")||lines[bgImgLine].includes(".avi")
 	)
 		bgImgLine++;
+		
+	
 	imp.backgroundImage = lines[bgImgLine].split(",")[2].slice(1, -1).trim();
+	
 
 	imp.backgroundImage = cleanse(imp.backgroundImage);
 	try {
 		imp.backgroundImage = assets.filter(
 			(x) => cleanse(x.name) == imp.backgroundImage
 		)[0].file;
+
 	} catch (e) {
 		let maxIndex = 0;
 		let maxScore = 0;
+
 		assets.map((x, i) => {
 			let y = similarity(x.name, imp.backgroundImage);
 			if (y > maxScore) {
@@ -258,9 +272,11 @@ export function getIndividualBeatMapInfo(file2, assets) {
 				maxScore = y;
 			}
 		});
+
 		imp.backgroundImage = assets[maxIndex].file;
 	}
 	try {
+
 		imp.audioFile = assets.find((x) =>
 			x.name.includes(
 				lines
@@ -270,6 +286,7 @@ export function getIndividualBeatMapInfo(file2, assets) {
 			)
 		).file;
 	} catch (e) {
+
 		let maxIndex = 0;
 		let maxScore = 0;
 		assets.map((x, i) => {
@@ -318,7 +335,7 @@ export function getIndividualBeatMapInfo(file2, assets) {
 export async function setBackground(data, mode = false) {
 	if (backgroundImage.src == "data:image/png;base64," + data) return;
 	if (mode && backgroundImage.src == data) return;
-	if (settingsVal.animateBackground) {
+	if (true) {
 		backgroundImage.style.transitionDuration = "0.3s";
 		backgroundImage.style.opacity = 0;
 
@@ -326,7 +343,7 @@ export async function setBackground(data, mode = false) {
 	}
 	if (mode) backgroundImage.src = data;
 	else backgroundImage.src = "data:image/png;base64," + data;
-	if (settingsVal.animateBackground) {
+	if (true) {
 		backgroundImage.style.transitionDuration = "0s";
 		backgroundImage.style.scale = "1.2";
 
@@ -344,13 +361,14 @@ export async function setPreviewImage(
 	mode = false
 ) {
 	let result = null;
-	if (!settingsVal.showPreviewImage && !settingsVal.showBackground) return;
+	// if (!settingsVal.showPreviewImage && !settingsVal.showBackground) return;
 
 	if (mode) {
 		if (previewImage.src == index) return;
-		if (settingsVal.showBackground) setBackground(index, mode);
-		if (!settingsVal.showPreviewImage) return;
-		if (settingsVal.animateBackground) {
+		// if (settingsVal.showBackground)
+		setBackground(index, mode);
+		// if (!settingsVal.showPreviewImage) return;
+		if (true) {
 			previewImage.style.opacity = 0;
 			await new Promise((r) => setTimeout(r, 300));
 		}
@@ -370,10 +388,10 @@ export async function setPreviewImage(
 					"data:image/png;base64," + event.target.result.files[index]
 				)
 					return;
-				if (settingsVal.showBackground)
+				// if (settingsVal.showBackground)
 					setBackground(event.target.result.files[index], mode);
-				if (!settingsVal.showPreviewImage) return;
-				if (settingsVal.animateBackground) {
+				// if (!settingsVal.showPreviewImage) return;
+				if (true) {
 					previewImage.style.opacity = 0;
 					await new Promise((r) => setTimeout(r, 300));
 				}
@@ -409,17 +427,18 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 			music.play();
 			fetchingSong.style.height = "";
 			fetchingSong.style.opacity = "";
-			while (music.volume <= 0.9) {
+			let maxVolume=settings.Audio["Master Volume"].value/100 *settings.Audio["Music Volume"].value/100
+			while (music.volume < maxVolume && music.volume < 0.95) {
 				music.volume += 0.05;
 				await new Promise((r) => setTimeout(r, 10));
 			}
-			music.volume = 1;
+			music.volume = Math.min(maxVolume,1);
 		}, 200);
 		return;
 	}
 	let diver = async (song) => {
 		if (music.src == "data:audio/wav;base64," + song) return;
-		while (music.volume >= 0.1) {
+		while (music.volume >= 0.05) {
 			music.volume -= 0.05;
 			await new Promise((r) => setTimeout(r, 10));
 		}
@@ -434,18 +453,18 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 			async function (event) {
 				let song = event.target.result.files[index];
 				if (music.src.length > 0) await diver(song);
-
 				setTimeout(async () => {
 					music.setAttribute("src", "data:audio/wav;base64," + song);
 					music.title = title;
 					music.load();
 					music.currentTime = previewTime / 1000;
 					music.play();
-					while (music.volume <= 0.9) {
+					let maxVolume=settings.Audio["Master Volume"].value/100 *settings.Audio["Music Volume"].value/100
+					while (music.volume <maxVolume && music.volume < 0.95) {
 						music.volume += 0.05;
 						await new Promise((r) => setTimeout(r, 10));
 					}
-					music.volume = 1;
+					music.volume =Math.min(maxVolume,1);
 				}, 200);
 			};
 	};
@@ -554,9 +573,11 @@ export function setBackgroundImage(file, setId, mode) {
 export function fakeClick(index, index2, mode = false) {
 	setTimeout(() => {
 		if (index2) {
-			scrollMenu.scrollTo({ top: 0.1 * 88 });
+			console.log("yeaaa")
+			scrollMenu.scrollTo({ top: 1 * 40 });
+
 		} else {
-			scrollMenu.scrollTo({ top: index * 88, behavior: "smooth" });
+			scrollMenu.scrollTo({ top: index * 80, behavior: "smooth" });
 		}
 	}, 20);
 }
@@ -596,7 +617,7 @@ export async function decodeBeatMap(base64, setId, online) {
 
 	bg = cleanse(bg);
 	let isVideo = false;
-	if (events[2 - offset].includes("Video")) {
+	if (events[2 - offset].includes("Video") && settings.Gameplay["Play Video"].value) {
 		isVideo = true;
 		let name = cleanse(events[2 - offset].split(",")[2]);
 		if (name.includes(".avi")) {
@@ -800,4 +821,17 @@ export async function decodeBeatMap(base64, setId, online) {
 		colors = [colors[0], colors[1], colors[0], colors[2]];
 	else colors = colors.slice(0, 4);
 	return [aprate / 1000, cs, hit2, temp, col, isVideo, colors];
+}
+export function setBeatmapPreviewData(data) {
+	previewCircleSize.style.width = data.circleSize * 10 + "%";
+	previewApproachRate.style.width = data.approachRate * 10 + "%";
+	previewHPDrain.style.width = data.hpDrainRate * 10 + "%";
+	previewAccuracy.style.width = data.difficulty * 10 + "%";
+	previewMapper.innerHTML = data.creator;
+	previewSource.innerHTML = data.source;
+	previewVersion.innerHTML = data.level;
+	previewTags.innerHTML = data.tags;
+	previewSong.innerHTML = data.title;
+	previewArtist.innerHTML = data.artist;
+	previewVersion2.innerHTML = data.level;
 }

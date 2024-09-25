@@ -3,19 +3,23 @@ import {
 	backgroundImage,
 	decodeBeatMap,
 	music,
-} from "./Utils";
+} from "./Utility/Utils";
 import {
 	Container,
 	Stage,
 } from "@pixi/react";
 import { ColorMatrixFilter, Geometry,  } from "pixi.js";
-import HitObject from "./HitObject";
-import Slider from "./Slider";
+import HitObject from "./Components/HitObject";
+import Slider from "./Components/SliderHitObject";
+import { settings } from "./SettingsValues";
 
 let delay = 0;
 let colFil = new ColorMatrixFilter();
 function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+export function bezier(t) {
+	return t * t * (3.0 - 2.0 * t);
 }
 function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 	const [approachRate, setApproachRate] = useState(0);
@@ -80,9 +84,6 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 		} catch (e) {
 			return "#dddddd";
 		}
-	}
-	function bezier(t) {
-		return t * t * (3.0 - 2.0 * t);
 	}
 	function getGeometry(arr, limit) {
 		const geometry = new Geometry();
@@ -202,12 +203,26 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 						window.AudioContext || window.webkitAudioContext;
 					var audioCtx = new AudioContext();
 					music.pause();
+					let delay=((settings.Audio["Audio Offset"].value-50)/50)
+					let diff=0
+					if(delay<0){
+						if (beatMap[5]) {
+							backgroundVideo.play();
+						}
+						
+						music.play()
+						await sleep(-delay*1000);
+						
+					}
+					else{
+						diff=delay
+					}
 					let playingTillApproachRate = new Promise((r) => {
 						let prev = 0;
 						function starter(time) {
 							if (prev != 0) {
 								//If time is greater than the approach rate, start the music
-								if (time - prev >= beatMap[0] * 1000) {
+								if (time - prev >= beatMap[0] * 1000*4/3+delay*1000) {
 									r();
 									return;
 								}
@@ -224,10 +239,13 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 						window.requestAnimationFrame(starter);
 					});
 					await playingTillApproachRate; //Wait for till time is greater than approach rate
-					if (beatMap[5]) {
-						backgroundVideo.play();
-					}
+					// if (beatMap[5]) {
+					// 	backgroundVideo.play();
+					// }
 					music.play();
+					if(delay>=0){
+						delay+=beatMap[0]*4/3
+					}
 					let songPlaying = new Promise((r) => {
 						function player() {
 							//If music is over, stop
@@ -235,9 +253,9 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 								r();
 								return;
 							}
+							//console.log(music.currentTime+delay);
 							setTime(
-								parseFloat(music.currentTime.toFixed(2)) +
-									beatMap[0]
+								parseFloat(music.currentTime.toFixed(2)) +delay
 							);
 							window.requestAnimationFrame(player);
 						}

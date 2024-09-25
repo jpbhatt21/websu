@@ -1,5 +1,5 @@
 import { Container, SimpleMesh } from "@pixi/react";
-import { capShader, shader, uniforms, uniforms2 } from "./Utils";
+import { capShader, shader, uniforms, uniforms2 } from "../Utility/Utils";
 
 function Slider({shaderIndex, startCap, endCap, sliderMesh,filter}) {
 	return (

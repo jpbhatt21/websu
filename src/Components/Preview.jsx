@@ -1,13 +1,11 @@
-import { settingsVal } from "./SettingsVal";
-
 let skewDeg = 8;
-function Preview() {
+function Preview({backdrop}) {
 	return (
 		<>
 		
 			<div
 
-				className="bg-post bg-opacity-25 max-h-[35vh] h-[20vw]  w-[55vw] fade-in2 text-center   border-t-0  ml-[-8vw] rounded-lg rounded-tr-none border border-bcol border-2 overflow-hidden"
+				className="bg-post bg-opacity-25 shadow- xl shadow-colors- orange max-h-[35vh] h-[20vw]  w-[55vw] fade-in2 text-center   border-t-0  ml-[-8vw] rounded-lg rounded-tr-none border border-bcol border-2 overflow-hidden"
 				style={{
 					transform:
 						"skew(-" +
@@ -17,7 +15,8 @@ function Preview() {
 						"deg) rotate(" +
 						skewDeg +
 						"deg)",
-						backgroundColor:!settingsVal.showBackground? "#252525":!settingsVal.blur? "#25252599":"",
+						backgroundColor:!backdrop? "#252525":"",
+						// boxShadow: "2px 2px 12px 2px #939393"
 				}}>
 				<img
 					id="previewImage"
@@ -76,9 +75,9 @@ function Preview() {
 			</div>
 			<div
 				id="infobox"
-				className={"bg-post bg-opacity-45 items-center  justify-evenly fade-in2 max-h-[44vh] min-h-[22vh] text-[2.2vh] lg:text-[1.8vh]  h-[18vw]  w-[43.5vw] flex flex-row  mt-1  ml-1 rounded-md border border-bcol border-1 "}
+				className={"bg-post items-center  justify-evenly fade-in2 max-h-[44vh] min-h-[22vh] text-[2.2vh] lg:text-[1.8vh]  h-[18vw] -ml-[1.25vw] pl-[1.25vw] w-[45vw] flex flex-row  mt-1  rounded-md border border-bcol border-1 "}
 				style={{
-					backgroundColor:!settingsVal.showBackground? "#252525":!settingsVal.blur? "#25252599":""
+					backgroundColor:!backdrop? "#252525": "#2525254C"
 				}}
 				>
 				<div

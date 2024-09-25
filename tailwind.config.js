@@ -34,6 +34,7 @@ export default {
 				bcol: "#939393",
 				bhov: "#a3a3a3",
 				bact: "#b3b3b3",
+				ltpost:"#2a2a2a"
 			},
 		},
 	},

@@ -1,0 +1,106 @@
+import { useState } from "react";
+import Selecter from "./Selecter";
+import Toggle from "./Toggle";
+import SettingsSlider from "./SettingsSlider";
+import { setSettings, settings,defaultSettings } from "../SettingsValues";
+import { svg } from "../Utility/VectorGraphics";
+
+function SettingsListElement({ x, index, settingScrollIndex, sst, backdrop }) {
+	const [key,setKey]=useState(0)
+	function toggleClick(i) {
+		let prev = settings;
+		prev[x.name][i].value =
+				!prev[x.name][i].value;
+			sst((prev) => prev + 1);
+		setSettings(prev);
+	}
+	function selecterSelecter(i, val) {
+		let prev = settings;
+		prev[x.name][i].value = val;
+		sst((prev) => prev + 1);
+		setSettings(prev);
+	}
+	function resetToDefault(i){
+		let prev=settings
+		prev[x.name][i].value=defaultSettings[x.name][i].value
+		sst((prev)=>prev+1)
+		setKey((prev)=>prev+1)
+		setSettings(prev)
+	}
+	return (
+		<>
+			<div
+				className="w-full h-fit   duration-300  text-white flex-col flex  text-lg    "
+				onClick={(e) => {
+					if (settingScrollIndex != index)
+						settingsScroll.scrollTo({
+							top:
+								settingsScroll.scrollTop +
+								(e.currentTarget.getBoundingClientRect().top -
+									settingsScroll.getBoundingClientRect()
+										.top) -
+								29,
+							behavior: "smooth",
+						});
+				}}
+				style={{
+					filter:
+						settingScrollIndex == index ? "" : "brightness(65%)",
+				}}>
+				<div className=" text-3xl mt-5 -ml-2"> {x.name.replace("_"," ")}</div>
+				<div
+					className="flex pt-5 w-full flex-col-reverse gap-2"
+					style={{
+						pointerEvents:
+							settingScrollIndex == index ? "" : "none",
+					}}>
+					{(Object.keys((x.settings)).reverse()).map((y, index2) => (
+						<div
+							key={"settings" + index + " " + index2}
+							className="text-bact relative h-[3.75rem]  justify-between flex  items-center w-full">
+							<div className="w-64 items-center flex h-full -mt-1">
+								<div className="w-64">
+								{y.replace("_"," ")}
+								</div>
+							{x.settings[y].type != "button" && (defaultSettings[x.name][y].value!=x.settings[y].value)?<div
+							onClick={()=>{resetToDefault(y)}}
+							className="h-1/2 spin-in aspect-square">
+								{svg.replayIcon}
+							</div>:<></>}
+							</div>
+							{x.settings[y].type == "toggle" ? (
+								<Toggle
+									mode={backdrop}
+									value={x.settings[y].value}
+									onClick={() => {
+										toggleClick(y);
+									}}
+								/>
+							) :x.settings[y].type == "list" ? (
+								<Selecter
+									backdrop={backdrop}
+									key2={"selecter" + index + " " + index2}
+									index={y}
+									options={x.settings[y].options}
+									selected={x.settings[y].value}
+									selecterSelecter={selecterSelecter}
+								/>
+							) : x.settings[y].type == "slider" ? (
+								<SettingsSlider
+									key={"setting"+y+""+key}
+									index={y}
+									value={x.settings[y].value}
+									selecterSelecter={selecterSelecter}
+								/>
+							) : (
+								<></>
+							)}
+						</div>
+					))}
+				</div>
+			</div>
+		</>
+	);
+}
+
+export default SettingsListElement;
