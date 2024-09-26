@@ -1,6 +1,7 @@
-function Toggle({value,onClick,mode=false}) {
+function Toggle({value,onClick,mode=false,title}) {
     return ( <div
-        className={"bg-ltpost  cursor-pointer outline-bdark outline-1  duration-300   flex  items-center  outline  rounded-full aspect-video max-h-[3vh] h-5 "+(mode?"bg-opacity-50":"")}
+        className={"bg-ltpost  cursor-pointer outline-bdark outline-1  duration-300   flex  items-center  outline  rounded-full aspect-video  h-5 "+(mode?"bg-opacity-50":"")}
+        id={title?title:""}
         onClick={onClick}
         style={{
             backgroundColor: value

@@ -1,11 +1,18 @@
 import { svg } from "../Utility/VectorGraphics";
-let start=0
-let past5 = [60, 60,60, 60, 60];
-function displayFps(time) {
+let start = 0;
+let past5 = [60, 60, 60, 60, 60];
+let clear = false;
+export function setClear() {
+	window.cancelAnimationFrame(displayFps);
+	clear = true;
+}
+function getClear() {
+	return clear;
+}
+let displayFps = (time) => {
 	let diff = time - start;
 	let fps = 1000 / diff;
 	start = time;
-
 	if (fps < 600) {
 		past5.shift();
 		past5.push(fps);
@@ -15,12 +22,26 @@ function displayFps(time) {
 			document.getElementById("lat").innerHTML = parseInt(diff);
 		}
 	}
-	window.requestAnimationFrame(displayFps);
-}
+	if (clear) {
+		window.cancelAnimationFrame(displayFps);
+		started = false;
+		clear = false;
+		start = 0;
+		past5 = [60, 60, 60, 60, 60];
+	} else window.requestAnimationFrame(displayFps);
+};
+let started = false;
 function getFps() {
-	window.requestAnimationFrame(displayFps);
+	if (!started) window.requestAnimationFrame(displayFps);
+	started = true;
 }
-function MessageBox({unzipCounter, unzipTotal, downloadHead, downloadQueue,showFps}) {
+function MessageBox({
+	unzipCounter,
+	unzipTotal,
+	downloadHead,
+	downloadQueue,
+	showFps,
+}) {
 	return (
 		<div
 			id="messagebox"
@@ -80,7 +101,7 @@ function MessageBox({unzipCounter, unzipTotal, downloadHead, downloadQueue,showF
 			<div
 				onLoad={getFps()}
 				style={{
-					height:showFps?"3.5vh":0
+					height: showFps ? "3.5vh" : 0,
 				}}
 				className=" flex items-center opacity -0 px-[1vh]  w-full overflow-hidden duration-300  h -0">
 				<div className="max-w-1/2 w-1/2 flex justify-start">

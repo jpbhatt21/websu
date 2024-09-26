@@ -3,6 +3,7 @@ export let music = new Audio();
 import { Shader, Texture } from "pixi.js";
 import { bSliderPath, lSliderPath, pSliderPath, setCs } from "./Sliders";
 import { settings } from "../SettingsValues";
+import { useEffect, useState } from "react";
 let musicLoaded = false;
 let videoLoaded = false;
 export const vertexSrc = `
@@ -402,6 +403,29 @@ export async function setPreviewImage(
 			};
 	};
 }
+let getWindowDimensions = () => {
+	const { innerWidth: width, innerHeight: height } = window;
+	return {
+	  width,
+	  height,
+	};
+  };
+  export  function useWindowDimensions() {
+	const [windowDimensions, setWindowDimensions] = useState(
+	  getWindowDimensions()
+	);
+  
+	useEffect(() => {
+	  function handleResize() {
+		setWindowDimensions(getWindowDimensions());
+	  }
+  
+	  window.addEventListener("resize", handleResize);
+	  return () => window.removeEventListener("resize", handleResize);
+	}, []);
+  
+	return windowDimensions;
+  }
 export async function playSong(setID, index, previewTime, title, mode = false) {
 	let de2 = async (song) => {
 		if (music.src == song) return;

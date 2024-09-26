@@ -26,7 +26,8 @@ function App() {
 	const [limit, setLimit] = useState(0);
 	return (
 		<>
-		<SongSelectionMenu/>			
+		<SongSelectionMenu/>
+			
 		</>
 	);
 }

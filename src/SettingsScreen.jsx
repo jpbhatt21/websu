@@ -3,21 +3,21 @@ import SettingsListElement from "./Components/SettingsListElement";
 import { settings } from "./SettingsValues";
 import { svg } from "./Utility/VectorGraphics";
 let settingScrollTimeout=null
-function SettingsScreen({setUpdateSettings}) {
+function SettingsScreen({setUpdateSettings,setFun}) {
     const [settingScrollIndex, setSettingScrollIndex] = useState(0);
     let icons=[svg.smileyIcon,svg.unmuteIcon2,svg.gameIcon,svg.manageIcon]
 	return (
 		<>
 			<div
 				id="settingsPage"
-				className="w-full lg:w-[50vw]  slide-in   pointer-events-auto absolute h-full duration-300 transition-all    ">
-				<div className="h-[60px] min-h-[5vh] max-h-[10vh]  border-b-2 opacity-0 "></div>
+				className="w-full lg:w-[1024px]  slide-in   pt-[60px] pointer-events-auto absolute h-full duration-300 transition-all    ">
 				<div
 					className="w-full flex  h-full  bg-post bg-opacity-50 duration-300  "
 					style={{
 						backgroundColor: ! settings.User_Interface.UI_BackDrop.value
 							? "#252525"
 							: "",
+						
 					}}>
 					<div
 						className="min-w-64 bg-blank bg-opacity-75 flex flex-col duration-300  gap-5 pt-5 border-r border-[#636363] h-full"
@@ -68,7 +68,7 @@ function SettingsScreen({setUpdateSettings}) {
                                 <div className="h-2/3 group-active:animate-pulse duration-300 aspect-square">
                                     {icons[index]}
                                 </div>
-								<div className="group-active:scale-90 duration-300">
+								<div className="group-active:scale-90 lexend duration-300">
 									{x.replace("_"," ")}
 								</div>
 							</div>
@@ -111,11 +111,12 @@ function SettingsScreen({setUpdateSettings}) {
 								settingScrollIndex={settingScrollIndex}
 								backdrop={ settings.User_Interface.UI_BackDrop.value}
 								sst={setUpdateSettings}
+								setFun={setFun}
 							/>
 						))}
 						<div className="h-full w-full mb-8"
 						style={{
-							height:"calc(100% - 35rem )"
+							height:"calc(100% - 33rem )"
 						}}
 						/>
 					</div>

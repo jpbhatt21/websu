@@ -4,8 +4,9 @@ import Toggle from "./Toggle";
 import SettingsSlider from "./SettingsSlider";
 import { setSettings, settings,defaultSettings } from "../SettingsValues";
 import { svg } from "../Utility/VectorGraphics";
+import SettignsButton from "./SettingsButton";
 
-function SettingsListElement({ x, index, settingScrollIndex, sst, backdrop }) {
+function SettingsListElement({ x, index, settingScrollIndex, sst, backdrop,setFun }) {
 	const [key,setKey]=useState(0)
 	function toggleClick(i) {
 		let prev = settings;
@@ -47,7 +48,7 @@ function SettingsListElement({ x, index, settingScrollIndex, sst, backdrop }) {
 					filter:
 						settingScrollIndex == index ? "" : "brightness(65%)",
 				}}>
-				<div className=" text-3xl mt-5 -ml-2"> {x.name.replace("_"," ")}</div>
+				<div className=" text-3xl mt-5 lexend -ml-2"> {x.name.replace("_"," ")}</div>
 				<div
 					className="flex pt-5 w-full flex-col-reverse gap-2"
 					style={{
@@ -92,7 +93,11 @@ function SettingsListElement({ x, index, settingScrollIndex, sst, backdrop }) {
 									value={x.settings[y].value}
 									selecterSelecter={selecterSelecter}
 								/>
-							) : (
+							) :x.settings[y].type == "button" ? (
+								<SettignsButton backdrop={backdrop} y={x.settings[y]}
+								setFun={setFun}
+								/>
+							): (
 								<></>
 							)}
 						</div>

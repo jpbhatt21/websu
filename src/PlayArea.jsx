@@ -3,6 +3,7 @@ import {
 	backgroundImage,
 	decodeBeatMap,
 	music,
+	useWindowDimensions,
 } from "./Utility/Utils";
 import {
 	Container,
@@ -12,6 +13,7 @@ import { ColorMatrixFilter, Geometry,  } from "pixi.js";
 import HitObject from "./Components/HitObject";
 import Slider from "./Components/SliderHitObject";
 import { settings } from "./SettingsValues";
+import { setClear } from "./Components/MessageBox";
 
 let delay = 0;
 let colFil = new ColorMatrixFilter();
@@ -29,8 +31,7 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 	const [hitObjectNumbers, setHitObjectNumbers] = useState([]);
 	const [colors, setColors] = useState([]);
 	const [completionColors, setCompletionColors] = useState("163, 190, 140|".repeat(4).split("|").slice(0, 4));
-	const [height, setHeight] = useState(window.innerHeight);
-	const [width, setWidth] = useState(window.innerWidth);
+	const { height, width } = useWindowDimensions()
 	let b = approachRate / 2;
 	let c = approachRate / 4;
 	let d = b + c;
@@ -170,11 +171,6 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 			.reverse();
 	}, [hitObjects, time]);
 	useEffect(() => {
-		const handleResize = () => {
-			setHeight(window.innerHeight);
-			setWidth(window.innerWidth);
-		};
-		window.addEventListener("resize", handleResize);
 		music.pause();
 		music.currentTime = 0;
 		let dbPrefix = "websu";
@@ -205,6 +201,7 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 					music.pause();
 					let delay=((settings.Audio["Audio Offset"].value-50)/50)
 					let diff=0
+					setClear()
 					if(delay<0){
 						if (beatMap[5]) {
 							backgroundVideo.play();
@@ -239,9 +236,9 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 						window.requestAnimationFrame(starter);
 					});
 					await playingTillApproachRate; //Wait for till time is greater than approach rate
-					// if (beatMap[5]) {
-					// 	backgroundVideo.play();
-					// }
+					if (beatMap[5]) {
+						backgroundVideo.play();
+					}
 					music.play();
 					if(delay>=0){
 						delay+=beatMap[0]*4/3
@@ -274,9 +271,6 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 						setStart(false); //Return to song selection menu
 					}
 				};
-		};
-		return () => {
-			window.removeEventListener("resize", handleResize);
 		};
 	}, []);
 	let md4 = music.duration / 4;
