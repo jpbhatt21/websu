@@ -13,6 +13,7 @@ let displayFps = (time) => {
 	let diff = time - start;
 	let fps = 1000 / diff;
 	start = time;
+	time-=1000
 	if (fps < 600) {
 		past5.shift();
 		past5.push(fps);
@@ -20,9 +21,11 @@ let displayFps = (time) => {
 		if (Math.abs(fps - document.getElementById("fps").innerHTML) > 5) {
 			document.getElementById("fps").innerHTML = parseInt(fps);
 			document.getElementById("lat").innerHTML = parseInt(diff);
+			
 		}
 	}
-	if (clear) {
+	document.getElementById("playTime").innerHTML = (parseInt(time/3600000)<10?"0":"")+parseInt(time/3600000)+":"+(parseInt(time/60000%3600)<10?"0":"")+parseInt(time/60000%3600)+":"+(parseInt(time/1000%60)<10?"0":"")+parseInt(time/1000%60);			
+		if (clear) {
 		window.cancelAnimationFrame(displayFps);
 		started = false;
 		clear = false;
@@ -32,7 +35,7 @@ let displayFps = (time) => {
 };
 let started = false;
 function getFps() {
-	if (!started) window.requestAnimationFrame(displayFps);
+	if (!started) setTimeout(() => window.requestAnimationFrame(displayFps), 1000);
 	started = true;
 }
 function MessageBox({

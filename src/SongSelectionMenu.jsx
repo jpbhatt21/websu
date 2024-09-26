@@ -1747,6 +1747,8 @@ function SongSelectionMenu() {
 								className="  text-xs sm:text-sm lg:text-base -mt-[1Px] w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none rounded-md"
 							/>
 						</div>
+						<div id="playTime" className="text-bact">00:00:00
+						</div>
 						<div
 							id="resetButton"
 							className="w-16 h-16 bg-black hidden"
@@ -1767,7 +1769,6 @@ function SongSelectionMenu() {
 								setSearchKey(0);
 								setGlobalIndex(ind);
 								setSecondaryIndex(0);
-
 								setTimeout(() => {
 									console.log("doneee");
 									scrollMenu.scrollTo({
