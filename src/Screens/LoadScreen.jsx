@@ -1,4 +1,4 @@
-import { svg } from "./Utility/VectorGraphics";
+import { svg } from "../Utility/VectorGraphics";
 
 function LoadScreen({start}) {
     return ( <div

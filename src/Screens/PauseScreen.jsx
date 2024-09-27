@@ -1,5 +1,5 @@
-import { play } from "./Utility/Utils";
-import { svg } from "./Utility/VectorGraphics";
+import { play } from "../Utility/Utils";
+import { svg } from "../Utility/VectorGraphics";
 
 function PauseScreen({setStart,setAttempts}) {
 	return (

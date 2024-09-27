@@ -1,8 +1,8 @@
-import SongSelectionMenu from "./SongSelectionMenu";
+import SongSelectionMenu from "./Screens/SongSelectionScreen";
 import { useState } from "react";
 import { music } from "./Utility/Utils";
 import { setSettings, settings } from "./SettingsValues";
-import { bezier } from "./PlayArea";
+import { bezier } from "./Screens/GamePlayScreen";
 export const uri = "https://websu-back.jpbhatt.tech";
 export const uri2 = "https://catboy.best";
 window.localStorage.getItem("settings") == null ? window.localStorage.setItem("settings", JSON.stringify(settings)) : setSettings( JSON.parse(window.localStorage.getItem("settings")));

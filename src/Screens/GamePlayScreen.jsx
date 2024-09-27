@@ -4,15 +4,15 @@ import {
 	decodeBeatMap,
 	music,
 	useWindowDimensions,
-} from "./Utility/Utils";
+} from "../Utility/Utils";
 import {
 	Container,
 	Stage,
 } from "@pixi/react";
 import { ColorMatrixFilter, Geometry,  } from "pixi.js";
-import HitObject from "./Components/HitObject";
-import Slider from "./Components/SliderHitObject";
-import { settings } from "./SettingsValues";
+import HitObject from "../Components/HitObject";
+import Slider from "../Components/SliderHitObject";
+import { settings } from "../SettingsValues";
 // import { setClear } from "./Components/MessageBox";
 
 let delay = 0;

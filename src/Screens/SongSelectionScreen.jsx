@@ -1,5 +1,5 @@
 import JSZip from "jszip";
-import Preview from "./Components/Preview";
+import Preview from "../Components/Preview";
 import { useEffect, useState } from "react";
 import MiniSearch from "minisearch";
 import utf8 from "utf8";
@@ -17,18 +17,18 @@ import {
 	play,
 	setBeatmapPreviewData,
 	useWindowDimensions,
-} from "./Utility/Utils";
-import { svg } from "./Utility/VectorGraphics";
-import PlayArea from "./PlayArea";
-import { uri, uri2 } from "./App";
-import MusicPlayer from "./Components/MusicPlayer";
-import MessageBox from "./Components/MessageBox";
+} from "../Utility/Utils";
+import { svg } from "../Utility/VectorGraphics";
+import PlayArea from "./GamePlayScreen";
+import { uri, uri2 } from "../App";
+import MusicPlayer from "../Components/MusicPlayer";
+import MessageBox from "../Components/MessageBox";
 import PauseScreen from "./PauseScreen";
 import LoadScreen from "./LoadScreen";
-import Toggle from "./Components/Toggle";
+import Toggle from "../Components/Toggle";
 import SettingsScreen from "./SettingsScreen";
-import { settings } from "./SettingsValues";
-import Confirm from "./Confirm";
+import { settings } from "../SettingsValues";
+import Confirm from "./ConfirmDeleteScreen";
 let typeTimeout = null;
 let scrollTimeout = null;
 let scIndTimer = null;

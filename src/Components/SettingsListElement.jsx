@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Selecter from "./Selecter";
+import Selecter from "./SettingsSelecter";
 import Toggle from "./Toggle";
 import SettingsSlider from "./SettingsSlider";
 import { setSettings, settings, defaultSettings } from "../SettingsValues";

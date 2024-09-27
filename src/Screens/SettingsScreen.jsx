@@ -1,7 +1,7 @@
 import { useState } from "react";
-import SettingsListElement from "./Components/SettingsListElement";
-import { settings } from "./SettingsValues";
-import { svg } from "./Utility/VectorGraphics";
+import SettingsListElement from "../Components/SettingsListElement";
+import { settings } from "../SettingsValues";
+import { svg } from "../Utility/VectorGraphics";
 let settingScrollTimeout=null
 let root=document.querySelector(":root")
 function SettingsScreen({setUpdateSettings,setFun,scale}) {

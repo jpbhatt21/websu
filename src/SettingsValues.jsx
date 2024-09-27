@@ -1,4 +1,4 @@
-import { bezier } from "./PlayArea";
+import { bezier } from "./Screens/GamePlayScreen";
 import { music } from "./Utility/Utils";
 let functions = {
 	"Reset All Settings": () => {
@@ -195,7 +195,18 @@ export function setSettings(val) {
 	window.localStorage.setItem("settings", JSON.stringify(val));
 	let keys = Object.keys(settings);
 	for (let i in keys) {
-		if (keys[i] != "Maintainance") settings[keys[i]] = val[keys[i]];
+		if (keys[i] != "Maintainance") {
+			let subKeys = Object.keys(settings[keys[i]]);
+			for (let j in subKeys) {
+				try{
+					settings[keys[i]][subKeys[j]].value =
+						val[keys[i]][subKeys[j]].value;
+				}
+				catch(e){
+				
+				}
+			}
+		}
 		else
 			settings.Maintainance["Clear Temp Storage"] =
 				val.Maintainance["Clear Temp Storage"];
