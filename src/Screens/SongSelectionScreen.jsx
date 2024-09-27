@@ -513,11 +513,8 @@ function SongSelectionMenu() {
 			parseInt(scrollMenu.scrollTop / elementHeight),
 			select.length - 1
 		);
-		if (scIndTimer) clearTimeout(scIndTimer);
-		scIndTimer = setTimeout(() => {
-			setScrollIndex(centerIndex);
-			scIndTimer = null;
-		}, 50);
+		setScrollIndex(centerIndex);
+		
 		if (
 			(onlineMode && webSearchData.length < 1) ||
 			(!onlineMode && metaData.length < 1)
@@ -895,7 +892,7 @@ function SongSelectionMenu() {
 					transitionBehavior: "allow-discrete",
 					transition: deleteMode
 						? ""
-						: "margin-right 0.3s , height 0.3s,  background-color 0.3s, transform 0.3s",
+						: "margin-right 0.3s , height 0.3s,  background-color 0.3s, transform 0.3s, filter 0.3s",
 					offsetRotate: "0deg",
 					offsetDistance: deleteMode
 						? "50%"
@@ -911,10 +908,11 @@ function SongSelectionMenu() {
 						" 0 1 0 0 5')",
 					transform:
 						scrollIndex == index
-							? "translateX(-5%) translateY(0%)"
+							? "translateX(-0%) translateY(0%)"
 							: deleteMode
 							? "translateX(-3%) translateY(0%)"
 							: "",
+					filter: scrollIndex == index ? "brightness(1.25)" : "brightness(0.9)",
 					marginBottom: deleteMode ? "2vh" : "",
 					backgroundColor: !settings.User_Interface.UI_BackDrop.value
 						? "#252525"
