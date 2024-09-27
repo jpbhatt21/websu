@@ -1,7 +1,7 @@
 import { bezier } from "./Screens/GamePlayScreen";
 import { music } from "./Utility/Utils";
 let functions = {
-	"Reset All Settings": () => {
+	"Restore Default Settings": () => {
 		setSettings(defaultSettings);
 		window.location.reload();
 	},
@@ -116,6 +116,50 @@ export const defaultSettings = {
 			value: false,
 		},
 	},
+	Key_Bindings:{
+		"Gameplay":{
+			type:"Subheading"
+		},
+		"Pause":{
+			type:"key",
+			value:"Space",
+			alternate:"Esc"
+		},
+		"Menu":{
+			type:"Subheading"
+		},
+		"Toggle Settings": {
+			type: "key",
+			value: "S",
+			modifier:"Alt"
+		},
+		"Toggle Online Mode":{
+			type: "key",
+			value: "O",
+			modifier:"Alt"
+		},
+		"Toggle Delete Mode":{
+			type: "key",
+			value: "X",
+			modifier:"Alt"
+		},
+		"Mute Music": {
+			type: "key",
+			value: "M",
+			modifier:"Alt"
+		},
+		"Pause Music": {
+			type: "key",
+			value: "P",
+			modifier:"Alt"
+		},
+		"Panic Restore Default Settings": {
+			type: "key",
+			value: "`",
+			modifier:"Alt+Shift"
+		},
+		
+	},
 	Maintainance: {
 		"Clear Temp Storage": {
 			type: "list",
@@ -138,7 +182,7 @@ export const defaultSettings = {
 			type: "button",
 			title: "Unavailable",
 		},
-		"Reset All Settings": {
+		"Restore Default Settings": {
 			type: "button",
 			title: "Reset",
 		},
@@ -177,8 +221,8 @@ function clearDatabase(prefix) {
 	};
 }
 export let settings = JSON.parse(JSON.stringify(defaultSettings));
-settings.Maintainance["Reset All Settings"].function =
-	functions["Reset All Settings"];
+settings.Maintainance["Restore Default Settings"].function =
+	functions["Restore Default Settings"];
 settings.Maintainance["Delete Temp Beatmaps"].function =
 	functions["Delete Temp Beatmaps"];
 settings.Maintainance["Delete All Beatmaps"].function =

@@ -21,11 +21,9 @@ function Preview({backdrop}) {
 				<img
 					id="previewImage"
 					onError={(e)=>{
-						e.target.style.opacity=0
-						setTimeout(()=>{
-							e.target.src="/err.jpeg"
-							e.target.style.opacity=1
-						},300)
+						
+							e.target.src="/original_1.jpg"
+						
 					}}
 					className="w-full object-cover bg-center duration-300 h-full brightness-[65%] right-[-5vw] absolute  "
 					style={{

@@ -5,6 +5,7 @@ import SettingsSlider from "./SettingsSlider";
 import { setSettings, settings, defaultSettings } from "../SettingsValues";
 import { svg } from "../Utility/VectorGraphics";
 import SettignsButton from "./SettingsButton";
+import SettingsKey from "./SettingsKey";
 
 function SettingsListElement({
 	x,
@@ -39,40 +40,42 @@ function SettingsListElement({
 		<>
 			<div
 				className="w-full h-fit   duration-300  text-white flex-col flex  text-lg    "
-				onClick={(e) => {
-					if (settingScrollIndex != index)
-						settingsScroll.scrollTo({
-							top:
-								settingsScroll.scrollTop +
-								(e.currentTarget.getBoundingClientRect().top -
-									settingsScroll.getBoundingClientRect()
-										.top) -
-								29,
-							behavior: "smooth",
-						});
-				}}
 				style={{
-					filter:
-						settingScrollIndex == index ? "" : "brightness(65%)",
+					// filter:
+					// 	settingScrollIndex == index ? "" : "brightness(65%)",
 					fontSize: 18 * scale + "px",
 					lineHeight: 24 * scale + "px",
 				}}>
 				<div
 					className=" text-3xl lexend -ml-2"
-					style={{ fontSize: 30 * scale + "px",
+					style={{
+						fontSize: 30 * scale + "px",
 						marginTop: 20 * scale + "px",
-						marginLeft:-8*scale+"px",
-					 }}>
+						marginLeft: -8 * scale + "px",
+					}}
+					onClick={(e) => {
+						if (settingScrollIndex != index)
+							settingsScroll.scrollTo({
+								top:
+									settingsScroll.scrollTop +
+									(e.currentTarget.getBoundingClientRect()
+										.top -
+										settingsScroll.getBoundingClientRect()
+											.top) -
+									29,
+								behavior: "smooth",
+							});
+					}}>
 					{" "}
 					{x.name.replace("_", " ")}
 				</div>
 				<div
 					className="flex w-full flex-col-reverse gap-2"
 					style={{
-						pointerEvents:
-							settingScrollIndex == index ? "" : "none",
-							paddingTop: 20 * scale + "px",
-							gap:8*scale+"px",
+						// pointerEvents:
+						// 	settingScrollIndex == index ? "" : "none",
+						paddingTop: 20 * scale + "px",
+						gap: 8 * scale + "px",
 					}}>
 					{Object.keys(x.settings)
 						.reverse()
@@ -92,6 +95,16 @@ function SettingsListElement({
 										className="min-w-fit"
 										style={{
 											width: 256 * scale + "px",
+											fontSize:
+												x.settings[y].type ==
+												"Subheading"
+													? 25 * scale + "px"
+													: "",
+											color:
+												x.settings[y].type ==
+												"Subheading"
+													? "#ddd"
+													: "",
 										}}>
 										{y.replace("_", " ")}
 									</div>
@@ -139,6 +152,11 @@ function SettingsListElement({
 										backdrop={backdrop}
 										y={x.settings[y]}
 										setFun={setFun}
+									/>
+								) : x.settings[y].type == "key" ? (
+									<SettingsKey
+										backdrop={backdrop}
+										y={x.settings[y]}
 									/>
 								) : (
 									<></>

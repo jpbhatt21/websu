@@ -51,15 +51,15 @@ function HitObject({x,y,circleSize,approachCircleScale,approachCircleOpacity,sca
         )}
         <Sprite
             image="/approachcircle.png" //Approach circle restiing place
-            height={(circleSize + 8) * scalingFactor}
-            width={(circleSize + 8) * scalingFactor}
+            height={(circleSize ) * scalingFactor}
+            width={(circleSize ) * scalingFactor}
             alpha={approachCircleScale > 1 ? approachCircleOpacity : 0}
             anchor={0.5}
         />
         <Sprite
             image="/approachcircle.png" //Approach circle 
-            height={(circleSize + 8) * scalingFactor * approachCircleScale}
-            width={(circleSize + 8) * scalingFactor * approachCircleScale}
+            height={(circleSize ) * scalingFactor * approachCircleScale}
+            width={(circleSize ) * scalingFactor * approachCircleScale}
             alpha={approachCircleOpacity}
             anchor={0.5}
             tint={tintColor}

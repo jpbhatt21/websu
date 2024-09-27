@@ -44,7 +44,6 @@ function SongSelectionMenu() {
 	} else {
 		scale = settings.User_Interface.UI_Scale.options[scale];
 	}
-
 	let elementHeight = 80 * scale;
 	let loadLimit = parseInt(height / elementHeight);
 	if (loadLimit < 6) loadLimit = 6;
@@ -231,42 +230,45 @@ function SongSelectionMenu() {
 	}
 	function keyaction(e) {
 		if (previewSearch.style.opacity == 1) {
-			if (!start && e.key == "Escape") {
-				if (document.getElementById("resetConfirm")) {
-					document.getElementById("resetConfirm").click();
-
-					return;
-				} else if (document.getElementById("settingsPage")) {
-					stb.click();
-					return;
-				} else {
-					searchbox.value = "";
-					searchbox.blur();
-					resetButton.click();
-					setSearchKey(searchKey + 1);
-					return;
-				}
-			}
 			if (!start) {
-				if (e.altKey && e.key == "o") {
+				if (e.altKey && e.shiftKey && e.code == "Backquote") {
+					console.log(
+						settings.Maintainance["Restore Default Settings"]
+					);
+					settings.Maintainance[
+						"Restore Default Settings"
+					].function();
+				}
+				if (e.altKey && e.code == "KeyO") {
 					document.getElementById("onlineModeSwitch").click();
-				} else if (e.altKey && e.key == "s") {
+				} else if (e.altKey && e.code == "KeyS") {
 					stb.click();
-				} else if (e.altKey && e.key == "x") {
+				} else if (e.altKey && e.code == "KeyX") {
 					document.getElementById("deleteModeButton").click();
-				} else if (e.altKey && e.key == "m") {
+				} else if (e.altKey && e.code == "KeyM") {
 					music.muted = !music.muted;
-				} else if (e.altKey && e.key == "p") {
+				} else if (e.altKey && e.code == "KeyP") {
 					music.paused ? music.play() : music.pause();
 				}
-
-				searchbox.focus();
-				return;
+				if (e.key == "Escape" || (e.altKey && e.code == "Backquote")) {
+					if (document.getElementById("resetConfirm")) {
+						document.getElementById("resetConfirm").click();
+					} else if (document.getElementById("settingsPage")) {
+						stb.click();
+					} else {
+						searchbox.value = "";
+						searchbox.blur();
+						resetButton.click();
+						setSearchKey(searchKey + 1);
+					}
+					return;
+				}
+				if (document.activeElement == document.body) searchbox.focus();
 			}
 		} else {
 			if (e.repeat) return;
 
-			if (e.key == "Escape") {
+			if (e.key == "Escape" || e.code == "Space") {
 				let root = document.querySelector("#playArea");
 				if (
 					root.style.animationPlayState != "paused" &&
@@ -307,15 +309,13 @@ function SongSelectionMenu() {
 		previewSong.innerHTML = "[Song]";
 		previewArtist.innerHTML = "[Aritst]";
 		previewVersion.innerHTML = "[Version]";
-		try {
-			setBackground("", true);
-		} catch (e) {}
+		
 		try {
 			playSong("/", 0, 0, "-", true);
 		} catch (e) {}
 
 		try {
-			setPreviewImage(0, "", 0, true);
+			setPreviewImage(0, "/original_1.jpg", 0, true);
 		} catch (e) {}
 	}
 	function searchBeatMaps(e) {
@@ -428,7 +428,7 @@ function SongSelectionMenu() {
 						}
 					)
 						.then((response) => response.json())
-						.then((data) => {
+						.then(async (data) => {
 							resetView();
 							looking.style.height = "";
 							looking.style.opacity = "";
@@ -507,14 +507,18 @@ function SongSelectionMenu() {
 		}
 	}
 	function scrollHandler() {
+		console.log("scrolling")
+		if(start) return;
 		setSctop(scrollMenu.scrollTop);
 		let select = onlineMode ? webSearchData : metaData;
 		let centerIndex = Math.min(
-			parseInt(scrollMenu.scrollTop / elementHeight),
+			parseInt(
+				scrollMenu.scrollTop / (elementHeight * (deleteMode ? 1.2 : 1))
+			),
 			select.length - 1
 		);
 		setScrollIndex(centerIndex);
-		
+
 		if (
 			(onlineMode && webSearchData.length < 1) ||
 			(!onlineMode && metaData.length < 1)
@@ -532,7 +536,10 @@ function SongSelectionMenu() {
 
 			scrollTimeout = null;
 			let centerIndex = Math.min(
-				parseInt(scrollMenu.scrollTop / elementHeight),
+				parseInt(
+					scrollMenu.scrollTop /
+						(elementHeight * (deleteMode ? 1.2 : 1))
+				),
 				select.length - 1
 			);
 			if (!deleteMode)
@@ -587,6 +594,7 @@ function SongSelectionMenu() {
 		}, 1200);
 	}
 	function toggleDeleteMode() {
+		document.documentElement.requestFullscreen();
 		let dm = deleteMode;
 		scrollMenu.style.scrollSnapType = "none";
 		scrollMenu.style.marginTop = "0px";
@@ -833,22 +841,6 @@ function SongSelectionMenu() {
 				});
 		}
 	}, [downloadHead, downloadQueue]);
-	// if (
-	// 	!settingsVal.showBanners &&
-	// 	metaData.length > 0 &&
-	// 	metaData[0].backgroundImage != ""
-	// ) {
-	// 	let temp = metaData.map((x) => {
-	// 		x.backgroundImage = "";
-	// 		return x;
-	// 	});
-	// 	let temp2 = metaFiles.map((x) => {
-	// 		x.backgroundImage = "";
-	// 		return x;
-	// 	});
-	// 	setMetaData(temp);
-	// 	setMetaFiles(temp2);
-	// }
 	if (start) {
 		backgroundImage.style.filter =
 			"blur(" +
@@ -856,25 +848,23 @@ function SongSelectionMenu() {
 			"px) brightness(" +
 			(1 - settings.Gameplay["Background Dim"].value / 100) +
 			")";
-		if (settings.User_Interface["Toggle_Fullscreen"].value == 1)
+		if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
 			document.documentElement.requestFullscreen();
+			
+		}
 	} else {
 		if (settings.User_Interface.Background.value != 0) {
 			backgroundImage.style.filter = "blur(0px) brightness(0.5)";
 		} else {
-			backgroundImage.style.filter = "blur(12px) brightness(0.5)";
+			backgroundImage.style.filter = "blur(6px) brightness(0.5)";
 		}
 	}
 	let sct = 0;
 	try {
-		sct = scrollMenu.scrollTop / elementHeight;
+		sct = scrollMenu.scrollTop / (elementHeight * (deleteMode ? 1.2 : 1));
 	} catch (e) {}
 	let rX = height * 3;
 	let rY = height / 2;
-	function onImageLoad() {
-		console.log(event);
-	}
-	console.log(scale, 30 * scale);
 	let list = (onlineMode ? webSearchData : metaData).map((element, index) => {
 		return (
 			<div
@@ -889,7 +879,6 @@ function SongSelectionMenu() {
 							  (8 + element.levels.length * 68) * scale
 							: elementHeight) + "px",
 
-					transitionBehavior: "allow-discrete",
 					transition: deleteMode
 						? ""
 						: "margin-right 0.3s , height 0.3s,  background-color 0.3s, transform 0.3s, filter 0.3s",
@@ -906,18 +895,13 @@ function SongSelectionMenu() {
 						" " +
 						rY +
 						" 0 1 0 0 5')",
-					transform:
-						scrollIndex == index
-							? "translateX(-0%) translateY(0%)"
-							: deleteMode
-							? "translateX(-3%) translateY(0%)"
-							: "",
-					filter: scrollIndex == index ? "brightness(1.25)" : "brightness(0.9)",
+					marginLeft: "-1%",
 					marginBottom: deleteMode ? "2vh" : "",
 					backgroundColor: !settings.User_Interface.UI_BackDrop.value
 						? "#252525"
 						: "#2525254C",
 					borderRadius: 6 * scale + "px",
+					outlineWidth: (scrollIndex == index ? 2 * scale:scale) + "px",
 				}}
 				className={
 					"bg-post  outline fade-in outline-1  outline-bcol duration-300 w-[45vw] text-gray-300 max-h-[50vh] nons snap-cetner overflow-hidden "
@@ -929,9 +913,13 @@ function SongSelectionMenu() {
 							onClick={(e) => {
 								if (e.target != e.currentTarget) return;
 
-								scrollListTo(index, false);
+								scrollListTo(
+									index * (deleteMode ? 1.2 : 1),
+									false
+								);
 							}}
 							className=" w-full  flex fade-in  outline outline-1  "
+							
 							style={{
 								height: elementHeight + "px",
 								backgroundImage: settings.User_Interface
@@ -941,17 +929,24 @@ function SongSelectionMenu() {
 											? ""
 											: "data:image/png;base64,") +
 									  element.backgroundImage +
-									  ")"
+									  ") , url('/original_1.jpg')"
 									: "",
 								backgroundSize: "cover",
 								backgroundPosition: "center",
+								
 							}}>
-							<div className="h-full w-full flex flex-row items-center bg-blank pointer-events-none px-3  justify-between bg-opacity-60">
+								
+							<div className="h-full w-full flex flex-row items-center duration-300 pointer-events-none px-3  justify-between"
+							style={{
+								backgroundColor:scrollIndex == index ? "#0000004C" : "#00000099",
+							}}
+							>
 								<div
 									className="h-full -ml-3 -mr-[25vw]  min-w-[25vw] backdrop -invert duration-300"
 									style={{
 										background:
-											"linear-gradient(to right ,#1b1b1b,#1b1b1b00)",
+											"linear-gradient(to right ,#000000,#1b1b1b00)",
+										
 									}}></div>
 								{onlineMode ? (
 									<div
@@ -1243,19 +1238,21 @@ function SongSelectionMenu() {
 										paddingInline: 12 * scale + "px",
 									}}>
 									<div
-										className=" lexend overflow-hidden w-full min-h-fit   whitespace-nowrap text-ellipsis font-semibold pointer-events-none  self-start text-[#ccc] "
+										className=" lexend overflow-hidden w-full min-h-fit duration-300   whitespace-nowrap text-ellipsis font-semibold pointer-events-none  self-start text-[#ccc] "
 										style={{
 											lineHeight: 40 * scale + "px",
 											fontSize: 30 * scale + "px",
+											color:scrollIndex == index ? "#fff" : "#aaa",
 										}}>
 										{element.title}
 									</div>
 									<div
-										className="flex w-full  h-1/2  whitespace-nowrap text-ellipsis  self-start ml-2 text-[#bbb]  pointer-events-none"
+										className="flex w-full  h-1/2  whitespace-nowrap duration-300 text-ellipsis  self-start ml-2 text-[#bbb]  pointer-events-none"
 										style={{
 											lineHeight: 20 * scale + "px",
 											fontSize: 18 * scale + "px",
 											marginBottom: 20 * scale + "px",
+											color:scrollIndex == index ? "#ddd" : "#888",
 										}}>
 										{element.artist +
 											" - " +
@@ -1339,11 +1336,12 @@ function SongSelectionMenu() {
 							className="overflow-y-scroll  w-full flex flex-wrap "
 							style={{
 								padding: 8 * scale + "px",
-								
+
 								gap: 8 * scale + "px",
 								maxHeight: "calc(50vh - " + 80 * scale + "px)",
 								height:
-									(element.levels.length * 68+8) * scale + "px",
+									(element.levels.length * 68 + 8) * scale +
+									"px",
 							}}>
 							{element.levels.map((x, index2) => (
 								<div
@@ -1408,7 +1406,7 @@ function SongSelectionMenu() {
 										fontSize: 16 * scale + "px",
 										paddingLeft: 12 * scale + "px",
 										paddingRight: 12 * scale + "px",
-										
+
 										backgroundColor:
 											secondaryIndex == index2
 												? "#94a3b844"
@@ -1485,7 +1483,11 @@ function SongSelectionMenu() {
 						"deg) translateY(50%)  translateX(-20%)",
 					opacity: start ? 0 : 1,
 				}}></div>
-			<div id="screen" className="fade-in">
+			<div id="screen" className="fade-in"
+			style={{
+				pointerEvents:start?"none":"auto",
+			}}
+			>
 				<div
 					className="duration-300 lexend fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
 					style={{

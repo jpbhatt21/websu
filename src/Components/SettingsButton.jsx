@@ -1,7 +1,7 @@
 function SettignsButton({ y, backdrop,setFun }) {
 	return (
 		<>
-			<div className="w-full flex items-center justify-end h-[30px] max-h-[6vh] ">
+			<div className="w-full flex items-center justify-end h-1/2 ">
 				<button
 					onClick={() => {
                         if(y.title=="Unavailable")

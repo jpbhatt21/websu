@@ -7,7 +7,7 @@ let root=document.querySelector(":root")
 function SettingsScreen({setUpdateSettings,setFun,scale}) {
 	root.style.setProperty("--scale",scale)
     const [settingScrollIndex, setSettingScrollIndex] = useState(0);
-    let icons=[svg.smileyIcon,svg.unmuteIcon2,svg.gameIcon,svg.manageIcon]
+    let icons=[svg.smileyIcon,svg.unmuteIcon2,svg.gameIcon,svg.keyBindingIcon,svg.manageIcon]
 	return (
 		<>
 			<div
@@ -24,7 +24,6 @@ function SettingsScreen({setUpdateSettings,setFun,scale}) {
 						backgroundColor: ! settings.User_Interface.UI_BackDrop.value
 							? "#252525"
 							: "",
-						
 					}}>
 					<div
 						className="min-w-64 bg-blank bg-opacity-75 flex flex-col duration-300  gap-5 pt-5 border-r border-[#636363] h-full"
