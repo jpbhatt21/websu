@@ -13,7 +13,7 @@ import { ColorMatrixFilter, Geometry,  } from "pixi.js";
 import HitObject from "./Components/HitObject";
 import Slider from "./Components/SliderHitObject";
 import { settings } from "./SettingsValues";
-import { setClear } from "./Components/MessageBox";
+// import { setClear } from "./Components/MessageBox";
 
 let delay = 0;
 let colFil = new ColorMatrixFilter();
@@ -201,7 +201,6 @@ function PlayArea({ setId = 0, id = 0, setStart, attempts, online }) {
 					music.pause();
 					let delay=((settings.Audio["Audio Offset"].value-50)/50)
 					let diff=0
-					setClear()
 					if(delay<0){
 						if (beatMap[5]) {
 							backgroundVideo.play();

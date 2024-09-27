@@ -6,7 +6,7 @@ function SettingsSlider({index,value,selecterSelecter}) {
      onChange={(e)=>{
             selecterSelecter(index,parseInt(e.target.value))
      }}
-     className="  rounded-full  duration-100 bg- ltpost outline-none slider h-1"
+     className="  rounded-full  duration-100 bg- ltpost outline-none slider "
     
      />
     </> );

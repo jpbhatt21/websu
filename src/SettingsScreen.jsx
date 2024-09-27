@@ -3,14 +3,21 @@ import SettingsListElement from "./Components/SettingsListElement";
 import { settings } from "./SettingsValues";
 import { svg } from "./Utility/VectorGraphics";
 let settingScrollTimeout=null
-function SettingsScreen({setUpdateSettings,setFun}) {
+let root=document.querySelector(":root")
+function SettingsScreen({setUpdateSettings,setFun,scale}) {
+	root.style.setProperty("--scale",scale)
     const [settingScrollIndex, setSettingScrollIndex] = useState(0);
     let icons=[svg.smileyIcon,svg.unmuteIcon2,svg.gameIcon,svg.manageIcon]
 	return (
 		<>
 			<div
 				id="settingsPage"
-				className="w-full lg:w-[1024px]  slide-in   pt-[60px] pointer-events-auto absolute h-full duration-300 transition-all    ">
+				className="w-full lg:w-[1024px]  slide-in pointer-events-auto absolute h-full duration-300 transition-all"
+				style={{
+					paddingTop: 60*scale+"px",
+					width:Math.min(window.innerWidth,1024*scale)+"px",
+				}}
+				>
 				<div
 					className="w-full flex  h-full  bg-post bg-opacity-50 duration-300  "
 					style={{
@@ -25,11 +32,14 @@ function SettingsScreen({setUpdateSettings,setFun}) {
 							backgroundColor: ! settings.User_Interface.UI_BackDrop.value
 								? "#202020"
 								: "#2020209C",
+								minWidth:236*scale+"px",
+								gap:20*scale+"px",
+								paddingTop: 20*scale+"px",
 						}}>
 						{(Object.keys(settings)).map((x, index) => (
 							<div
 								key={"settingTitle" + index}
-								className="w-full h-12 text-white select-none group  cursor-pointer flex items-center text-xl gap-2  justify -between  "
+								className="w-full h-12 text-white select-none group  cursor-pointer flex items-center gap-2  justify -between  "
 								onClick={() => {
 									let children = settingsScroll.childNodes;
 									console.log();
@@ -51,9 +61,12 @@ function SettingsScreen({setUpdateSettings,setFun}) {
 										settingScrollIndex == index
 											? "#fff"
 											: "#aaa",
+											height:48*scale+"px",
+											fontSize:20*scale+"px",
+											gap:8*scale+"px",
 								}}>
 								<div
-									className="h-4/5 group-active:h-full rounded-full w-2 ml-2 bg-white duration-300"
+									className="h-4/5 group-active:h-full rounded-full  bg-white duration-300"
 									style={{
 										height:
 											settingScrollIndex == index
@@ -63,6 +76,8 @@ function SettingsScreen({setUpdateSettings,setFun}) {
 											settingScrollIndex == index
 												? "1"
 												: "0",
+												marginLeft: 8*scale+"px",
+												width:8*scale+"px",
 									}}
 								/>
                                 <div className="h-2/3 group-active:animate-pulse duration-300 aspect-square">
@@ -76,10 +91,11 @@ function SettingsScreen({setUpdateSettings,setFun}) {
 					</div>
 					<div
 						id="settingsScroll"
-						className="w-full h-full p-5 duration-300 items-start border-r-2 border-bcol  flex flex-wrap overflow-scroll   "
+						className="w-full h-full duration-300 items-start border-r-2 border-bcol  flex flex-wrap overflow-scroll   "
 						style={{
-							paddingTop: "8px",
-							paddingBottom: "70px",
+							padding: 20*scale+"px",
+							paddingTop: 16*scale+"px",
+							paddingBottom: 70*scale+"px",
 						}}
 						onScroll={(e) => {
 							if (settingScrollTimeout)
@@ -112,11 +128,12 @@ function SettingsScreen({setUpdateSettings,setFun}) {
 								backdrop={ settings.User_Interface.UI_BackDrop.value}
 								sst={setUpdateSettings}
 								setFun={setFun}
+								scale={scale}
 							/>
 						))}
-						<div className="h-full w-full mb-8"
+						<div className="h-full w-full"
 						style={{
-							height:"calc(100% - 33rem )"
+							height:"calc(100% - 32rem )"
 						}}
 						/>
 					</div>

@@ -31,14 +31,21 @@ import { settings } from "./SettingsValues";
 import Confirm from "./Confirm";
 let typeTimeout = null;
 let scrollTimeout = null;
-let settingScrollTimeout = null;
 let scIndTimer = null;
 let settingTimer = null;
 let playLastActiveSongTimeout = null;
 let offlineDBSearch = null;
+let scale = 1;
 function SongSelectionMenu() {
-	const { height, width } = useWindowDimensions()
-	let elementHeight = 80;
+	const { height, width } = useWindowDimensions();
+	scale = settings.User_Interface.UI_Scale.value;
+	if (scale == 0) {
+		scale = height / 942;
+	} else {
+		scale = settings.User_Interface.UI_Scale.options[scale];
+	}
+
+	let elementHeight = 80 * scale;
 	let loadLimit = parseInt(height / elementHeight);
 	if (loadLimit < 6) loadLimit = 6;
 	const [metaData, setMetaData] = useState([]);
@@ -535,7 +542,7 @@ function SongSelectionMenu() {
 				scrollMenu.style.marginTop =
 					-Math.min(
 						0.25 * height,
-						select[centerIndex].levels.length * 32
+						select[centerIndex].levels.length * 32 * scale
 					) + "px";
 
 			if (centerIndex != globalIndex) {
@@ -852,6 +859,8 @@ function SongSelectionMenu() {
 			"px) brightness(" +
 			(1 - settings.Gameplay["Background Dim"].value / 100) +
 			")";
+		if (settings.User_Interface["Toggle_Fullscreen"].value == 1)
+			document.documentElement.requestFullscreen();
 	} else {
 		if (settings.User_Interface.Background.value != 0) {
 			backgroundImage.style.filter = "blur(0px) brightness(0.5)";
@@ -868,6 +877,7 @@ function SongSelectionMenu() {
 	function onImageLoad() {
 		console.log(event);
 	}
+	console.log(scale, 30 * scale);
 	let list = (onlineMode ? webSearchData : metaData).map((element, index) => {
 		return (
 			<div
@@ -878,8 +888,9 @@ function SongSelectionMenu() {
 						(scrollIndex == index &&
 						stationary &&
 						(!deleteMode || onlineMode)
-							? 96 + element.levels.length * 68
-							: "80") + "px",
+							? elementHeight +
+							  (8 + element.levels.length * 68) * scale
+							: elementHeight) + "px",
 
 					transitionBehavior: "allow-discrete",
 					transition: deleteMode
@@ -888,7 +899,7 @@ function SongSelectionMenu() {
 					offsetRotate: "0deg",
 					offsetDistance: deleteMode
 						? "50%"
-						: "calc(50% - " + (sct - index) * 20 + "px)",
+						: "calc(50% - " + (sct - index) * 20 * scale + "px)",
 					offsetAnchor: "0% 0%",
 					offsetPath:
 						"path('m " +
@@ -908,10 +919,10 @@ function SongSelectionMenu() {
 					backgroundColor: !settings.User_Interface.UI_BackDrop.value
 						? "#252525"
 						: "#2525254C",
-						
+					borderRadius: 6 * scale + "px",
 				}}
 				className={
-					"bg-post   outline fade-in outline-1  outline-bcol duration-300 w-[45vw] rounded-md text-gray-300 max-h-[50vh] shadow-lg nons snap-cetner overflow-hidden "
+					"bg-post  outline fade-in outline-1  outline-bcol duration-300 w-[45vw] text-gray-300 max-h-[50vh] nons snap-cetner overflow-hidden "
 				}>
 				{Math.abs(scrollIndex - index) < loadLimit * 1.2 ||
 				onlineMode ? (
@@ -922,8 +933,9 @@ function SongSelectionMenu() {
 
 								scrollListTo(index, false);
 							}}
-							className=" w-full h-20  flex fade-in  outline outline-1    rounded-t-lg"
+							className=" w-full  flex fade-in  outline outline-1  "
 							style={{
+								height: elementHeight + "px",
 								backgroundImage: settings.User_Interface
 									.Show_Banners.value
 									? "url(" +
@@ -946,7 +958,7 @@ function SongSelectionMenu() {
 								{onlineMode ? (
 									<div
 										id={"download" + index}
-										className="h-10 absolute min-w-fit duration-300 flex items-center justify-center overflow-hidden  text-bcol hover:text-colors-red aspect-square"
+										className="absolute min-w-fit duration-300 flex items-center justify-center overflow-hidden  text-bcol hover:text-colors-red aspect-square"
 										onClick={async (e) => {
 											e.preventDefault();
 											let y = tempFiles.filter(
@@ -1203,6 +1215,7 @@ function SongSelectionMenu() {
 												]);
 										}}
 										style={{
+											height: 40 * scale + "px",
 											opacity: deleteMode ? "1" : "1",
 											pointerEvents: true
 												? "all"
@@ -1220,15 +1233,32 @@ function SongSelectionMenu() {
 								) : (
 									<></>
 								)}
-								<div className="flex max-w-[calc(45vw-60px)] absolute mt-3 flex-wrap  duration-300  items-center py-2"
-								style={{
-									left:onlineMode?"60px":""
-								}}
-								>
-									<div className="leading-[40px] lexend h- overflow-hidden w-full min-h-fit   whitespace-nowrap text-ellipsis font-semibold text-[30px] pointer-events-none  self-start text-[#ccc] ">
+								<div
+									className="flex max-w-[calc(45vw-60px)] absolute flex-wrap  duration-300  items-center"
+									style={{
+										left: onlineMode
+											? 60 * scale + "px"
+											: "",
+										maxWidth:
+											"calc(45vw-" + 60 * scale + "px)",
+										marginTop: 12 * scale + "px",
+										paddingInline: 12 * scale + "px",
+									}}>
+									<div
+										className=" lexend overflow-hidden w-full min-h-fit   whitespace-nowrap text-ellipsis font-semibold pointer-events-none  self-start text-[#ccc] "
+										style={{
+											lineHeight: 40 * scale + "px",
+											fontSize: 30 * scale + "px",
+										}}>
 										{element.title}
 									</div>
-									<div className="flex leading-[20px] w-full  h-1/2  whitespace-nowrap text-ellipsis  self-start ml-2 text-[#bbb] mb-[20px]  pointer-events-none text-[18px]">
+									<div
+										className="flex w-full  h-1/2  whitespace-nowrap text-ellipsis  self-start ml-2 text-[#bbb]  pointer-events-none"
+										style={{
+											lineHeight: 20 * scale + "px",
+											fontSize: 18 * scale + "px",
+											marginBottom: 20 * scale + "px",
+										}}>
 										{element.artist +
 											" - " +
 											element.creator}
@@ -1307,108 +1337,118 @@ function SongSelectionMenu() {
 							</div>
 						</div>
 
-						<div className="p-2 max-h-[calc(50vh-80px)] overflow-y-scroll  pt-3">
-							<div
-								className="levhol l   w-full p-2 -mt-2  "
-								style={{
-									height: element.levels.length * 68 + "px",
-								}}>
-								{element.levels.map((x, index2) => (
-									<div
-										key={"sub" + index + " " + index2}
-										id={"sub" + index + " " + index2}
-										className=" flex flex-col  justify-evenly rounded-md p-1 px-3  duration-300 w-full  text-[#eee] mb-2 h-[60px]"
-										onClick={(e) => {
-											setSecondaryIndex(index2);
-											if (secondaryIndex == index2) {
-												if (!onlineMode) setStart(true);
-												else {
-													let y = tempFiles.filter(
-														(x) =>
-															x.setId ==
-															element.setId
-													);
-													let z = metaFiles.filter(
-														(x) =>
-															x.setId ==
-															element.setId
-													);
+						<div
+							className="overflow-y-scroll  w-full flex flex-wrap "
+							style={{
+								padding: 8 * scale + "px",
+								
+								gap: 8 * scale + "px",
+								maxHeight: "calc(50vh - " + 80 * scale + "px)",
+								height:
+									(element.levels.length * 68+8) * scale + "px",
+							}}>
+							{element.levels.map((x, index2) => (
+								<div
+									key={"sub" + index + " " + index2}
+									id={"sub" + index + " " + index2}
+									className=" flex flex-col justify-evenly duration-300 w-full  text-[#eee]"
+									onClick={(e) => {
+										setSecondaryIndex(index2);
+										if (secondaryIndex == index2) {
+											if (!onlineMode) setStart(true);
+											else {
+												let y = tempFiles.filter(
+													(x) =>
+														x.setId == element.setId
+												);
+												let z = metaFiles.filter(
+													(x) =>
+														x.setId == element.setId
+												);
 
-													if (z.length > 0) {
-														setTempOnline(false);
-														setStart(true);
-														return;
-													}
-													setTempOnline(true);
-
-													if (y.length > 0) {
-														setStart(true);
-														return;
-													}
-													setDownloadQueue((prev) => [
-														...prev,
-														[element.setId, true],
-													]);
-
+												if (z.length > 0) {
+													setTempOnline(false);
+													setStart(true);
 													return;
 												}
-											} else {
-												setSecondaryIndex(index2);
-												if (!onlineMode)
-													setPreviewImage(
-														element.setId,
-														x.backgroundImage,
-														index2
-													);
-												previewCircleSize.style.width =
-													x.circleSize * 10 + "%";
-												previewApproachRate.style.width =
-													x.approachRate * 10 + "%";
-												previewHPDrain.style.width =
-													x.hpDrainRate * 10 + "%";
-												previewAccuracy.style.width =
-													x.difficulty * 10 + "%";
-												previewVersion2.innerHTML =
-													x.level;
-												previewVersion.innerHTML =
-													x.level;
-											}
-										}}
-										style={{
-											backgroundColor:
-												secondaryIndex == index2
-													? "#94a3b844"
-													: settings.User_Interface
-															.UI_BackDrop.value
-													? "#1b1b1b4C"
-													: "",
-										}}>
-										<div className=" pointer-events-none leading-[20px]">
-											{x.level}
-										</div>
-										<div className=" pointer-events-none rounded-lg w-full  h-2 bg-white bg-opacity-30 ">
-											<div
-												className={
-													" pointer-events-none rounded-lg h-2"
+												setTempOnline(true);
+
+												if (y.length > 0) {
+													setStart(true);
+													return;
 												}
-												style={{
-													width:
-														x.difficulty * 10 + "%",
-													background:
-														x.difficulty <= 3.5
-															? "#A3BE8C"
-															: x.difficulty <= 7
-															? "#EBCB8B"
-															: x.difficulty <=
-															  8.5
-															? "#D08770"
-															: "#BF616A",
-												}}
-											/>
-										</div>
+												setDownloadQueue((prev) => [
+													...prev,
+													[element.setId, true],
+												]);
+
+												return;
+											}
+										} else {
+											setSecondaryIndex(index2);
+											if (!onlineMode)
+												setPreviewImage(
+													element.setId,
+													x.backgroundImage,
+													index2
+												);
+											previewCircleSize.style.width =
+												x.circleSize * 10 + "%";
+											previewApproachRate.style.width =
+												x.approachRate * 10 + "%";
+											previewHPDrain.style.width =
+												x.hpDrainRate * 10 + "%";
+											previewAccuracy.style.width =
+												x.difficulty * 10 + "%";
+											previewVersion2.innerHTML = x.level;
+											previewVersion.innerHTML = x.level;
+										}
+									}}
+									style={{
+										height: 60 * scale + "px",
+										padding: 4 * scale + "px",
+										fontSize: 16 * scale + "px",
+										paddingLeft: 12 * scale + "px",
+										paddingRight: 12 * scale + "px",
+										
+										backgroundColor:
+											secondaryIndex == index2
+												? "#94a3b844"
+												: settings.User_Interface
+														.UI_BackDrop.value
+												? "#1b1b1b4C"
+												: "",
+										borderRadius: 6 * scale + "px",
+									}}>
+									<div
+										className=" pointer-events-none"
+										style={{
+											lineHeight: 20 * scale + "px",
+										}}>
+										{x.level}
 									</div>
-								))}
-							</div>
+									<div
+										className=" pointer-events-none rounded-lg w-full bg-white bg-opacity-30 "
+										style={{ height: 8 * scale + "px" }}>
+										<div
+											className={
+												" pointer-events-none rounded-lg h-full"
+											}
+											style={{
+												width: x.difficulty * 10 + "%",
+												background:
+													x.difficulty <= 3.5
+														? "#A3BE8C"
+														: x.difficulty <= 7
+														? "#EBCB8B"
+														: x.difficulty <= 8.5
+														? "#D08770"
+														: "#BF616A",
+											}}
+										/>
+									</div>
+								</div>
+							))}
 						</div>
 					</>
 				) : (
@@ -1432,10 +1472,7 @@ function SongSelectionMenu() {
 						"deg) rotate(" +
 						skewDeg +
 						"deg) translateY(-50%) translateX(-20%)",
-						opacity:
-							start 
-								? 0
-								: 1,
+					opacity: start ? 0 : 1,
 				}}></div>
 			<div
 				className="fixed w-[60vw] h-1/2 duration-300 top-1/4 -left-0 bg-opacity-40 bg-black"
@@ -1448,10 +1485,7 @@ function SongSelectionMenu() {
 						"deg) rotate(-" +
 						skewDeg +
 						"deg) translateY(50%)  translateX(-20%)",
-						opacity:
-							start 
-								? 0
-								: 1,
+					opacity: start ? 0 : 1,
 				}}></div>
 			<div id="screen" className="fade-in">
 				<div
@@ -1461,6 +1495,7 @@ function SongSelectionMenu() {
 							!onlineMode && !switchToggle && metaData.length < 1
 								? "0.5"
 								: "0",
+						transform: "scale(" + scale + ")",
 					}}>
 					<div>
 						{metaFiles.length < 1 ? (
@@ -1514,6 +1549,7 @@ function SongSelectionMenu() {
 							webSearchData.length < 1
 								? "0.5"
 								: "0",
+						transform: "scale(" + scale + ")",
 					}}>
 					<div>Search the web</div>
 					<div>for beatmaps</div>
@@ -1526,18 +1562,17 @@ function SongSelectionMenu() {
 					style={{
 						scrollBehavior: "smooth",
 						opacity:
-							start ||
-							(settingsToggle && width < 1024)
-								? 0
-								: 1,
+							start || (settingsToggle && width < 1024) ? 0 : 1,
 						pointerEvents:
 							start ||
 							(metaData.length < 1 && webSearchData.length < 1) ||
 							(settingsToggle && width < 1024)
 								? "none"
 								: "auto",
-							marginRight:settingsToggle && (width/2<1024)?-(1024-width/2):""
-						
+						marginRight:
+							settingsToggle && width / 2 < 1024 * scale
+								? -(1024 * scale - width / 2)
+								: "",
 					}}>
 					{list}
 					<div
@@ -1582,10 +1617,15 @@ function SongSelectionMenu() {
 								.UI_BackDrop.value
 								? " blur(0px) "
 								: "",
+							height: 60 * scale + "px",
+							gap: 8 * scale + "px",
+							paddingRight: 8 * scale + "px",
 						}}
-						className="bg-post flex items-center justify-end gap-2 pr-2 duration-300 bg-opacity-50 z-20   border-bcol h-[60px]  border-b-2  backdrop-blur-md   w-full  top-0 left-0  ">
-						<div className="h-full flex  w-full self-start">
-							<div className="h-full  -mr-3 aspect-square group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+						className="bg-post flex items-center justify-end duration-300 bg-opacity-50 z-20   border-bcol  border-b-2  backdrop-blur-md   w-full  top-0 left-0  ">
+						<div className="h-full flex items-center  w-full self-start">
+							<div
+								className="h-full  aspect-square group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
+								style={{}}>
 								<div
 									id="stb"
 									className="h-full flex items-center justify-center  aspect-square"
@@ -1602,7 +1642,7 @@ function SongSelectionMenu() {
 													onlineMode)
 											)
 												previewContainer.style.opacity = 1;
-											scrollMenu.style.marginRight=""
+											scrollMenu.style.marginRight = "";
 											settingTimer = setTimeout(() => {
 												setSettingsToggle(
 													!settingsToggle
@@ -1616,33 +1656,45 @@ function SongSelectionMenu() {
 											}, 300);
 										}
 									}}>
-									<div className="h-1/2 -mt-[0.5vh]  aspect-square">
+									<div className="h-1/2 -mt-1  aspect-square">
 										{svg.settingsIcon}
 									</div>
 								</div>
-								<div className="absolute delay-0 group-hover:delay-500 text-bcol group-hover:text-white opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
-									<div className="h-full w-full ml-1 mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md pt-1 min-w-fit flex">
+								<div
+									className="absolute delay-0 group-hover:delay-500 text-bcol group-hover:text-white opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 "
+									style={{
+										transform: "scale(" + scale + ")",
+									}}>
+									<div className="h-full ml-3 mt-28 bg-opacity-50 bg-post pb-[6px] p-1  rounded-md  min-w-fit flex">
 										Settings
 									</div>
 								</div>
 							</div>
-							<MusicPlayer />
+							<div
+								className="h-[60px] w-64"
+								style={{
+									transform: "scale(" + scale + ")",
+									marginLeft: (scale - 1) * 128 + "px",
+								}}>
+								<MusicPlayer />
+							</div>
 						</div>
 
 						<div
-							className="h-full aspect-[3/1] justify-end duration-300 flex"
+							className="h-full justify-end duration-300 flex"
 							style={{
 								opacity: !switchToggle ? "1" : "0",
 								pointerEvents: !switchToggle ? "all" : "none",
 							}}>
 							<div
-								className="h-full  -mr-3 aspect-square group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
+								className="h-full aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
 								style={{
 									opacity: metaFiles.length < 1 ? "1" : "0",
 									pointerEvents:
 										metaFiles.length < 1 ? "all" : "none",
+									marginTop: 2 * scale + "px",
 								}}>
-								<div className="w-2/5 h-fit  mt-[0.5vh] ">
+								<div className="w-1/2 h-fit  ">
 									<label htmlFor="loadDemo">
 										{svg.demoIcon}
 									</label>
@@ -1659,17 +1711,21 @@ function SongSelectionMenu() {
 
 										return;
 									}}></button>
-								<div className="absolute delay-0 group-hover:delay-500 text-bcol opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+								<div
+									style={{
+										transform: "scale(" + scale + ")",
+									}}
+									className="absolute delay-0 text-sm group-hover:delay-500 text-bcol opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
 									<div className="h-full w-full  mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
 										Load Demo
 									</div>
 								</div>
 							</div>
-							<div className="h-full -mr-3 aspect-square group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+							<div className="h-full  aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
 								<div
 									onClick={toggleDeleteMode}
 									id="deleteModeButton"
-									className="bg-post p-1 outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-white  rounded-lg aspect-square h-2/3"
+									className="bg-post outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-white aspect-square h-3/5"
 									style={{
 										color: deleteMode ? "#b3b3b3" : "",
 										outlineColor: deleteMode
@@ -1678,17 +1734,23 @@ function SongSelectionMenu() {
 										backgroundColor: deleteMode
 											? "#2525254C"
 											: "",
+										borderRadius: 6 * scale + "px",
+										padding: 6 * scale + "px",
 									}}>
 									{svg.deleteIcon}
 								</div>
-								<div className="absolute delay-0 group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+								<div
+									style={{
+										transform: "scale(" + scale + ")",
+									}}
+									className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
 									<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
 										Delete Mode
 									</div>
 								</div>
 							</div>
-							<div className="h-full -mr-[6px] group aspect-square text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
-								<div className="w-2/5 ">
+							<div className="h-full group aspect-[2/3] text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+								<div className="w-1/2 ">
 									<label htmlFor="inpp">
 										{svg.uploadIcon}
 									</label>
@@ -1703,7 +1765,11 @@ function SongSelectionMenu() {
 										getFiles(e.target.files);
 									}}
 								/>
-								<div className="absolute delay-0 group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+								<div
+									style={{
+										transform: "scale(" + scale + ")",
+									}}
+									className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
 									<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
 										Upload Beatmap
 									</div>
@@ -1711,9 +1777,10 @@ function SongSelectionMenu() {
 							</div>
 						</div>
 						<div
-							className=" p-1 text-bcol duration-300  aspect-square h-2/3"
+							className=" scale-75 text-bcol duration-300  aspect-square h-2/3"
 							style={{
 								opacity: !switchToggle ? "1" : "0.25",
+								marginLeft: -5 * scale + "px",
 							}}>
 							{svg.offlineIcon}
 						</div>
@@ -1724,30 +1791,45 @@ function SongSelectionMenu() {
 								mode={true}
 								title="onlineModeSwitch"
 							/>
-							<div className="absolute delay-0 group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+
+							<div
+								style={{ transform: "scale(" + scale + ")" }}
+								className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
 								<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
 									Go {switchToggle ? "Offline" : "Online"}
 								</div>
 							</div>
 						</div>
 						<div
-							className=" p-1  text-bcol duration-300 aspect-square h-2/3"
+							className=" scale-75  text-bcol duration-300 aspect-square h-2/3"
 							style={{
 								opacity: switchToggle ? "1" : "0.25",
 							}}>
 							{svg.onlineIcon}
 						</div>
 
-						<div className="bg-post p-1 pl-2 outline-bcol outline-1 flex items-center   outline bg-opacity-30 rounded-lg w-[20vw] min-w-14 h-2/3 ">
+						<div
+							style={{ borderRadius: 6 * scale + "px" }}
+							className="bg-post p-1 pl-2 outline-bcol outline-1 flex items-center   outline bg-opacity-30 w-[20vw] min-w-14 h-2/3 ">
 							<input
 								id="searchbox"
 								placeholder="Search"
 								onChange={searchBeatMaps}
 								type="text"
-								className="  text-xs sm:text-sm lg:text-base -mt-[1Px] w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none rounded-md"
+								className=" w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none"
+								style={{
+									fontSize: 16 * scale + "px",
+								}}
 							/>
 						</div>
-						<div id="playTime" className="text-bact">00:00:00
+						<div
+							id="playTime"
+							className="text-bact text-center"
+							style={{
+								fontSize: 16 * scale + "px",
+								width: 96 * scale + "px",
+							}}>
+							00:00:00
 						</div>
 						<div
 							id="resetButton"
@@ -1806,6 +1888,7 @@ function SongSelectionMenu() {
 						<SettingsScreen
 							setUpdateSettings={setUpdateSettings}
 							setFun={setFun}
+							scale={scale}
 						/>
 					) : (
 						<></>

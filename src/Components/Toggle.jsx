@@ -1,6 +1,6 @@
 function Toggle({value,onClick,mode=false,title}) {
     return ( <div
-        className={"bg-ltpost  cursor-pointer outline-bdark outline-1  duration-300   flex  items-center  outline  rounded-full aspect-video  h-5 "+(mode?"bg-opacity-50":"")}
+        className={"bg-ltpost  cursor-pointer outline-bdark outline-1  duration-300   flex  items-center  outline  rounded-full aspect-video  h-1/3 "+(mode?"bg-opacity-50":"")}
         id={title?title:""}
         onClick={onClick}
         style={{

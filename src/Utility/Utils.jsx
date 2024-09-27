@@ -1,8 +1,10 @@
 export let backgroundImage = document.getElementById("backgroundImage");
+
+setTimeout(()=>{backgroundImage.src="",backgroundImage.style.opacity=1},300)
 export let music = new Audio();
 import { Shader, Texture } from "pixi.js";
 import { bSliderPath, lSliderPath, pSliderPath, setCs } from "./Sliders";
-import { settings } from "../SettingsValues";
+import {  settings } from "../SettingsValues";
 import { useEffect, useState } from "react";
 let musicLoaded = false;
 let videoLoaded = false;
@@ -365,6 +367,9 @@ export async function setPreviewImage(
 	// if (!settingsVal.showPreviewImage && !settingsVal.showBackground) return;
 
 	if (mode) {
+		console.log(index)
+		if(index=="")
+			console.log("blank")
 		if (previewImage.src == index) return;
 		// if (settingsVal.showBackground)
 		setBackground(index, mode);
@@ -596,12 +601,18 @@ export function setBackgroundImage(file, setId, mode) {
 }
 export function fakeClick(index, index2, mode = false) {
 	setTimeout(() => {
+		let scale = settings.User_Interface.UI_Scale.value;
+		if (scale == 0) {
+			scale = window.innerHeight / 942;
+		} else {
+			scale = settings.User_Interface.UI_Scale.options[scale];
+		}
 		if (index2) {
 			console.log("yeaaa")
-			scrollMenu.scrollTo({ top: 1 * 40 });
+			scrollMenu.scrollTo({ top: 1 * 40*scale });
 
 		} else {
-			scrollMenu.scrollTo({ top: index * 80, behavior: "smooth" });
+			scrollMenu.scrollTo({ top: (index +0.5)* 80*scale, behavior: "smooth" });
 		}
 	}, 20);
 }

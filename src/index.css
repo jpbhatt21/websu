@@ -266,22 +266,24 @@
 
 
 
-
+:root{
+  --scale: 1;
+  --track-height:calc(2px * var(--scale));
+}
 
 /* === range theme and appearance === */
 input[type="range"] {
 	font-size: 1.5rem;
-	width: 12.5em;
+	width: calc(12.5em * var(--scale));
 }
 
 input[type="range"] {
 	color: #9b9b9b;
-	--thumb-height: 16px;
-	--track-height: 0.125em;
+	--thumb-height: calc(var(--track-height) * 8);
 	--track-color: rgba(0, 0, 0, 0.2);
 	--brightness-hover: 180%;
 	--brightness-down: 80%;
-	--clip-edges: 0.125em;
+	--clip-edges: var(--track-height);
 }
 
 

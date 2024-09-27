@@ -1,81 +1,128 @@
 import { useEffect, useState } from "react";
 import { music } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
-function MusicPlayer() {
-	const [songName, setSongName] = useState("-");
-	const [musicPlayState, setMusicPlayState] = useState(false);
-	const [musicCurrentTime, setMusicCurrentTime] = useState(0);
-	const [musicDuration, setMusicDuration] = useState(0);
-	const [muteUnmute, setMuteUnmute] = useState(false);
-	const [inter, setInter] = useState(false);
-	async function keyaction2(e) {
-		if (!inter && music.paused) {
-			try {
-				music.play();
-				music.volume = 0;
-				while (music.volume <= 0.9) {
-					music.volume += 0.1;
-					await new Promise((r) => setTimeout(r, 10));
-				}
-				music.volume = 1;
-				if (music.paused) return;
-				setInter(true);
-			} catch (e) {}
-		}
-	}
-	useEffect(() => {
-		document.addEventListener("click", keyaction2);
-		setInterval(() => {
-			setMusicPlayState(music.paused);
-			if (!music.paused) {
-				document.removeEventListener("click", keyaction2);
-			}
-			if (!inter && !music.paused) setInter(true);
-			if (!music.paused) {
+import { settings } from "../SettingsValues";
+let start = null;
+let past5 = [60, 60, 60, 60, 60];
+let clear = false;
+let prev = null;
+let mCTMin, mCTSec, mDurMin, mDurSec,pTHr,pTMin,pTSec, interaction, diff, fPS;
+let interacted = false;
+function repeater(time) {
+	if (prev) {
+		mDurSec = music.duration;
+		interaction = navigator.userActivation.isActive;
+		if (interaction && !interacted) {
+			interacted = true;
+			music.play();
+			if(settings.User_Interface["Toggle_Fullscreen"].value==0)
+				document.documentElement.requestFullscreen();
+			setTimeout(() => {
 				clickToUnmute.style.opacity = "0";
-				clickToUnmute.style.height = "0";
+				clickToUnmute.style.height = "0px";
+			}, 100);
+		}
+		if (mDurSec > 0) {
+			mCTSec = music.currentTime;
+			musicProgress.style.marginLeft =
+				-(100 - (mCTSec / mDurSec) * 100) + "%";
+			mCTMin = parseInt(mCTSec / 60);
+			mCTSec = parseInt(mCTSec % 60);
+			musicCurrentTime.innerHTML =
+				(mCTMin < 10 ? "0" : "") +
+				mCTMin +
+				":" +
+				(mCTSec < 10 ? "0" : "") +
+				mCTSec;
+			mDurMin = parseInt(mDurSec / 60);
+			mDurSec = parseInt(mDurSec % 60);
+			musicDuration.innerHTML =
+				(mDurMin < 10 ? "0" : "") +
+				mDurMin +
+				":" +
+				(mDurSec < 10 ? "0" : "") +
+				mDurSec;
+			songName.innerHTML = music.title;
+			if (music.paused) {
+				musicPlaying.style.opacity = "0";
+				musicPaused.style.opacity = "1";
+			} else {
+				musicPlaying.style.opacity = "1";
+				musicPaused.style.opacity = "0";
 			}
-			setMusicCurrentTime(music.currentTime);
-			if (music.duration != musicDuration && music.duration > 0)
-				setMusicDuration(music.duration);
-			else setMusicDuration(0);
-			if (music.title != "") setSongName(music.title);
-			setMuteUnmute(music.muted);
-		}, 300);
-	}, []);
+			if (music.muted || !interaction) {
+				speakerIcon.style.color = "";
+				slashLine.style.height = "100%";
+			} else {
+				speakerIcon.style.color = "#939393";
+				slashLine.style.height = "0%";
+			}
+		}
+		diff = time - prev;
+		fPS = 1000 / diff;
+		past5.shift();
+		past5.push(fPS);
+		fPS = past5.reduce((a, b) => a + b, 0) / 5;
+		if (Math.abs(fPS - fps.innerHTML) > 5) {
+			fps.innerHTML = parseInt(fPS);
+			lat.innerHTML = parseInt(diff);
+		}
+		pTHr = parseInt(time / 3600000);
+		pTMin = parseInt(time / 60000 % 3600);
+		pTSec = parseInt(time / 1000 % 60);
+		playTime.innerHTML = (pTHr<10?"0":"")+pTHr+":"+(pTMin<10?"0":"")+pTMin+":"+(pTSec<10?"0":"")+pTSec;
+	}
+	prev = time;
+	window.requestAnimationFrame(repeater);
+}
+function startRepeater() {
+	if (!start) window.requestAnimationFrame(repeater);
+	start = true;
+}
+function MusicPlayer() {
 	return (
 		<>
-			<div className=" text-sm  min-w-72 pt-1   flex gap-1  items-center text-bcol  justify-center aspect-square h-[60px]   ">
-				<div className="h-full w-16 select-none -mt-[1px] items-center justify-evenly flex flex-col">
+			<div className=" text-sm  w-full pt-1   flex gap-1  items-center text-bcol  justify-center aspect-square h-full   ">
+				<div className="h-full w-1/5 select-none -mt-[1px] items-center justify-evenly flex flex-col">
 					<div
-						id="musicPlayState mt-1" //Play-Pause button
-						className="h-1/3"
+						className="h-1/3 aspect-square items-center justify-center flex flex-wrap"
 						onClick={() => {
-							if (musicPlayState) {
+							console.log(clickToUnmute.style.height);
+							if (clickToUnmute.style.height != "0px") return;
+
+							if (music.paused) {
 								music.play();
 							} else {
 								music.pause();
 							}
 						}}>
-						{musicPlayState ? svg.playIcon : svg.pauseIcon}
+						<div
+							id="musicPlaying" //Pause button
+							className="h-full opacity-0  duration-300">
+							{svg.pauseIcon}
+						</div>
+						<div
+							id="musicPaused" //Play button
+							className="h-full -mt-[19px] duration-300">
+							{svg.playIcon}
+						</div>
 					</div>
 					<div
 						id="musicCurrentTime"
-						className="h-1/3 flex mb-[0.25vh] items-center justify-center text-center w-full" //Music current time in mm:ss
+						className="h-1/3 flex  items-center justify-center text-center w-full" //Music current time in mm:ss
 					>
-						{(musicCurrentTime / 60 < 10 ? "0" : "") +
-							parseInt(musicCurrentTime / 60) +
-							":" +
-							(musicCurrentTime % 60 < 10 ? "0" : "") +
-							parseInt(musicCurrentTime % 60)}
+						00:00
 					</div>
 				</div>
-				<div className="h-full w-44  justify-evenly   flex flex-col">
+				<div className="h-full w-3/5  justify-evenly   flex flex-col">
 					<div
-						
-						className="h-1/3   w-36 flex items-center " //Song name
+						className="h-1/3   w-full flex items-center " //Song name
 					>
-						<div id="songName" className="text-lg w-36 overflow-hidden lexend text-ellipsis whitespace-nowrap  " >{songName}</div>
+						<div
+							id="songName"
+							className="text-lg w-full overflow-hidden lexend text-ellipsis whitespace-nowrap  ">
+							
+						</div>
 					</div>
 					<div className="h-1/3 flex items-center ">
 						<div
@@ -90,43 +137,30 @@ function MusicPlayer() {
 							}}>
 							<div
 								id="musicProgress"
-								className=" w-full pointer-events-none duration-300 bg-gray-200  h-full rounded-full" //Seek-bar
-								style={{
-									marginLeft:
-										-(100-(musicCurrentTime / musicDuration) *
-											100) +
-										"%",
-								}}></div>
+								className=" w-full pointer-events-none duration-75 bg-gray-200  h-full rounded-full" //Seek-bar
+							></div>
 						</div>
 					</div>
 				</div>
-				<div className="h-full w-16 select-none -mt-[1px] items-center justify-evenly   flex flex-col">
+				<div className="h-full w-1/5 select-none -mt-[1px] items-center justify-evenly   flex flex-col">
 					<div
-						id="muteUnmute" //Mute-Unmute Button
-						className="h-1/3 flex duration-300 items-center "
-						style={{
-							color: muteUnmute || !inter ? "#9393934C" : "",
-						}}
+						id="speakerIcon" //Mute-Unmute Button
+						className="h-1/3 text-[#9393934C] flex duration-300 items-center "
 						onClick={() => {
-							if (!inter) return;
+							if (clickToUnmute.style.height != "0px") return;
 							music.muted = !music.muted;
 						}}>
 						{svg.unmuteIcon}
 						<div
-							style={{
-								height: muteUnmute || !inter ? "" : "0%",
-							}}
+							id="slashLine"
 							className="h-[110%] bg-bact duration-300 rounded-sm aspect-[1/10] rotate-45 -ml-[50%]"></div>
 					</div>
 					<div
 						id="musicDuration"
-						className="w-full flex  mb-[0.25vh] items-center justify-center text-center h-1/3" //Music Duration in mm:ss
+						onLoad={startRepeater()}
+						className="w-full flex items-center justify-center text-center h-1/3" //Music Duration in mm:ss
 					>
-						{(musicDuration / 60 < 10 ? "0" : "") +
-							parseInt(musicDuration / 60) +
-							":" +
-							(musicDuration % 60 < 10 ? "0" : "") +
-							parseInt(musicDuration % 60)}
+						00:00
 					</div>
 				</div>
 			</div>

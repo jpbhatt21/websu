@@ -1,43 +1,4 @@
 import { svg } from "../Utility/VectorGraphics";
-let start = 0;
-let past5 = [60, 60, 60, 60, 60];
-let clear = false;
-export function setClear() {
-	window.cancelAnimationFrame(displayFps);
-	clear = true;
-}
-function getClear() {
-	return clear;
-}
-let displayFps = (time) => {
-	let diff = time - start;
-	let fps = 1000 / diff;
-	start = time;
-	time-=1000
-	if (fps < 600) {
-		past5.shift();
-		past5.push(fps);
-		fps = past5.reduce((a, b) => a + b, 0) / 5;
-		if (Math.abs(fps - document.getElementById("fps").innerHTML) > 5) {
-			document.getElementById("fps").innerHTML = parseInt(fps);
-			document.getElementById("lat").innerHTML = parseInt(diff);
-			
-		}
-	}
-	document.getElementById("playTime").innerHTML = (parseInt(time/3600000)<10?"0":"")+parseInt(time/3600000)+":"+(parseInt(time/60000%3600)<10?"0":"")+parseInt(time/60000%3600)+":"+(parseInt(time/1000%60)<10?"0":"")+parseInt(time/1000%60);			
-		if (clear) {
-		window.cancelAnimationFrame(displayFps);
-		started = false;
-		clear = false;
-		start = 0;
-		past5 = [60, 60, 60, 60, 60];
-	} else window.requestAnimationFrame(displayFps);
-};
-let started = false;
-function getFps() {
-	if (!started) setTimeout(() => window.requestAnimationFrame(displayFps), 1000);
-	started = true;
-}
 function MessageBox({
 	unzipCounter,
 	unzipTotal,
@@ -102,7 +63,7 @@ function MessageBox({
 			</div>
 
 			<div
-				onLoad={getFps()}
+				
 				style={{
 					height: showFps ? "3.5vh" : 0,
 				}}
