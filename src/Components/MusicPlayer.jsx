@@ -3,6 +3,9 @@ import { music } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
 import { settings } from "../SettingsValues";
 let start = null;
+let startTime= new Date()
+startTime=[startTime.getHours(),startTime.getMinutes(),startTime.getSeconds()]
+console.log(startTime)
 let past5 = [60, 60, 60, 60, 60];
 let clear = false;
 let prev = null;
@@ -15,8 +18,10 @@ function repeater(time) {
 		if (interaction && !interacted) {
 			interacted = true;
 			music.play();
-			if(settings.User_Interface["Toggle_Fullscreen"].value==0)
+			if(settings.User_Interface["Toggle_Fullscreen"].value==0){
 				document.documentElement.requestFullscreen();
+				navigator.keyboard.lock();
+			}
 			setTimeout(() => {
 				clickToUnmute.style.opacity = "0";
 				clickToUnmute.style.height = "0px";
@@ -71,8 +76,24 @@ function repeater(time) {
 		pTMin = parseInt(time / 60000 % 3600);
 		pTSec = parseInt(time / 1000 % 60);
 		playTime.innerHTML = (pTHr<10?"0":"")+pTHr+":"+(pTMin<10?"0":"")+pTMin+":"+(pTSec<10?"0":"")+pTSec;
+		pTHr+=startTime[0]
+		pTMin+=startTime[1]
+		pTSec+=startTime[2]
+		if(pTSec>=60){
+			pTSec-=60
+			pTMin++
+		}
+		if(pTMin>=60){
+			pTMin-=60
+			pTHr++
+		}
+		if(pTHr>=24){
+			pTHr-=24
+		}
+		dateTime.innerHTML = (pTHr<10?"0":"")+pTHr+":"+(pTMin<10?"0":"")+pTMin+":"+(pTSec<10?"0":"")+pTSec;
 	}
 	prev = time;
+	
 	window.requestAnimationFrame(repeater);
 }
 function startRepeater() {

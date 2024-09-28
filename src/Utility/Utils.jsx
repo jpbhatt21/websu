@@ -35,7 +35,7 @@ export const fragmentSrc = `
     uniform sampler2D uSampler2;
     uniform float time;
 	`;
-export let sliderTexture = "/slider5.png";
+export let sliderTexture = "/slider3.png";
 export const uniforms = {
 	uSampler2: Texture.from(sliderTexture),
 	time: 0,

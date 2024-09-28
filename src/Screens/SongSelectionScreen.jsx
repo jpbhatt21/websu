@@ -231,10 +231,16 @@ function SongSelectionMenu() {
 	function keyaction(e) {
 		if (previewSearch.style.opacity == 1) {
 			if (!start) {
+				if (e.key == "F11" && !e.repeat) {
+					if (document.fullscreenElement) {
+						document.exitFullscreen();
+						navigator.keyboard.unlock();
+					} else {
+						document.documentElement.requestFullscreen();
+						navigator.keyboard.lock();
+					}
+				}
 				if (e.altKey && e.shiftKey && e.code == "Backquote") {
-					console.log(
-						settings.Maintainance["Restore Default Settings"]
-					);
 					settings.Maintainance[
 						"Restore Default Settings"
 					].function();
@@ -309,7 +315,7 @@ function SongSelectionMenu() {
 		previewSong.innerHTML = "[Song]";
 		previewArtist.innerHTML = "[Aritst]";
 		previewVersion.innerHTML = "[Version]";
-		
+
 		try {
 			playSong("/", 0, 0, "-", true);
 		} catch (e) {}
@@ -507,8 +513,8 @@ function SongSelectionMenu() {
 		}
 	}
 	function scrollHandler() {
-		console.log("scrolling")
-		if(start) return;
+		console.log("scrolling");
+		if (start) return;
 		setSctop(scrollMenu.scrollTop);
 		let select = onlineMode ? webSearchData : metaData;
 		let centerIndex = Math.min(
@@ -850,13 +856,19 @@ function SongSelectionMenu() {
 			")";
 		if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
 			document.documentElement.requestFullscreen();
-			
+			navigator.keyboard.lock();
 		}
 	} else {
 		if (settings.User_Interface.Background.value != 0) {
 			backgroundImage.style.filter = "blur(0px) brightness(0.5)";
 		} else {
 			backgroundImage.style.filter = "blur(6px) brightness(0.5)";
+		}
+		if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
+			if (document.fullscreenElement) {
+				document.exitFullscreen();
+				navigator.keyboard.unlock();
+			}
 		}
 	}
 	let sct = 0;
@@ -901,7 +913,8 @@ function SongSelectionMenu() {
 						? "#252525"
 						: "#2525254C",
 					borderRadius: 6 * scale + "px",
-					outlineWidth: (scrollIndex == index ? 2 * scale:scale) + "px",
+					outlineWidth:
+						(scrollIndex == index ? 2 * scale : scale) + "px",
 				}}
 				className={
 					"bg-post  outline fade-in outline-1  outline-bcol duration-300 w-[45vw] text-gray-300 max-h-[50vh] nons snap-cetner overflow-hidden "
@@ -919,7 +932,6 @@ function SongSelectionMenu() {
 								);
 							}}
 							className=" w-full  flex fade-in  outline outline-1  "
-							
 							style={{
 								height: elementHeight + "px",
 								backgroundImage: settings.User_Interface
@@ -933,20 +945,20 @@ function SongSelectionMenu() {
 									: "",
 								backgroundSize: "cover",
 								backgroundPosition: "center",
-								
 							}}>
-								
-							<div className="h-full w-full flex flex-row items-center duration-300 pointer-events-none px-3  justify-between"
-							style={{
-								backgroundColor:scrollIndex == index ? "#0000004C" : "#00000099",
-							}}
-							>
+							<div
+								className="h-full w-full flex flex-row items-center duration-300 pointer-events-none px-3  justify-between"
+								style={{
+									backgroundColor:
+										scrollIndex == index
+											? "#0000004C"
+											: "#00000099",
+								}}>
 								<div
 									className="h-full -ml-3 -mr-[25vw]  min-w-[25vw] backdrop -invert duration-300"
 									style={{
 										background:
 											"linear-gradient(to right ,#000000,#1b1b1b00)",
-										
 									}}></div>
 								{onlineMode ? (
 									<div
@@ -1242,7 +1254,10 @@ function SongSelectionMenu() {
 										style={{
 											lineHeight: 40 * scale + "px",
 											fontSize: 30 * scale + "px",
-											color:scrollIndex == index ? "#fff" : "#aaa",
+											color:
+												scrollIndex == index
+													? "#fff"
+													: "#aaa",
 										}}>
 										{element.title}
 									</div>
@@ -1252,7 +1267,10 @@ function SongSelectionMenu() {
 											lineHeight: 20 * scale + "px",
 											fontSize: 18 * scale + "px",
 											marginBottom: 20 * scale + "px",
-											color:scrollIndex == index ? "#ddd" : "#888",
+											color:
+												scrollIndex == index
+													? "#ddd"
+													: "#888",
 										}}>
 										{element.artist +
 											" - " +
@@ -1483,11 +1501,12 @@ function SongSelectionMenu() {
 						"deg) translateY(50%)  translateX(-20%)",
 					opacity: start ? 0 : 1,
 				}}></div>
-			<div id="screen" className="fade-in"
-			style={{
-				pointerEvents:start?"none":"auto",
-			}}
-			>
+			<div
+				id="screen"
+				className="fade-in"
+				style={{
+					pointerEvents: start ? "none" : "auto",
+				}}>
 				<div
 					className="duration-300 lexend fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
 					style={{
@@ -1822,14 +1841,25 @@ function SongSelectionMenu() {
 								}}
 							/>
 						</div>
-						<div
-							id="playTime"
-							className="text-bact text-center"
-							style={{
-								fontSize: 16 * scale + "px",
-								width: 96 * scale + "px",
-							}}>
-							00:00:00
+						<div>
+							<div
+								id="dateTime"
+								className="text-bact text-center"
+								style={{
+									fontSize: 16 * scale + "px",
+									width: 96 * scale + "px",
+								}}>
+								00:00:00
+							</div>
+							<div
+								id="playTime"
+								className="text-bact text-center"
+								style={{
+									fontSize: 16 * scale + "px",
+									width: 96 * scale + "px",
+								}}>
+								00:00:00
+							</div>
 						</div>
 						<div
 							id="resetButton"
