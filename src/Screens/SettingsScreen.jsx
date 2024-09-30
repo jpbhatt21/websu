@@ -19,7 +19,7 @@ function SettingsScreen({setUpdateSettings,setFun,scale}) {
 				}}
 				>
 				<div
-					className="w-full flex  h-full  bg-post bg-opacity-50 duration-300  "
+					className="w-full flex  h-full  bg-post backdrop-blur-md bg-opacity-50 duration-300  "
 					style={{
 						backgroundColor: ! settings.User_Interface.UI_BackDrop.value
 							? "#252525"

@@ -228,14 +228,16 @@ settings.Maintainance["Delete Temp Beatmaps"].function =
 settings.Maintainance["Delete All Beatmaps"].function =
 	functions["Delete All Beatmaps"];
 export function setSettings(val) {
-	music.volume = bezier(
-		parseInt(
-			(val.Audio["Master Volume"].value *
-				val.Audio["Music Volume"].value) /
-				101
-		) / 100
-	);
-	music.muted = val.Audio["Music Mute"].value;
+	if(music){
+		music.volume = bezier(
+			parseInt(
+				(val.Audio["Master Volume"].value *
+					val.Audio["Music Volume"].value) /
+					101
+			) / 100
+		);
+		music.muted = val.Audio["Music Mute"].value;
+	}
 	window.localStorage.setItem("settings", JSON.stringify(val));
 	let keys = Object.keys(settings);
 	for (let i in keys) {

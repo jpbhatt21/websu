@@ -1,10 +1,11 @@
 import SongSelectionMenu from "./Screens/SongSelectionScreen";
 import { useState } from "react";
-import { loadingBar, music } from "./Utility/Utils";
+import { initializeMusic, loadingBar, music } from "./Utility/Utils";
 import { setSettings, settings } from "./SettingsValues";
 import { bezier } from "./Screens/GamePlayScreen";
-import Intro from "./Intro";
-import MainMenu from "./MainMenu";
+import Intro from "./Components/Intro";
+import MainMenu from "./Screens/HomeScreen";
+import MainScreen from "./Screens/MainMenuScreen";
 export const uri = "https://websu-back.jpbhatt.tech";
 export const uri2 = "https://catboy.best";
 
@@ -45,22 +46,22 @@ window.addEventListener("focus", async (event) => {
 });
 function App() {
 	const [clicked, setClicked] = useState(false);
-	const [play, setPlay] = useState(false);
 	return (
 		<>
-			{<SongSelectionMenu play={play} />}
-			{!clicked && !play ? (
+			<MainScreen startApp={clicked} />
+			{!clicked ? (
 				<div
 					onClick={(e) => {
 						if (loadingBar < 100) return;
+						initializeMusic()
 						cts.style.opacity = 0;
 						// if(settings.User_Interface["Toggle_Fullscreen"].value==0){
 						// 	document.documentElement.requestFullscreen();
-							
+
 						// }
 						setTimeout(async () => {
 							music.play();
-								
+
 							while (music.currentTime <= 0.01) {
 								await new Promise((resolve) =>
 									setTimeout(resolve, 10)
@@ -73,20 +74,15 @@ function App() {
 					<div id="cts" className="duration-300 opacity-0">
 						click to start
 					</div>
-					<div className="w-1/4 h-2 duration-300  bg-ltpost rounded-full overflow-hidden">
+					<div className="w-1/4 h-2 duration-300  bg-post rounded-full overflow-hidden">
 						<div
 							id="loadBar"
-							className="  duration-300  h-full bg-colors-green rounded-full"
+							className="  duration-300  h-full bg-bact rounded-full"
 							style={{
 								width: loadingBar + "%",
 							}}></div>
 					</div>
 				</div>
-			) : (
-				<></>
-			)}
-			{clicked ? (
-				<MainMenu setClicked={setClicked} setPlay={setPlay} />
 			) : (
 				<></>
 			)}

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { useWindowDimensions } from "./Utility/Utils";
-import { svg } from "./Utility/VectorGraphics";
+import { useWindowDimensions } from "../Utility/Utils";
+import { svg } from "../Utility/VectorGraphics";
 
 function Intro() {
 	const { height, width } = useWindowDimensions();

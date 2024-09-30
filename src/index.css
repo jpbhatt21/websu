@@ -32,6 +32,20 @@
 .spin {
   animation: spin 1s linear infinite;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @keyframes spin {
   0% {
     transform: rotate(0deg);
@@ -178,11 +192,11 @@
 @keyframes slide-in {
   0% {
     transform: translateX(-100%);
-    opacity: 0;
+    
   }
   100% {
     transform: translateX(0);
-    opacity: 1;
+
   }
 }
 
@@ -309,9 +323,19 @@
   }
 }
 .badum{
-  animation: badum 100s linear 2.9s infinite forwards;
+  animation: badum 100s linear infinite forwards;
 }
-
+.badum2{
+  animation: badum2 0.5s 2.8s;
+}
+@keyframes badum2 {
+  0% {
+    scale:150%
+  }
+  100% {
+    scale:100%
+  }
+}
 @keyframes badum {
   0%,100% {
     transform: translate(-50%,-50%) rotate(0deg);

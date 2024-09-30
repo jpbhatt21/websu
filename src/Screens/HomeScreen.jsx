@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import Intro from "./Intro";
-import { fakeClick, music } from "./Utility/Utils";
-import { svg } from "./Utility/VectorGraphics";
+import Intro from "../Components/Intro";
+import { fakeClick, music } from "../Utility/Utils";
+import { svg } from "../Utility/VectorGraphics";
 let colors = {
 	screenBackground: [
 		"#11292b",
@@ -64,29 +64,42 @@ let colors = {
 		"#947f9a",
 	],
 };
-let context = new AudioContext();
-let source = context.createMediaElementSource(music);
-let anazlyzer = context.createAnalyser();
-source.connect(anazlyzer);
-anazlyzer.connect(context.destination);
-anazlyzer.fftSize = 64;
-let bufferLength = anazlyzer.frequencyBinCount;
+let context = null;
+let source = null;
+let anazlyzer = null;
+let bufferLength = null;
 let skewDeg = 8;
-function MainMenu({ setPlay, setClicked }) {
+function MainMenu({ props }) {
+	if (!context) {
+		context = new AudioContext();
+		source = context.createMediaElementSource(music);
+		anazlyzer = context.createAnalyser();
+		source.connect(anazlyzer);
+		anazlyzer.connect(context.destination);
+		anazlyzer.fftSize = 64;
+		bufferLength = anazlyzer.frequencyBinCount;
+	}
 	const [ind, setInd] = useState(parseInt(Math.random() * 8));
-
-	let audioVisualizerHeight = window.innerWidth/2 * 0.53125;
-	let logoHeight = (window.innerWidth/2 * 2) / 3;
+	let audioVisualizerHeight = (window.innerWidth / 2) * 0.53125;
+	let logoHeight = ((window.innerWidth / 2) * 2) / 3;
 	let audioVisualizerBarWidth = 0.0314 * audioVisualizerHeight;
 	let barHeight = audioVisualizerHeight / 8;
 	let top = 50;
 	function keyaction(e) {
 		if (e.key == "Escape") {
+			try{
+				if (document.getElementById("settingsPage")) {
+					stb.click();
+					return
+			}}
+			catch(e){}
 			if (horizontalMenu.style.width == "100%") {
 				logoClickScaler.style.scale = "100%";
 				setLeft(0);
 				horizontalMenu.style.width = "0%";
+				props.setShowTopBar(false);
 			}
+			
 		}
 	}
 	useEffect(() => {
@@ -101,47 +114,44 @@ function MainMenu({ setPlay, setClicked }) {
 			init = randint;
 			setInd(init);
 		}, 30000);
-		setTimeout(() => {
-			document.addEventListener("keydown", keyaction);
-			let children = audioVisva.children;
-			let data = new Uint8Array(bufferLength);
-			let avg = 0;
-			setInterval(() => {
-				anazlyzer.getByteFrequencyData(data);
-				avg = data.reduce((a, b) => {
-					return a + b;
+		setTimeout(
+			() => {
+				document.addEventListener("keydown", keyaction);
+				let children = audioVisva.children;
+				let data = new Uint8Array(bufferLength);
+				let avg = 0;
+				let val = 0;
+				setInterval(() => {
+					anazlyzer.getByteFrequencyData(data);
+					avg = data.reduce((a, b) => {
+						return a + b;
+					}, 0);
+					avg /= 32;
+					avg = 0.75 + avg / 512;
+					for (let i = 0; i < 25; i++) {
+						val = (data[i + 3] / 255) * barHeight + "px";
+						children[i].style.height = val;
+						children[i + 25].style.height = val;
+						children[i + 50].style.height = val;
+						children[i + 75].style.height = val;
+					}
+					children[100].style.height =
+						(data[3] / 255) * barHeight + "px";
+					setLogoScale(avg);
 				}, 0);
-				avg /= 32;
-				avg = 0.75 + avg / 512;
-				for (let i = 7; i < bufferLength; i++) {
-					children[i - 7].style.height =
-						(data[i] / 255) * barHeight + "px";
-				}
-				for (let i = 25; i < bufferLength + 18; i++) {
-					children[i].style.height =
-						(data[i - 18] / 255) * barHeight + "px";
-				}
-				for (let i = 50; i < bufferLength + 43; i++) {
-					children[i].style.height =
-						(data[i - 43] / 255) * barHeight + "px";
-				}
-				for (let i = 75; i < bufferLength + 68; i++) {
-					children[i].style.height =
-						(data[i - 68] / 255) * barHeight + "px";
-				}
-				children[100].style.height = (data[7] / 255) * barHeight + "px";
-				setLogoScale(avg);
-			}, 0);
-		}, 2900);
+			},
+			props.initLoad ? 3000 : 100
+		);
 	}, []);
 	const [left, setLeft] = useState(0);
 	const [clickScale, setClickScale] = useState(1);
 	const [logoScale, setLogoScale] = useState(1);
+	if (left != 0 && !props.showTopBar) setLeft(0);
 	return (
 		<>
 			<div
 				id="mainMenuScr"
-				className="w-full fixed h-full flex duration-[10s] items-center text-white justify-center"
+				className="w-full fade-in fixed h-full flex duration-[10s] items-center text-white justify-center"
 				style={{
 					backgroundColor: colors.screenBackground[ind],
 				}}>
@@ -282,7 +292,10 @@ function MainMenu({ setPlay, setClicked }) {
 						className="w-0 h-1/6 bg-post duration-300 flex bg-opacity-75 overflow-hidden  ">
 						<div className="h-full  w-[20vw]"></div>
 						<div
-							className="h-full hover:-ml-[5vw] group flex items-center justify-center pr-[7vw] hover:w-[20vw] w-[15vw] duration-300  shadow-md  bg-ltpost "
+							className="h-full hover:-ml-[5vw] group flex items-center justify-center pr-[5vw] hover:w-[20vw] w-[15vw] duration-300  shadow-md  bg-ltpost "
+							onClick={() => {
+								stb.click();
+							}}
 							style={{
 								transform:
 									"skew(-" +
@@ -312,14 +325,15 @@ function MainMenu({ setPlay, setClicked }) {
 							</div>
 						</div>
 						<div
-							className="h-full  w-[15vw] hover:w-[20vw] group flex items-center justify-center pl-[7vw] duration-300 shadow-md  bg-colors-green"
+							className="h-full  w-[15vw] hover:w-[20vw] group flex items-center justify-center pl-[5vw] duration-300 shadow-md  bg-colors-green"
 							onClick={() => {
+								document.removeEventListener("keydown", keyaction);
+								props.setAddSongMenuEventListener(true);
 								mainMenuScr.style.transitionDuration = "0.5s";
 								mainMenuScr.style.opacity = 0;
-								setPlay(true);
 								fakeClick(0, true);
 								setTimeout(() => {
-									setClicked(false);
+									props.setShowHome(false);
 								}, 500);
 							}}
 							style={{
@@ -380,11 +394,41 @@ function MainMenu({ setPlay, setClicked }) {
 								<div className=" text-lg">Credits</div>
 							</div>
 						</div>
+						<div
+							className="h-full -ml-[0.5vw] w-[10vw] group  hover:w-[15vw] flex items-center justify-center duration-300 shadow-md  bg-colors-red"
+							style={{
+								transform:
+									"skew(-" +
+									skewDeg +
+									"deg,-" +
+									skewDeg +
+									"deg) rotate(" +
+									skewDeg +
+									"deg)",
+							}}>
+							<div
+								className="w-[10vw] h-full flex flex-col items-center justify-center"
+								style={{
+									transform:
+										"skew(" +
+										skewDeg +
+										"deg," +
+										skewDeg +
+										"deg) rotate(-" +
+										skewDeg +
+										"deg)",
+								}}>
+								<div className="h-1/3 bop duration-300 aspect-square">
+									{svg.crossIcon2}
+								</div>
+								<div className=" text-lg">Exit</div>
+							</div>
+						</div>
 					</div>
 				</div>
 				<div
 					id="logoClickScaler"
-					className="duration-300 transition-all pointer-events-auto   hover:brightness-110  hover:scale-[1.15] fixed"
+					className={"duration-300 transition-all pointer-events-auto   hover:brightness-110  hover:scale-[1.15] fixed "+(props.initLoad?" badum2":"")}
 					style={{
 						marginLeft: -left + "%",
 					}}>
@@ -400,6 +444,7 @@ function MainMenu({ setPlay, setClicked }) {
 							.map((x, i) => {
 								return (
 									<div
+									key={"av+"+i}
 										className="w-3 h-12  absolute bg-[#a49bce]"
 										style={{
 											offsetDistance: i + "%",
@@ -458,7 +503,7 @@ function MainMenu({ setPlay, setClicked }) {
 										logoClickScaler.style.scale = "50%";
 										setLeft(30);
 										horizontalMenu.style.width = "100%";
-
+										props.setShowTopBar(true);
 										return;
 									}}
 								/>
@@ -576,10 +621,14 @@ function MainMenu({ setPlay, setClicked }) {
 			<div
 				className="w-full bg-white  pointer-events-none h-full fixed  opacity-0"
 				style={{
-					animation: "fadeIn ease-in-out 1s 2.9s reverse",
+					animation: props.initLoad ? (
+						"fadeIn ease-in-out 1s 2.9s reverse"
+					) : (
+						<></>
+					),
 				}}></div>
 
-			<Intro />
+			{props.initLoad ? <Intro /> : <></>}
 		</>
 	);
 }

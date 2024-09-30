@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-function Confirm({ fun, setFun }) {
+function Confirm({ props }) {
 	let height = (window.innerHeight / 2) ;
 	let width = (window.innerWidth / 4) * 3;
 	const [clearing, setClearing] = useState(0);
@@ -15,7 +15,7 @@ function Confirm({ fun, setFun }) {
 	const [clicked, setClicked] = useState(0);
 	useEffect(() => {
 		if (clicked == 4) {
-			fun.function();
+			props.resetFunction.function();
             setTimeout(() => {
                 setClicked(5);},10)
 			setTimeout(() => {
@@ -33,7 +33,7 @@ function Confirm({ fun, setFun }) {
 				if (e.target != e.currentTarget) return;
 				e.currentTarget.style.opacity = "0";
 				setTimeout(() => {
-					setFun(null);
+					props.setResetFunction(null);
 				}, 300);
 			}}>
 			<div className="text-bact text-[3vh] lexend mt-[10vh]  font-semibold">

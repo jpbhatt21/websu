@@ -55,7 +55,7 @@ function repeater(time) {
 				musicPlaying.style.opacity = "1";
 				musicPaused.style.opacity = "0";
 			}
-			if (music.muted || !interaction) {
+			if (music.muted) {
 				speakerIcon.style.color = "";
 				slashLine.style.height = "100%";
 			} else {
@@ -108,9 +108,6 @@ function MusicPlayer() {
 					<div
 						className="h-1/3 aspect-square items-center justify-center flex flex-wrap"
 						onClick={() => {
-							console.log(clickToUnmute.style.height);
-							if (clickToUnmute.style.height != "0px") return;
-
 							if (music.paused) {
 								music.play();
 							} else {
@@ -168,7 +165,6 @@ function MusicPlayer() {
 						id="speakerIcon" //Mute-Unmute Button
 						className="h-1/3 text-[#9393934C] flex duration-300 items-center "
 						onClick={() => {
-							if (clickToUnmute.style.height != "0px") return;
 							music.muted = !music.muted;
 						}}>
 						{svg.unmuteIcon}

@@ -1,33 +1,35 @@
 export let backgroundImage = document.getElementById("backgroundImage");
-export let loadingBar=0
-export function setLoadingBar(x){
-	loadingBar+=x
-	try{
-		loadBar.style.width=loadingBar+"%"
-		if(loadingBar>=100){
-			setTimeout(()=>{
-				cts.style.opacity=1
-				loadBar.parentElement.style.opacity=0
-			},300)
+export let loadingBar = 0;
+export function setLoadingBar(x) {
+	loadingBar += x;
+	try {
+		loadBar.style.width = loadingBar + "%";
+		if (loadingBar >= 100) {
+			setTimeout(() => {
+				cts.style.opacity = 1;
+				loadBar.parentElement.style.opacity = 0;
+			}, 300);
 		}
-	}
-	catch(e){}
-
+	} catch (e) {}
 }
-export let music = new Audio();
-music.src="/audio.mp3"
-music.load()
-music.pause()
+export let music = null;
+export function initializeMusic() {
+	music = new Audio();
+	music.src = "/audio.mp3";
+	music.load();
+	music.title = "Triangles";
+	music.pause();
+	setSettings(settings)
+}
 backgroundImage.src = "/original_1.jpg";
 backgroundImage.style.opacity = 0;
 setTimeout(() => {
 	backgroundImage.style.opacity = 1;
 }, 300);
 
-
 import { Shader, Texture } from "pixi.js";
 import { bSliderPath, lSliderPath, pSliderPath, setCs } from "./Sliders";
-import { settings } from "../SettingsValues";
+import { setSettings, settings } from "../SettingsValues";
 import { useEffect, useState } from "react";
 let musicLoaded = false;
 let videoLoaded = false;
@@ -644,7 +646,7 @@ export function fakeClick(index, index2, mode = false) {
 		}
 		if (index2) {
 			console.log("yeaaa");
-			scrollMenu.scrollTo({ top: 1 * 40 * scale,behavior:"instant" });
+			scrollMenu.scrollTo({ top: 1 * 40 * scale, behavior: "instant" });
 		} else {
 			scrollMenu.scrollTo({
 				top: (index + 0.5) * 80 * scale,
@@ -910,4 +912,3 @@ export function setBeatmapPreviewData(data) {
 	previewArtist.innerHTML = data.artist;
 	previewVersion2.innerHTML = data.level;
 }
-

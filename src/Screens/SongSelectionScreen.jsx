@@ -22,8 +22,6 @@ import {
 import { svg } from "../Utility/VectorGraphics";
 import PlayArea from "./GamePlayScreen";
 import { uri, uri2 } from "../App";
-import MusicPlayer from "../Components/MusicPlayer";
-import MessageBox from "../Components/MessageBox";
 import PauseScreen from "./PauseScreen";
 import LoadScreen from "./LoadScreen";
 import Toggle from "../Components/Toggle";
@@ -37,7 +35,7 @@ let settingTimer = null;
 let playLastActiveSongTimeout = null;
 let offlineDBSearch = null;
 let scale = 1;
-function SongSelectionMenu({play}) {
+function SongSelectionMenu({ props }) {
 	const { height, width } = useWindowDimensions();
 	scale = settings.User_Interface.UI_Scale.value;
 	if (scale == 0) {
@@ -257,12 +255,22 @@ function SongSelectionMenu({play}) {
 				} else if (e.altKey && e.code == "KeyP") {
 					music.paused ? music.play() : music.pause();
 				}
-				if (e.key == "Escape" || (e.altKey && e.code == "Backquote")) {
+				if (e.key == "Escape" && !e.repeat) {
 					if (document.getElementById("resetConfirm")) {
 						document.getElementById("resetConfirm").click();
 					} else if (document.getElementById("settingsPage")) {
 						stb.click();
 					} else {
+						if (searchbox.value == "") {
+							props.setShowHome(true);
+							props.setShowTopBar(false)
+							setGlobalIndex(-1)
+							setTimeout(()=>{
+								props.setAddSongMenuEventListener(false);
+							},300)
+							document.removeEventListener("keydown", keyaction);
+							return;
+						}
 						searchbox.value = "";
 						searchbox.blur();
 						resetButton.click();
@@ -514,7 +522,6 @@ function SongSelectionMenu({play}) {
 		}
 	}
 	function scrollHandler() {
-		console.log("scrolling");
 		if (start) return;
 		setSctop(scrollMenu.scrollTop);
 		let select = onlineMode ? webSearchData : metaData;
@@ -639,8 +646,6 @@ function SongSelectionMenu({play}) {
 			setSearchKey(searchKey + 1);
 			setTimeout(() => {
 				if (onlineMode) {
-					console.log(prev);
-					console.log("scrolling");
 					scrollMenu.scrollTo({
 						top: prev - 2,
 						behavior: "instant",
@@ -654,12 +659,10 @@ function SongSelectionMenu({play}) {
 			}, 1);
 		}, 300);
 	}
-	useEffect(()=>{
-		if(play)
-		document.addEventListener("keydown", keyaction);
-		else
-		document.removeEventListener("keydown", keyaction)
-	},[play])
+	useEffect(() => {
+		if (props.addSongMenuEventListener) document.addEventListener("keydown", keyaction);
+		else document.removeEventListener("keydown", keyaction);
+	}, [props.addSongMenuEventListener]);
 	useEffect(() => {
 		if (!focus) return;
 		const request = indexedDB.open("websuStorage", 2);
@@ -713,7 +716,7 @@ function SongSelectionMenu({play}) {
 							},
 						});
 						offlineDBSearch.addAll(result);
-						
+
 						//setTimeout(() => {}, 2000);
 					}, 10);
 				};
@@ -785,7 +788,7 @@ function SongSelectionMenu({play}) {
 					}
 				};
 		};
-		setLoadingBar(100)
+		setLoadingBar(100);
 	}, [focus]);
 	useEffect(() => {
 		if (!start && prevMusic.length > 0) {
@@ -1482,7 +1485,8 @@ function SongSelectionMenu({play}) {
 	return (
 		<>
 			{" "}
-			<div
+			{
+				props.addSongMenuEventListener?<><div
 				className="fixed   w-[60vw] duration-300 h-1/2 top-1/4 -left-0 bg-opacity-40 bg-black"
 				style={{
 					transform:
@@ -1622,316 +1626,244 @@ function SongSelectionMenu({play}) {
 					</div>
 				</div>
 
-				<div
-					style={{
-						opacity: start ? 0 : 1,
-					}}
-					id="previewSearch"
-					className="w-full h-full flex pointer-events-none flex-col   fixed ">
+				{props.showTopBar ? (
 					<div
 						style={{
-							pointerEvents: start ? "none" : "auto",
-							backgroundColor: !settings.User_Interface
-								.UI_BackDrop.value
-								? "#252525"
-								: "",
-							backdropFilter: !settings.User_Interface.UI_BackDrop
-								.value
-								? "blur(0px)"
-								: "",
-							WebkitBackdropFilter: !settings.User_Interface
-								.UI_BackDrop.value
-								? " blur(0px) "
-								: "",
-							height: 60 * scale + "px",
-							gap: 8 * scale + "px",
-							paddingRight: 8 * scale + "px",
+							opacity: start ? 0 : 1,
 						}}
-						className="bg-post flex items-center justify-end duration-300 bg-opacity-50 z-20   border-bcol  border-b-2  backdrop-blur-md   w-full  top-0 left-0  ">
-						<div className="h-full flex items-center  w-full self-start">
-							<div
-								className="h-full  aspect-square group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
-								style={{}}>
-								<div
-									id="stb"
-									className="h-full flex items-center justify-center  aspect-square"
-									onClick={() => {
-										if (settingTimer) return;
-										if (settingsToggle) {
-											settingsPage.style.transform =
-												"translateX(-100%)";
-											settingsPage.style.opacity = 0;
-											if (
-												(metaFiles.length > 0 &&
-													!onlineMode) ||
-												(webSearchData.length > 0 &&
-													onlineMode)
-											)
-												previewContainer.style.opacity = 1;
-											scrollMenu.style.marginRight = "";
-											settingTimer = setTimeout(() => {
-												setSettingsToggle(
-													!settingsToggle
-												);
-												settingTimer = null;
-											}, 300);
-										} else {
-											setSettingsToggle(!settingsToggle);
-											settingTimer = setTimeout(() => {
-												settingTimer = null;
-											}, 300);
-										}
-									}}>
-									<div className="h-1/2 -mt-1  aspect-square">
-										{svg.settingsIcon}
-									</div>
-								</div>
-								<div
-									className="absolute delay-0 group-hover:delay-500 text-bcol group-hover:text-white opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 "
-									style={{
-										transform: "scale(" + scale + ")",
-									}}>
-									<div className="h-full ml-3 mt-28 bg-opacity-50 bg-post pb-[6px] p-1  rounded-md  min-w-fit flex">
-										Settings
-									</div>
-								</div>
-							</div>
-							<div
-								className="h-[60px] w-64"
-								style={{
-									transform: "scale(" + scale + ")",
-									marginLeft: (scale - 1) * 128 + "px",
-								}}>
-								<MusicPlayer />
-							</div>
-						</div>
-
+						id="previewSearch2"
+						className="w-full h-full flex pointer-events-none flex-col z-[11]  fixed ">
 						<div
-							className="h-full justify-end duration-300 flex"
 							style={{
-								opacity: !switchToggle ? "1" : "0",
-								pointerEvents: !switchToggle ? "all" : "none",
-							}}>
+								pointerEvents: start ? "none" : "auto",
+								height: 60 * scale + "px",
+								gap: 8 * scale + "px",
+								paddingRight: 8 * scale + "px",
+							}}
+							className=" flex items-center fade-in2 justify-end duration-300  absolute  w-1/2  top-0 right-0  ">
 							<div
-								className="h-full aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
+								className="h-full justify-end duration-300 flex"
 								style={{
-									opacity: metaFiles.length < 1 ? "1" : "0",
-									pointerEvents:
-										metaFiles.length < 1 ? "all" : "none",
-									marginTop: 2 * scale + "px",
+									opacity: !switchToggle ? "1" : "0",
+									pointerEvents: !switchToggle
+										? "all"
+										: "none",
 								}}>
-								<div className="w-1/2 h-fit  ">
-									<label htmlFor="loadDemo">
-										{svg.demoIcon}
-									</label>
-								</div>
-								<button
-									id="loadDemo"
-									className="hidden"
-									onClick={(e) => {
-										setDownloadQueue((prev) => [
-											...prev,
-											[1451291, false],
-											[1974878, false],
-										]);
-
-										return;
-									}}></button>
 								<div
+									className="h-full aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
 									style={{
-										transform: "scale(" + scale + ")",
-									}}
-									className="absolute delay-0 text-sm group-hover:delay-500 text-bcol opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
-									<div className="h-full w-full  mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
-										Load Demo
+										opacity:
+											metaFiles.length < 1 ? "1" : "0",
+										pointerEvents:
+											metaFiles.length < 1
+												? "all"
+												: "none",
+										marginTop: 2 * scale + "px",
+									}}>
+									<div className="w-1/2 h-fit  ">
+										<label htmlFor="loadDemo">
+											{svg.demoIcon}
+										</label>
+									</div>
+									<button
+										id="loadDemo"
+										className="hidden"
+										onClick={(e) => {
+											setDownloadQueue((prev) => [
+												...prev,
+												[1451291, false],
+												[1974878, false],
+											]);
+
+											return;
+										}}></button>
+									<div
+										style={{
+											transform: "scale(" + scale + ")",
+										}}
+										className="absolute delay-0 text-sm group-hover:delay-500 text-bcol opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+										<div className="h-full w-full  mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
+											Load Demo
+										</div>
+									</div>
+								</div>
+								<div className="h-full  aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+									<div
+										onClick={toggleDeleteMode}
+										id="deleteModeButton"
+										className="bg-post outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-white aspect-square h-3/5"
+										style={{
+											color: deleteMode ? "#b3b3b3" : "",
+											outlineColor: deleteMode
+												? "#939393"
+												: "",
+											backgroundColor: deleteMode
+												? "#2525254C"
+												: "",
+											borderRadius: 6 * scale + "px",
+											padding: 6 * scale + "px",
+										}}>
+										{svg.deleteIcon}
+									</div>
+									<div
+										style={{
+											transform: "scale(" + scale + ")",
+										}}
+										className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+										<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
+											Delete Mode
+										</div>
+									</div>
+								</div>
+								<div className="h-full group aspect-[2/3] text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+									<div className="w-1/2 ">
+										<label htmlFor="inpp">
+											{svg.uploadIcon}
+										</label>
+									</div>
+									<input
+										multiple
+										type="file"
+										className="hidden"
+										id="inpp"
+										accept=".osz"
+										onChange={(e) => {
+											getFiles(e.target.files);
+										}}
+									/>
+									<div
+										style={{
+											transform: "scale(" + scale + ")",
+										}}
+										className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+										<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
+											Upload Beatmap
+										</div>
 									</div>
 								</div>
 							</div>
-							<div className="h-full  aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
-								<div
-									onClick={toggleDeleteMode}
-									id="deleteModeButton"
-									className="bg-post outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-white aspect-square h-3/5"
-									style={{
-										color: deleteMode ? "#b3b3b3" : "",
-										outlineColor: deleteMode
-											? "#939393"
-											: "",
-										backgroundColor: deleteMode
-											? "#2525254C"
-											: "",
-										borderRadius: 6 * scale + "px",
-										padding: 6 * scale + "px",
-									}}>
-									{svg.deleteIcon}
-								</div>
+							<div
+								className=" scale-75 text-bcol duration-300  aspect-square h-2/3"
+								style={{
+									opacity: !switchToggle ? "1" : "0.25",
+									marginLeft: -5 * scale + "px",
+								}}>
+								{svg.offlineIcon}
+							</div>
+							<div className="h-full w-10 group aspect-square text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+								<Toggle
+									value={switchToggle}
+									onClick={toggleOnlineMode}
+									mode={true}
+									title="onlineModeSwitch"
+								/>
+
 								<div
 									style={{
 										transform: "scale(" + scale + ")",
 									}}
 									className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
 									<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
-										Delete Mode
+										Go {switchToggle ? "Offline" : "Online"}
 									</div>
 								</div>
 							</div>
-							<div className="h-full group aspect-[2/3] text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
-								<div className="w-1/2 ">
-									<label htmlFor="inpp">
-										{svg.uploadIcon}
-									</label>
-								</div>
+							<div
+								className=" scale-75  text-bcol duration-300 aspect-square h-2/3"
+								style={{
+									opacity: switchToggle ? "1" : "0.25",
+								}}>
+								{svg.onlineIcon}
+							</div>
+
+							<div
+								style={{ borderRadius: 6 * scale + "px" }}
+								className="bg-post p-1 pl-2 outline-bcol outline-1 flex items-center   outline bg-opacity-30 w-[20vw] min-w-14 h-2/3 ">
 								<input
-									multiple
-									type="file"
-									className="hidden"
-									id="inpp"
-									accept=".osz"
-									onChange={(e) => {
-										getFiles(e.target.files);
+									id="searchbox"
+									placeholder="Search"
+									onChange={searchBeatMaps}
+									type="text"
+									className=" w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none"
+									style={{
+										fontSize: 16 * scale + "px",
 									}}
 								/>
+							</div>
+							<div>
 								<div
+									className="text-bact text-center"
 									style={{
-										transform: "scale(" + scale + ")",
-									}}
-									className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
-									<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
-										Upload Beatmap
-									</div>
-								</div>
+										width: 96 * scale + "px",
+									}}></div>
 							</div>
+							<div
+								id="resetButton"
+								className="w-16 h-16 bg-black hidden"
+								onClick={() => {
+									let ind = -1;
+
+									if (onlineMode) setWebSearchData([]);
+									else {
+										setMetaData(metaFiles);
+
+										if (
+											metaData.length > 0 &&
+											metaData[0].setId ==
+												metaFiles[0].setId
+										)
+											return;
+									}
+									setStationary(false);
+									setSearchKey(0);
+									setGlobalIndex(ind);
+									setSecondaryIndex(0);
+									setTimeout(() => {
+										scrollMenu.scrollTo({
+											top: 4,
+											behavior: "instant",
+										});
+										scrollMenu.scrollTo({
+											top: 2,
+											behavior: "smooth",
+										});
+									}, 10);
+									resetView();
+								}}></div>
 						</div>
-						<div
-							className=" scale-75 text-bcol duration-300  aspect-square h-2/3"
-							style={{
-								opacity: !switchToggle ? "1" : "0.25",
-								marginLeft: -5 * scale + "px",
-							}}>
-							{svg.offlineIcon}
-						</div>
-						<div className="h-full w-10 group aspect-square text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
-							<Toggle
-								value={switchToggle}
-								onClick={toggleOnlineMode}
-								mode={true}
-								title="onlineModeSwitch"
+
+						{settingsToggle ? (
+							<SettingsScreen
+								setUpdateSettings={setUpdateSettings}
+								setFun={setFun}
+								scale={scale}
 							/>
-
-							<div
-								style={{ transform: "scale(" + scale + ")" }}
-								className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
-								<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
-									Go {switchToggle ? "Offline" : "Online"}
-								</div>
-							</div>
-						</div>
-						<div
-							className=" scale-75  text-bcol duration-300 aspect-square h-2/3"
-							style={{
-								opacity: switchToggle ? "1" : "0.25",
-							}}>
-							{svg.onlineIcon}
-						</div>
-
-						<div
-							style={{ borderRadius: 6 * scale + "px" }}
-							className="bg-post p-1 pl-2 outline-bcol outline-1 flex items-center   outline bg-opacity-30 w-[20vw] min-w-14 h-2/3 ">
-							<input
-								id="searchbox"
-								placeholder="Search"
-								onChange={searchBeatMaps}
-								type="text"
-								className=" w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none"
-								style={{
-									fontSize: 16 * scale + "px",
-								}}
-							/>
-						</div>
-						<div>
-							<div
-								id="dateTime"
-								className="text-bact text-center"
-								style={{
-									fontSize: 16 * scale + "px",
-									width: 96 * scale + "px",
-								}}>
-								00:00:00
-							</div>
-							<div
-								id="playTime"
-								className="text-bact text-center"
-								style={{
-									fontSize: 16 * scale + "px",
-									width: 96 * scale + "px",
-								}}>
-								00:00:00
-							</div>
-						</div>
-						<div
-							id="resetButton"
-							className="w-16 h-16 bg-black hidden"
-							onClick={() => {
-								let ind = -1;
-
-								if (onlineMode) setWebSearchData([]);
-								else {
-									setMetaData(metaFiles);
-
-									if (
-										metaData.length > 0 &&
-										metaData[0].setId == metaFiles[0].setId
-									)
-										return;
-								}
-								setStationary(false);
-								setSearchKey(0);
-								setGlobalIndex(ind);
-								setSecondaryIndex(0);
-								setTimeout(() => {
-									console.log("doneee");
-									scrollMenu.scrollTo({
-										top: 4,
-										behavior: "instant",
-									});
-									scrollMenu.scrollTo({
-										top: 2,
-										behavior: "smooth",
-									});
-								}, 10);
-								resetView();
-							}}></div>
+						) : (
+							<></>
+						)}
 					</div>
-
-					<div
-						className="duration-300"
-						id="previewContainer"
-						style={{
-							opacity:
-								(switchToggle && webSearchData.length > 0) ||
-								(!switchToggle &&
-									!onlineMode &&
-									metaData.length > 0)
-									? !settingsToggle
-										? 1
-										: 0
-									: 0,
-						}}>
-						<Preview
-							backdrop={settings.User_Interface.UI_BackDrop.value}
-						/>
-					</div>
-					{settingsToggle ? (
-						<SettingsScreen
-							setUpdateSettings={setUpdateSettings}
-							setFun={setFun}
-							scale={scale}
-						/>
-					) : (
-						<></>
-					)}
+				) : (
+					<></>
+				)}
+				<div
+					className="duration-300 fixed"
+					id="previewContainer"
+					style={{
+						opacity:
+							(switchToggle && webSearchData.length > 0) ||
+							(!switchToggle &&
+								!onlineMode &&
+								metaData.length > 0)
+								? !settingsToggle
+									? 1
+									: 0
+								: 0,
+						marginTop: 60 * scale + "px",
+					}}>
+					<Preview
+						backdrop={settings.User_Interface.UI_BackDrop.value}
+					/>
 				</div>
-
 				<LoadScreen start={start} />
 				<PauseScreen setStart={setStart} setAttempts={setAttempts} />
 			</div>
@@ -1954,15 +1886,16 @@ function SongSelectionMenu({play}) {
 				/>
 			) : (
 				<></>
-			)}
-			<MessageBox
+			)}</>:<></>
+			}
+			{/* <MessageBox
 				downloadHead={downloadHead}
 				downloadQueue={downloadQueue}
 				unzipCounter={unzipHead}
 				unzipTotal={unzipQueueLength}
 				showFps={settings.User_Interface.Show_FPS.value}
-			/>
-			{fun ? <Confirm fun={fun} setFun={setFun} /> : <></>}
+			/> */}
+			{/* {fun ? <Confirm fun={fun} setFun={setFun} /> : <></>} */}
 		</>
 	);
 }
