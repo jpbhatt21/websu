@@ -1,7 +1,7 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap&family=Lexend:wght@100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap&family=Lexend:wght@100..900&family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap');
 .montserrat {
   font-family: "Montserrat", sans-serif;
   font-optical-sizing: auto;
@@ -40,7 +40,6 @@
     transform: rotate(360deg);
   }
 }
-
 
 @keyframes fadeIn {
   0% {
@@ -252,6 +251,198 @@
     background-position: 100% 100%;
   }
 }
+@keyframes widen {
+  0%,50%{
+    letter-spacing: 0.05em;
+    scale: 100%;
+    opacity: 1;
+  }
+  99%{
+    letter-spacing: 0.2em;
+    scale: 110%;
+    opacity: 1;
+
+  }
+  100%{
+    letter-spacing: 0.2em;
+    scale: 110%;
+    opacity: 0;
+  }
+}
+@keyframes display{
+  0%,99%{
+    display: none;
+    opacity: 0;
+
+  }
+  100%{
+    opacity: 1;
+    display: block;
+    
+  }
+}
+@keyframes draw {
+  from {
+    stroke-dasharray: 0, 100;
+    stroke-dashoffset: 0;
+  }
+  to {
+    stroke-dasharray: 200, 0;
+    stroke-dashoffset: 200;
+  }
+}
+.logo-intro{
+  animation: logo-intro 1s cubic-bezier(0.075, 0.82, 0.165, 1) 2.1s 1 forwards;
+}
+@keyframes logo-intro {
+  0% {
+    opacity: 0;
+    transform: scale(3);
+  }
+  75%{
+    opacity: 1;
+    transform: scale(1.5);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+.badum{
+  animation: badum 100s linear 2.9s infinite forwards;
+}
+
+@keyframes badum {
+  0%,100% {
+    transform: translate(-50%,-50%) rotate(0deg);
+  }
+  99.99% {
+    transform: translate(-50%,-50%) rotate(359.99deg);
+  }
+}
+.path {
+  animation: draw 2s   0.9s  forwards;
+}
+#logoBop{
+}
+@keyframes logoBop{
+  0%{
+    height: 86%;
+  }
+  100%{
+    height:66.67%;
+  }
+}
+.triangle {
+  width: 0;
+	height: 0;
+	border-left: 25px solid transparent;
+	border-right: 25px solid transparent;
+	border-bottom: 50px solid #b3b3b3;
+  transform: translate(-50%,-50%);
+}
+
+.triangle2 {
+  width: 0;
+	height: 0;
+	border-left: 22px solid transparent;
+	border-right: 22px solid transparent;
+	border-bottom: 47px solid #1b1b1b;
+  transform: translate(-50%,-50%);
+}
+
+.brighten {
+  animation: showx 2.9s, brighten 0.1s cubic-bezier(0.075, 0.82, 0.165, 1) 2.9s 1 forwards;
+}
+
+@keyframes brighten2 {
+  100% {
+    filter: brightness(1);
+  }
+  0% {
+    filter: brightness(5);
+  }
+}
+@keyframes showx{
+  0%{
+    opacity: 1;
+  }
+  100%{
+    opacity: 1;
+  }
+}
+
+@keyframes brighten {
+  0% {
+    filter: brightness(1);
+  }
+  100% {
+    filter: brightness(10);
+  }
+}
+
+@keyframes oxts{
+ 0%{
+  opacity: 1;
+ }
+ 99%{
+  opacity: 1;
+ }
+  100%{
+    opacity: 0;
+  }
+}
+@keyframes oxts1 {
+  0%{
+    width: 100%;
+    scale: 0.8;
+  }
+  100%{
+    width: 100%;
+    scale: 0.7;
+  }
+}
+@keyframes oxts2 {
+  0%{
+    width: 40%;
+    scale: 1.2;
+  }
+  100%{
+    width: 40%;
+    scale: 1.1;
+  }
+}
+@keyframes oxts3 {
+  0%{
+    
+    scale: 2;
+  }
+  100%{
+    
+    scale: 2.2;
+  }
+}
+
+.group:hover .bop{
+  animation: bop  ease-in-out 1s infinite;
+
+}
+
+@keyframes bop {
+  0%,100%{
+    transform: rotate(0deg) translate(0%,0%);
+  }
+ 
+  50%{
+    transform:   translate(0%,-10%);
+
+  }
+  
+  
+}
+
+
+
 
 
 

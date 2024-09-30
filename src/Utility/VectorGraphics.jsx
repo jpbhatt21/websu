@@ -75,10 +75,7 @@ const crossIcon = (
 	</svg>
 );
 const deleteIcon = (
-	<svg
-		viewBox="0 0 24 24"
-		fill="none"
-		xmlns="http://www.w3.org/2000/svg">
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
 		<g
 			id="SVGRepo_tracerCarrier"
@@ -250,7 +247,7 @@ const playIcon = (
 				<g
 					id="Dribbble-Light-Preview"
 					transform="translate(-347.000000, -3766.000000)"
-					fill="#b3b3b3">
+					fill="currentColor">
 					<g id="icons" transform="translate(56.000000, 160.000000)">
 						<path
 							d="M296.494737,3608.57322 L292.500752,3606.14219 C291.83208,3605.73542 291,3606.25002 291,3607.06891 L291,3611.93095 C291,3612.7509 291.83208,3613.26444 292.500752,3612.85767 L296.494737,3610.42771 C297.168421,3610.01774 297.168421,3608.98319 296.494737,3608.57322"
@@ -314,272 +311,346 @@ const onlineIcon = (
 	</svg>
 );
 const tickIcon = (
-	<svg 
-  viewBox="0 0 16 16" 
-  xmlns="http://www.w3.org/2000/svg" 
-  version="1.1" 
-  fill="none" 
-  stroke="currentColor" 
-  strokeLinecap="round" 
-  strokeLinejoin="round" 
-  strokeWidth="1.5"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <polyline points="2.75 8.75,6.25 12.25,13.25 4.75"></polyline>
-  </g>
-</svg>
-)
+	<svg
+		viewBox="0 0 16 16"
+		xmlns="http://www.w3.org/2000/svg"
+		version="1.1"
+		fill="none"
+		stroke="currentColor"
+		strokeLinecap="round"
+		strokeLinejoin="round"
+		strokeWidth="1.5">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<polyline points="2.75 8.75,6.25 12.25,13.25 4.75"></polyline>
+		</g>
+	</svg>
+);
 const settingsIcon = (
-	<svg 
-	  viewBox="0 0 24 24" 
-	  fill="none" 
-	  xmlns="http://www.w3.org/2000/svg"
-	>
-	  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-	  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-	  <g id="SVGRepo_iconCarrier">
-		<path 
-		  fillRule="evenodd" 
-		  clipRule="evenodd" 
-		  d="M14.2788 2.15224C13.9085 2 13.439 2 12.5 2C11.561 2 11.0915 2 10.7212 2.15224C10.2274 2.35523 9.83509 2.74458 9.63056 3.23463C9.53719 3.45834 9.50065 3.7185 9.48635 4.09799C9.46534 4.65568 9.17716 5.17189 8.69017 5.45093C8.20318 5.72996 7.60864 5.71954 7.11149 5.45876C6.77318 5.2813 6.52789 5.18262 6.28599 5.15102C5.75609 5.08178 5.22018 5.22429 4.79616 5.5472C4.47814 5.78938 4.24339 6.1929 3.7739 6.99993C3.30441 7.80697 3.06967 8.21048 3.01735 8.60491C2.94758 9.1308 3.09118 9.66266 3.41655 10.0835C3.56506 10.2756 3.77377 10.437 4.0977 10.639C4.57391 10.936 4.88032 11.4419 4.88029 12C4.88026 12.5581 4.57386 13.0639 4.0977 13.3608C3.77372 13.5629 3.56497 13.7244 3.41645 13.9165C3.09108 14.3373 2.94749 14.8691 3.01725 15.395C3.06957 15.7894 3.30432 16.193 3.7738 17C4.24329 17.807 4.47804 18.2106 4.79606 18.4527C5.22008 18.7756 5.75599 18.9181 6.28589 18.8489C6.52778 18.8173 6.77305 18.7186 7.11133 18.5412C7.60852 18.2804 8.2031 18.27 8.69012 18.549C9.17714 18.8281 9.46533 19.3443 9.48635 19.9021C9.50065 20.2815 9.53719 20.5417 9.63056 20.7654C9.83509 21.2554 10.2274 21.6448 10.7212 21.8478C11.0915 22 11.561 22 12.5 22C13.439 22 13.9085 22 14.2788 21.8478C14.7726 21.6448 15.1649 21.2554 15.3694 20.7654C15.4628 20.5417 15.4994 20.2815 15.5137 19.902C15.5347 19.3443 15.8228 18.8281 16.3098 18.549C16.7968 18.2699 17.3914 18.2804 17.8886 18.5412C18.2269 18.7186 18.4721 18.8172 18.714 18.8488C19.2439 18.9181 19.7798 18.7756 20.2038 18.4527C20.5219 18.2105 20.7566 17.807 21.2261 16.9999C21.6956 16.1929 21.9303 15.7894 21.9827 15.395C22.0524 14.8691 21.9088 14.3372 21.5835 13.9164C21.4349 13.7243 21.2262 13.5628 20.9022 13.3608C20.4261 13.0639 20.1197 12.558 20.1197 11.9999C20.1197 11.4418 20.4261 10.9361 20.9022 10.6392C21.2263 10.4371 21.435 10.2757 21.5836 10.0835C21.9089 9.66273 22.0525 9.13087 21.9828 8.60497C21.9304 8.21055 21.6957 7.80703 21.2262 7C20.7567 6.19297 20.522 5.78945 20.2039 5.54727C19.7799 5.22436 19.244 5.08185 18.7141 5.15109C18.4722 5.18269 18.2269 5.28136 17.8887 5.4588C17.3915 5.71959 16.7969 5.73002 16.3099 5.45096C15.8229 5.17191 15.5347 4.65566 15.5136 4.09794C15.4993 3.71848 15.4628 3.45833 15.3694 3.23463C15.1649 2.74458 14.7726 2.35523 14.2788 2.15224ZM12.5 15C14.1695 15 15.5228 13.6569 15.5228 12C15.5228 10.3431 14.1695 9 12.5 9C10.8305 9 9.47716 10.3431 9.47716 12C9.47716 13.6569 10.8305 15 12.5 15Z" 
-		  fill="currentColor"
-		></path>
-	  </g>
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				fillRule="evenodd"
+				clipRule="evenodd"
+				d="M14.2788 2.15224C13.9085 2 13.439 2 12.5 2C11.561 2 11.0915 2 10.7212 2.15224C10.2274 2.35523 9.83509 2.74458 9.63056 3.23463C9.53719 3.45834 9.50065 3.7185 9.48635 4.09799C9.46534 4.65568 9.17716 5.17189 8.69017 5.45093C8.20318 5.72996 7.60864 5.71954 7.11149 5.45876C6.77318 5.2813 6.52789 5.18262 6.28599 5.15102C5.75609 5.08178 5.22018 5.22429 4.79616 5.5472C4.47814 5.78938 4.24339 6.1929 3.7739 6.99993C3.30441 7.80697 3.06967 8.21048 3.01735 8.60491C2.94758 9.1308 3.09118 9.66266 3.41655 10.0835C3.56506 10.2756 3.77377 10.437 4.0977 10.639C4.57391 10.936 4.88032 11.4419 4.88029 12C4.88026 12.5581 4.57386 13.0639 4.0977 13.3608C3.77372 13.5629 3.56497 13.7244 3.41645 13.9165C3.09108 14.3373 2.94749 14.8691 3.01725 15.395C3.06957 15.7894 3.30432 16.193 3.7738 17C4.24329 17.807 4.47804 18.2106 4.79606 18.4527C5.22008 18.7756 5.75599 18.9181 6.28589 18.8489C6.52778 18.8173 6.77305 18.7186 7.11133 18.5412C7.60852 18.2804 8.2031 18.27 8.69012 18.549C9.17714 18.8281 9.46533 19.3443 9.48635 19.9021C9.50065 20.2815 9.53719 20.5417 9.63056 20.7654C9.83509 21.2554 10.2274 21.6448 10.7212 21.8478C11.0915 22 11.561 22 12.5 22C13.439 22 13.9085 22 14.2788 21.8478C14.7726 21.6448 15.1649 21.2554 15.3694 20.7654C15.4628 20.5417 15.4994 20.2815 15.5137 19.902C15.5347 19.3443 15.8228 18.8281 16.3098 18.549C16.7968 18.2699 17.3914 18.2804 17.8886 18.5412C18.2269 18.7186 18.4721 18.8172 18.714 18.8488C19.2439 18.9181 19.7798 18.7756 20.2038 18.4527C20.5219 18.2105 20.7566 17.807 21.2261 16.9999C21.6956 16.1929 21.9303 15.7894 21.9827 15.395C22.0524 14.8691 21.9088 14.3372 21.5835 13.9164C21.4349 13.7243 21.2262 13.5628 20.9022 13.3608C20.4261 13.0639 20.1197 12.558 20.1197 11.9999C20.1197 11.4418 20.4261 10.9361 20.9022 10.6392C21.2263 10.4371 21.435 10.2757 21.5836 10.0835C21.9089 9.66273 22.0525 9.13087 21.9828 8.60497C21.9304 8.21055 21.6957 7.80703 21.2262 7C20.7567 6.19297 20.522 5.78945 20.2039 5.54727C19.7799 5.22436 19.244 5.08185 18.7141 5.15109C18.4722 5.18269 18.2269 5.28136 17.8887 5.4588C17.3915 5.71959 16.7969 5.73002 16.3099 5.45096C15.8229 5.17191 15.5347 4.65566 15.5136 4.09794C15.4993 3.71848 15.4628 3.45833 15.3694 3.23463C15.1649 2.74458 14.7726 2.35523 14.2788 2.15224ZM12.5 15C14.1695 15 15.5228 13.6569 15.5228 12C15.5228 10.3431 14.1695 9 12.5 9C10.8305 9 9.47716 10.3431 9.47716 12C9.47716 13.6569 10.8305 15 12.5 15Z"
+				fill="currentColor"></path>
+		</g>
 	</svg>
-  );
-const uploadIcon=(
-	<svg 
-  viewBox="0 0 24 24" 
-  xmlns="http://www.w3.org/2000/svg" 
-  fill="currentColor"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <title></title>
-    <g id="Complete">
-      <g id="upload">
-        <g>
-          <path 
-            d="M3,12.3v7a2,2,0,0,0,2,2H19a2,2,0,0,0,2-2v-7" 
-            fill="none" 
-            stroke="currentColor" 
-            strokeLinecap="round" 
-            strokeLinejoin="round" 
-            strokeWidth="2"
-          ></path>
-          <g>
-            <polyline 
-              data-name="Right" 
-              fill="none" 
-              id="Right-2" 
-              points="7.9 6.7 12 2.7 16.1 6.7" 
-              stroke="currentColor" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="2"
-            ></polyline>
-            <line 
-              fill="none" 
-              stroke="currentColor" 
-              strokeLinecap="round" 
-              strokeLinejoin="round" 
-              strokeWidth="2" 
-              x1="12" 
-              x2="12" 
-              y1="16.3" 
-              y2="4.8"
-            ></line>
-          </g>
-        </g>
-      </g>
-    </g>
-  </g>
-</svg>
-)
-const demoIcon=(
-	<svg 
-  viewBox="0 0 1024 1024" 
-  xmlns="http://www.w3.org/2000/svg" 
-  fill="currentColor"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <path 
-      fill="currentColor" 
-      d="M288 671.36v64.128A239.808 239.808 0 0 1 63.744 496.192a240.32 240.32 0 0 1 199.488-236.8 256.128 256.128 0 0 1 487.872-30.976A256.064 256.064 0 0 1 736 734.016v-64.768a192 192 0 0 0 3.328-377.92l-35.2-6.592-12.8-33.408a192.064 192.064 0 0 0-365.952 23.232l-9.92 40.896-41.472 7.04a176.32 176.32 0 0 0-146.24 173.568c0 91.968 70.464 167.36 160.256 175.232z"
-    ></path>
-    <path 
-      fill="currentColor" 
-      d="M416 736a32 32 0 0 1-27.776-47.872l128-224a32 32 0 1 1 55.552 31.744L471.168 672H608a32 32 0 0 1 27.776 47.872l-128 224a32 32 0 1 1-55.68-31.744L552.96 736H416z"
-    ></path>
-  </g>
-</svg>
-)
-const downIcon=(
-	<svg 
-  viewBox="0 0 24 24" 
-  xmlns="http://www.w3.org/2000/svg" 
-  fill="currentColor"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <path 
-      fill="currentColor" 
-      d="M22.987 10.25l-9 7.99c-.57.51-1.28.76-1.99.76s-1.42-.25-1.98-.74c0-.01-.01-.01-.01-.01l-.02-.02-8.98-7.98c-1.24-1.1-1.35-3.002-.25-4.242 1.1-1.24 3-1.35 4.23-.25l7.01 6.23 7.01-6.23c1.24-1.1 3.13-.99 4.24.25 1.1 1.24.98 3.13-.26 4.24z"
-    ></path>
-  </g>
-</svg>
-)
-const smileyIcon=(
-	<svg 
-  viewBox="0 0 76 76" 
-  xmlns="http://www.w3.org/2000/svg" 
-  xmlnsXlink="http://www.w3.org/1999/xlink" 
-  version="1.1" 
-  baseProfile="full" 
-  enableBackground="new 0 0 76.00 76.00" 
-  xmlSpace="preserve" 
-  fill="currentColor"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <path 
-      fill="currentColor" 
-      fillOpacity="1" 
-      strokeWidth="0.2" 
-      strokeLinejoin="round" 
-      d="M 24.9015,43.0378L 25.0963,43.4298C 26.1685,49.5853 31.5377,54.2651 38,54.2651C 44.4623,54.2651 49.8315,49.5854 50.9037,43.4299L 51.0985,43.0379C 51.0985,40.7643 52.6921,39.2955 54.9656,39.2955C 56.9428,39.2955 58.1863,41.1792 58.5833,43.0379C 57.6384,52.7654 47.9756,61.75 38,61.75C 28.0244,61.75 18.3616,52.7654 17.4167,43.0378C 17.8137,41.1792 19.0572,39.2954 21.0344,39.2954C 23.3079,39.2954 24.9015,40.7643 24.9015,43.0378 Z M 26.7727,20.5833C 29.8731,20.5833 32.3864,23.0966 32.3864,26.197C 32.3864,29.2973 29.8731,31.8106 26.7727,31.8106C 23.6724,31.8106 21.1591,29.2973 21.1591,26.197C 21.1591,23.0966 23.6724,20.5833 26.7727,20.5833 Z M 49.2273,20.5833C 52.3276,20.5833 54.8409,23.0966 54.8409,26.197C 54.8409,29.2973 52.3276,31.8106 49.2273,31.8106C 46.127,31.8106 43.6136,29.2973 43.6136,26.197C 43.6136,23.0966 46.127,20.5833 49.2273,20.5833 Z"
-    ></path>
-  </g>
-</svg>
-)
-const gameIcon=(
-	<svg 
-  viewBox="0 0 192 192" 
-  xmlns="http://www.w3.org/2000/svg" 
-  fill="none"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <circle 
-      cx="53.5" 
-      cy="53.5" 
-      r="31.5" 
-      stroke="currentColor" 
-      strokeWidth="12"
-    ></circle>
-    <circle 
-      cx="53.5" 
-      cy="138.5" 
-      r="31.5" 
-      stroke="currentColor" 
-      strokeWidth="12"
-    ></circle>
-    <circle 
-      cx="138.5" 
-      cy="138.5" 
-      r="31.5" 
-      stroke="currentColor" 
-      strokeWidth="12"
-    ></circle>
-    <path 
-      stroke="currentColor" 
-      strokeLinecap="round" 
-      strokeWidth="12" 
-      d="m113 28 25.5 25.5M164 79l-25.5-25.5m0 0L164 28m-25.5 25.5L113 79"
-    ></path>
-  </g>
-</svg>
-)
-const manageIcon=(
-	<svg 
-  viewBox="0 0 24 24" 
-  className="scale-[0.80]"
-  xmlns="http://www.w3.org/2000/svg" 
-  fill="currentColor"
->
-  <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-  <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-  <g id="SVGRepo_iconCarrier">
-    <path 
-      fill="currentColor" 
-      d="M23.556 17.11h-.338c-.244 0-.444-.2-.444-.443 0-.124.053-.236.133-.316l.236-.235c.173-.173.173-.458 0-.63l-.627-.628c-.173-.173-.458-.173-.63 0l-.228.227c-.08.09-.196.142-.324.142-.244 0-.444-.2-.444-.444v-.338c0-.244-.2-.444-.444-.444h-.89c-.243 0-.443.2-.443.444v.338c0 .244-.2.444-.444.444-.13 0-.245-.053-.325-.142l-.227-.227c-.173-.173-.458-.173-.63 0l-.628.627c-.173.173-.173.458 0 .63.084.085.178.165.258.254.08.093.11.173.11.298 0 .244-.2.444-.443.444h-.338c-.244 0-.444.2-.444.444v.89c0 .243.2.443.444.443h.338c.244 0 .444.2.444.444 0 .125-.032.205-.112.3-.08.088-.173.168-.258.252-.173.173-.173.458 0 .63l.627.628c.173.173.458.173.63 0l.228-.227c.08-.09.196-.142.324-.142.243 0 .443.2.443.445v.338c0 .244.2.444.444.444h.89c.243 0 .443-.2.443-.444v-.338c0-.244.2-.444.444-.444.13 0 .244.054.324.143l.227.227c.173.173.458.173.63 0l.628-.627c.173-.173.173-.458 0-.63l-.236-.237c-.08-.08-.133-.19-.133-.316 0-.244.2-.444.444-.444h.338c.244 0 .444-.2.444-.444v-.89c0-.24-.2-.44-.444-.44zM20 19.334c-.738 0-1.333-.596-1.333-1.333 0-.738.596-1.333 1.333-1.333s1.333.596 1.333 1.333c0 .738-.595 1.333-1.333 1.333z"
-    ></path>
-    <path 
-      fill="currentColor" 
-      d="M22 4h-9c0-1.1-.89-1.99-1.99-2H2C.9 2 0 2.9 0 4v16c0 1.1.9 2 2 2h11c.55 0 1-.45 1-1s-.45-1-1-1H2.5c-.28 0-.5-.22-.5-.5v-15c0-.28.22-.5.5-.5h8c.28 0 .5.22.5.5V8c0 1.1.9 2 2 2h8.5c.28 0 .5.22.5.5v.5c0 .55.45 1 1 1s1-.45 1-1V5.96C23.98 4.88 23.09 4 22 4zm-.5 4h-8c-.28 0-.5-.22-.5-.5v-1c0-.28.22-.5.5-.5h8c.28 0 .5.22.5.5v1c0 .28-.22.5-.5.5z"
-    ></path>
-  </g>
-</svg>
-)
-const keyBindingIcon=(
-	<svg 
-    fill="currentColor" 
-    viewBox="0 0 35 35" 
-    data-name="Layer 2" 
-    id="a0f31f01-4a21-45b1-9de2-107bf654bbc7" 
-    xmlns="http://www.w3.org/2000/svg" 
-  >
-    <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
-    <g id="SVGRepo_tracerCarrier" strokeLinecap="round" strokeLinejoin="round"></g>
-    <g id="SVGRepo_iconCarrier">
-      <path 
-        d="M30.559,30.534H4.441A4.2,4.2,0,0,1,.25,26.343V8.657A4.2,4.2,0,0,1,4.441,4.466H30.559A4.2,4.2,0,0,1,34.75,8.657V26.343A4.2,4.2,0,0,1,30.559,30.534ZM4.441,6.966A1.693,1.693,0,0,0,2.75,8.657V26.343a1.692,1.692,0,0,0,1.691,1.691H30.559a1.693,1.693,0,0,0,1.691-1.691V8.657a1.693,1.693,0,0,0-1.691-1.691Z"
-      ></path>
-      <path 
-        d="M23.323,24.428H11.677a1.25,1.25,0,0,1,0-2.5H23.323a1.25,1.25,0,0,1,0,2.5Z"
-      ></path>
-      <path 
-        d="M9.966,13.162a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"
-      ></path>
-      <path 
-        d="M14.989,13.072a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"
-      ></path>
-      <path 
-        d="M20.011,13.072a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"
-      ></path>
-      <path 
-        d="M25.034,13.072a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"
-      ></path>
-      <path 
-        d="M7.455,18.646a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"
-      ></path>
-      <path 
-        d="M12.477,18.556a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"
-      ></path>
-      <path 
-        d="M17.5,18.556a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"
-      ></path>
-      <path 
-        d="M22.523,18.556a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"
-      ></path>
-      <path 
-        d="M27.545,18.556a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"
-      ></path>
-    </g>
+);
+const uploadIcon = (
+	<svg
+		viewBox="0 0 24 24"
+		xmlns="http://www.w3.org/2000/svg"
+		fill="currentColor">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<title></title>
+			<g id="Complete">
+				<g id="upload">
+					<g>
+						<path
+							d="M3,12.3v7a2,2,0,0,0,2,2H19a2,2,0,0,0,2-2v-7"
+							fill="none"
+							stroke="currentColor"
+							strokeLinecap="round"
+							strokeLinejoin="round"
+							strokeWidth="2"></path>
+						<g>
+							<polyline
+								data-name="Right"
+								fill="none"
+								id="Right-2"
+								points="7.9 6.7 12 2.7 16.1 6.7"
+								stroke="currentColor"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="2"></polyline>
+							<line
+								fill="none"
+								stroke="currentColor"
+								strokeLinecap="round"
+								strokeLinejoin="round"
+								strokeWidth="2"
+								x1="12"
+								x2="12"
+								y1="16.3"
+								y2="4.8"></line>
+						</g>
+					</g>
+				</g>
+			</g>
+		</g>
 	</svg>
-)
-export const svg={
-    donwloadIcon,
-    unmuteIcon,
-    crossIcon,
-    deleteIcon,
-    loaderIcon,
-    loaderIcon2,
-    exitIcon,
-    replayIcon,
-    pauseIcon,
-    playIcon,
-    playIcon2,
-    offlineIcon,
-    onlineIcon,
+);
+const demoIcon = (
+	<svg
+		viewBox="0 0 1024 1024"
+		xmlns="http://www.w3.org/2000/svg"
+		fill="currentColor">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				fill="currentColor"
+				d="M288 671.36v64.128A239.808 239.808 0 0 1 63.744 496.192a240.32 240.32 0 0 1 199.488-236.8 256.128 256.128 0 0 1 487.872-30.976A256.064 256.064 0 0 1 736 734.016v-64.768a192 192 0 0 0 3.328-377.92l-35.2-6.592-12.8-33.408a192.064 192.064 0 0 0-365.952 23.232l-9.92 40.896-41.472 7.04a176.32 176.32 0 0 0-146.24 173.568c0 91.968 70.464 167.36 160.256 175.232z"></path>
+			<path
+				fill="currentColor"
+				d="M416 736a32 32 0 0 1-27.776-47.872l128-224a32 32 0 1 1 55.552 31.744L471.168 672H608a32 32 0 0 1 27.776 47.872l-128 224a32 32 0 1 1-55.68-31.744L552.96 736H416z"></path>
+		</g>
+	</svg>
+);
+const downIcon = (
+	<svg
+		viewBox="0 0 24 24"
+		xmlns="http://www.w3.org/2000/svg"
+		fill="currentColor">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				fill="currentColor"
+				d="M22.987 10.25l-9 7.99c-.57.51-1.28.76-1.99.76s-1.42-.25-1.98-.74c0-.01-.01-.01-.01-.01l-.02-.02-8.98-7.98c-1.24-1.1-1.35-3.002-.25-4.242 1.1-1.24 3-1.35 4.23-.25l7.01 6.23 7.01-6.23c1.24-1.1 3.13-.99 4.24.25 1.1 1.24.98 3.13-.26 4.24z"></path>
+		</g>
+	</svg>
+);
+const smileyIcon = (
+	<svg
+		viewBox="0 0 76 76"
+		xmlns="http://www.w3.org/2000/svg"
+		xmlnsXlink="http://www.w3.org/1999/xlink"
+		version="1.1"
+		baseProfile="full"
+		enableBackground="new 0 0 76.00 76.00"
+		xmlSpace="preserve"
+		fill="currentColor">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				fill="currentColor"
+				fillOpacity="1"
+				strokeWidth="0.2"
+				strokeLinejoin="round"
+				d="M 24.9015,43.0378L 25.0963,43.4298C 26.1685,49.5853 31.5377,54.2651 38,54.2651C 44.4623,54.2651 49.8315,49.5854 50.9037,43.4299L 51.0985,43.0379C 51.0985,40.7643 52.6921,39.2955 54.9656,39.2955C 56.9428,39.2955 58.1863,41.1792 58.5833,43.0379C 57.6384,52.7654 47.9756,61.75 38,61.75C 28.0244,61.75 18.3616,52.7654 17.4167,43.0378C 17.8137,41.1792 19.0572,39.2954 21.0344,39.2954C 23.3079,39.2954 24.9015,40.7643 24.9015,43.0378 Z M 26.7727,20.5833C 29.8731,20.5833 32.3864,23.0966 32.3864,26.197C 32.3864,29.2973 29.8731,31.8106 26.7727,31.8106C 23.6724,31.8106 21.1591,29.2973 21.1591,26.197C 21.1591,23.0966 23.6724,20.5833 26.7727,20.5833 Z M 49.2273,20.5833C 52.3276,20.5833 54.8409,23.0966 54.8409,26.197C 54.8409,29.2973 52.3276,31.8106 49.2273,31.8106C 46.127,31.8106 43.6136,29.2973 43.6136,26.197C 43.6136,23.0966 46.127,20.5833 49.2273,20.5833 Z"></path>
+		</g>
+	</svg>
+);
+const gameIcon = (
+	<svg viewBox="0 0 192 192" xmlns="http://www.w3.org/2000/svg" fill="none">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<circle
+				cx="53.5"
+				cy="53.5"
+				r="31.5"
+				stroke="currentColor"
+				strokeWidth="12"></circle>
+			<circle
+				cx="53.5"
+				cy="138.5"
+				r="31.5"
+				stroke="currentColor"
+				strokeWidth="12"></circle>
+			<circle
+				cx="138.5"
+				cy="138.5"
+				r="31.5"
+				stroke="currentColor"
+				strokeWidth="12"></circle>
+			<path
+				stroke="currentColor"
+				strokeLinecap="round"
+				strokeWidth="12"
+				d="m113 28 25.5 25.5M164 79l-25.5-25.5m0 0L164 28m-25.5 25.5L113 79"></path>
+		</g>
+	</svg>
+);
+const manageIcon = (
+	<svg
+		viewBox="0 0 24 24"
+		className="scale-[0.80]"
+		xmlns="http://www.w3.org/2000/svg"
+		fill="currentColor">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				fill="currentColor"
+				d="M23.556 17.11h-.338c-.244 0-.444-.2-.444-.443 0-.124.053-.236.133-.316l.236-.235c.173-.173.173-.458 0-.63l-.627-.628c-.173-.173-.458-.173-.63 0l-.228.227c-.08.09-.196.142-.324.142-.244 0-.444-.2-.444-.444v-.338c0-.244-.2-.444-.444-.444h-.89c-.243 0-.443.2-.443.444v.338c0 .244-.2.444-.444.444-.13 0-.245-.053-.325-.142l-.227-.227c-.173-.173-.458-.173-.63 0l-.628.627c-.173.173-.173.458 0 .63.084.085.178.165.258.254.08.093.11.173.11.298 0 .244-.2.444-.443.444h-.338c-.244 0-.444.2-.444.444v.89c0 .243.2.443.444.443h.338c.244 0 .444.2.444.444 0 .125-.032.205-.112.3-.08.088-.173.168-.258.252-.173.173-.173.458 0 .63l.627.628c.173.173.458.173.63 0l.228-.227c.08-.09.196-.142.324-.142.243 0 .443.2.443.445v.338c0 .244.2.444.444.444h.89c.243 0 .443-.2.443-.444v-.338c0-.244.2-.444.444-.444.13 0 .244.054.324.143l.227.227c.173.173.458.173.63 0l.628-.627c.173-.173.173-.458 0-.63l-.236-.237c-.08-.08-.133-.19-.133-.316 0-.244.2-.444.444-.444h.338c.244 0 .444-.2.444-.444v-.89c0-.24-.2-.44-.444-.44zM20 19.334c-.738 0-1.333-.596-1.333-1.333 0-.738.596-1.333 1.333-1.333s1.333.596 1.333 1.333c0 .738-.595 1.333-1.333 1.333z"></path>
+			<path
+				fill="currentColor"
+				d="M22 4h-9c0-1.1-.89-1.99-1.99-2H2C.9 2 0 2.9 0 4v16c0 1.1.9 2 2 2h11c.55 0 1-.45 1-1s-.45-1-1-1H2.5c-.28 0-.5-.22-.5-.5v-15c0-.28.22-.5.5-.5h8c.28 0 .5.22.5.5V8c0 1.1.9 2 2 2h8.5c.28 0 .5.22.5.5v.5c0 .55.45 1 1 1s1-.45 1-1V5.96C23.98 4.88 23.09 4 22 4zm-.5 4h-8c-.28 0-.5-.22-.5-.5v-1c0-.28.22-.5.5-.5h8c.28 0 .5.22.5.5v1c0 .28-.22.5-.5.5z"></path>
+		</g>
+	</svg>
+);
+const keyBindingIcon = (
+	<svg
+		fill="currentColor"
+		viewBox="0 0 35 35"
+		data-name="Layer 2"
+		id="a0f31f01-4a21-45b1-9de2-107bf654bbc7"
+		xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path d="M30.559,30.534H4.441A4.2,4.2,0,0,1,.25,26.343V8.657A4.2,4.2,0,0,1,4.441,4.466H30.559A4.2,4.2,0,0,1,34.75,8.657V26.343A4.2,4.2,0,0,1,30.559,30.534ZM4.441,6.966A1.693,1.693,0,0,0,2.75,8.657V26.343a1.692,1.692,0,0,0,1.691,1.691H30.559a1.693,1.693,0,0,0,1.691-1.691V8.657a1.693,1.693,0,0,0-1.691-1.691Z"></path>
+			<path d="M23.323,24.428H11.677a1.25,1.25,0,0,1,0-2.5H23.323a1.25,1.25,0,0,1,0,2.5Z"></path>
+			<path d="M9.966,13.162a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"></path>
+			<path d="M14.989,13.072a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"></path>
+			<path d="M20.011,13.072a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"></path>
+			<path d="M25.034,13.072a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"></path>
+			<path d="M7.455,18.646a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"></path>
+			<path d="M12.477,18.556a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"></path>
+			<path d="M17.5,18.556a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"></path>
+			<path d="M22.523,18.556a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"></path>
+			<path d="M27.545,18.556a1.251,1.251,0,0,0,0-2.5,1.251,1.251,0,0,0,0,2.5Z"></path>
+		</g>
+	</svg>
+);
+const circleIcon = (
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		className="scale-[0.7]"
+		xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+		</g>
+	</svg>
+);
+const squareIcon = (
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		className="scale-[0.7]"
+		xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<rect
+				x="4"
+				y="4"
+				width="16"
+				height="16"
+				rx="2"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"></rect>
+		</g>
+	</svg>
+);
+const triangleIcon = (
+	<svg
+		viewBox="0 0.5 24 24"
+		fill="none"
+		className="scale-75"
+		xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				d="M3.83827 18.5097L11.1284 5.54947C11.5107 4.86982 12.4893 4.86982 12.8716 5.54947L20.1617 18.5097C20.5367 19.1763 20.055 20 19.2902 20H4.70985C3.94502 20 3.46331 19.1763 3.83827 18.5097Z"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+		</g>
+	</svg>
+);
+const crossIcon2 = (
+	<svg
+		viewBox="0 0 24 24"
+		fill="none"
+		className="scale-75"
+		xmlns="http://www.w3.org/2000/svg">
+		<g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
+		<g
+			id="SVGRepo_tracerCarrier"
+			strokeLinecap="round"
+			strokeLinejoin="round"></g>
+		<g id="SVGRepo_iconCarrier">
+			<path
+				d="M19 5L5 19M5.00001 5L19 19"
+				stroke="currentColor"
+				strokeWidth="1.5"
+				strokeLinecap="round"
+				strokeLinejoin="round"></path>
+		</g>
+	</svg>
+);
+const infoIcon = (
+	<svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+		<g strokeWidth={0} />
+		<g strokeLinecap="round" strokeLinejoin="round" />
+		<path
+			d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10m-.696-3.534c.63 0 1.332-.288 2.196-1.458l.911-1.22a.334.334 0 0 0-.074-.472.38.38 0 0 0-.505.06l-1.475 1.679a.24.24 0 0 1-.279.061.21.21 0 0 1-.12-.244l1.858-7.446a.5.5 0 0 0-.575-.613l-3.35.613a.35.35 0 0 0-.276.258l-.086.334a.25.25 0 0 0 .243.312h1.73l-1.476 5.922c-.054.234-.144.63-.144.918 0 .666.396 1.296 1.422 1.296m1.83-10.536c.702 0 1.242-.414 1.386-1.044.036-.144.054-.306.054-.414 0-.504-.396-.972-1.134-.972-.702 0-1.242.414-1.386 1.044a2 2 0 0 0-.054.414c0 .504.396.972 1.134.972"
+			fill="currentColor"
+		/>
+	</svg>
+);
+export const svg = {
+	donwloadIcon,
+	unmuteIcon,
+	crossIcon,
+	deleteIcon,
+	loaderIcon,
+	loaderIcon2,
+	exitIcon,
+	replayIcon,
+	pauseIcon,
+	playIcon,
+	playIcon2,
+	offlineIcon,
+	onlineIcon,
 	tickIcon,
 	settingsIcon,
 	uploadIcon,
@@ -589,5 +660,10 @@ export const svg={
 	gameIcon,
 	manageIcon,
 	unmuteIcon2,
-	keyBindingIcon
-}
+	keyBindingIcon,
+	circleIcon,
+	squareIcon,
+	triangleIcon,
+	crossIcon2,
+	infoIcon
+};

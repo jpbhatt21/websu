@@ -17,6 +17,7 @@ import {
 	play,
 	setBeatmapPreviewData,
 	useWindowDimensions,
+	setLoadingBar,
 } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
 import PlayArea from "./GamePlayScreen";
@@ -36,7 +37,7 @@ let settingTimer = null;
 let playLastActiveSongTimeout = null;
 let offlineDBSearch = null;
 let scale = 1;
-function SongSelectionMenu() {
+function SongSelectionMenu({play}) {
 	const { height, width } = useWindowDimensions();
 	scale = settings.User_Interface.UI_Scale.value;
 	if (scale == 0) {
@@ -231,15 +232,15 @@ function SongSelectionMenu() {
 	function keyaction(e) {
 		if (previewSearch.style.opacity == 1) {
 			if (!start) {
-				if (e.key == "F11" && !e.repeat) {
-					if (document.fullscreenElement) {
-						document.exitFullscreen();
-						navigator.keyboard.unlock();
-					} else {
-						document.documentElement.requestFullscreen();
-						navigator.keyboard.lock();
-					}
-				}
+				// if (e.key == "F11" && !e.repeat) {
+				// 	if (document.fullscreenElement) {
+				// 		document.exitFullscreen();
+				// 		navigator.keyboard.unlock();
+				// 	} else {
+				// 		document.documentElement.requestFullscreen();
+				// 		navigator.keyboard.lock();
+				// 	}
+				// }
 				if (e.altKey && e.shiftKey && e.code == "Backquote") {
 					settings.Maintainance[
 						"Restore Default Settings"
@@ -653,9 +654,14 @@ function SongSelectionMenu() {
 			}, 1);
 		}, 300);
 	}
+	useEffect(()=>{
+		if(play)
+		document.addEventListener("keydown", keyaction);
+		else
+		document.removeEventListener("keydown", keyaction)
+	},[play])
 	useEffect(() => {
 		if (!focus) return;
-		document.addEventListener("keydown", keyaction);
 		const request = indexedDB.open("websuStorage", 2);
 		request.onupgradeneeded = function (event) {
 			const db = event.target.result;
@@ -707,7 +713,7 @@ function SongSelectionMenu() {
 							},
 						});
 						offlineDBSearch.addAll(result);
-						scrollListTo(0, true);
+						
 						//setTimeout(() => {}, 2000);
 					}, 10);
 				};
@@ -779,6 +785,7 @@ function SongSelectionMenu() {
 					}
 				};
 		};
+		setLoadingBar(100)
 	}, [focus]);
 	useEffect(() => {
 		if (!start && prevMusic.length > 0) {
@@ -854,22 +861,22 @@ function SongSelectionMenu() {
 			"px) brightness(" +
 			(1 - settings.Gameplay["Background Dim"].value / 100) +
 			")";
-		if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
-			document.documentElement.requestFullscreen();
-			navigator.keyboard.lock();
-		}
+		// if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
+		// 	document.documentElement.requestFullscreen();
+		// 	navigator.keyboard.lock();
+		// }
 	} else {
 		if (settings.User_Interface.Background.value != 0) {
 			backgroundImage.style.filter = "blur(0px) brightness(0.5)";
 		} else {
 			backgroundImage.style.filter = "blur(6px) brightness(0.5)";
 		}
-		if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
-			if (document.fullscreenElement) {
-				document.exitFullscreen();
-				navigator.keyboard.unlock();
-			}
-		}
+		// if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
+		// 	if (document.fullscreenElement) {
+		// 		document.exitFullscreen();
+		// 		navigator.keyboard.unlock();
+		// 	}
+		// }
 	}
 	let sct = 0;
 	try {

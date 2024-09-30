@@ -14,19 +14,19 @@ let interacted = false;
 function repeater(time) {
 	if (prev) {
 		mDurSec = music.duration;
-		interaction = navigator.userActivation.isActive;
-		if (interaction && !interacted) {
-			interacted = true;
-			music.play();
-			if(settings.User_Interface["Toggle_Fullscreen"].value==0){
-				document.documentElement.requestFullscreen();
-				navigator.keyboard.lock();
-			}
-			setTimeout(() => {
-				clickToUnmute.style.opacity = "0";
-				clickToUnmute.style.height = "0px";
-			}, 100);
-		}
+		// interaction = navigator.userActivation.isActive;
+		// if (interaction && !interacted) {
+		// 	interacted = true;
+		// 	music.play();
+		// 	if(settings.User_Interface["Toggle_Fullscreen"].value==0){
+		// 		document.documentElement.requestFullscreen();
+		// 		navigator.keyboard.lock();
+		// 	}
+		// 	setTimeout(() => {
+		// 		clickToUnmute.style.opacity = "0";
+		// 		clickToUnmute.style.height = "0px";
+		// 	}, 100);
+		// }
 		if (mDurSec > 0) {
 			mCTSec = music.currentTime;
 			musicProgress.style.marginLeft =
