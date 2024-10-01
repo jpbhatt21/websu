@@ -258,8 +258,8 @@ function SongSelectionMenu({ props }) {
 					stb.click();
 				} else {
 					if (searchbox.value == "") {
+						props.setShowTopBar(true)
 						props.setShowHome(true);
-						//props.setShowTopBar(false)
 						songMenuTopBarAddOns.style.opacity = "0";
 						setTimeout(() => {
 							props.setShowSongMenu(false);

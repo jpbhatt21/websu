@@ -73,6 +73,7 @@ function MainScreen({ startApp }) {
 								initLoad,
 								showTopBar,
 								savedHomeScreenColor,
+								showSettings,
 								setSavedHomeScreenColor,
 							}}
 						/>

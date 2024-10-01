@@ -79,31 +79,34 @@ let anazlyzer = null;
 let bufferLength = null;
 let loop = null;
 let skewDeg = 8;
-let colorChangeLoop=null
-let eventListenerAttached=false
+let colorChangeLoop = null;
+let eventListenerAttached = false;
+let closeItTimer=null
 function HomeScreen({ props }) {
 	if (!context) {
-		connect()
+		connect();
 	}
-	
+
 	const [ind, setInd] = useState(
-		props.savedHomeScreenColor ? props.savedHomeScreenColor : parseInt(Math.random() * 8)
+		props.savedHomeScreenColor
+			? props.savedHomeScreenColor
+			: parseInt(Math.random() * 8)
 	);
 	let audioVisualizerHeight = (window.innerWidth / 2) * 0.53125;
 	let logoHeight = ((window.innerWidth / 2) * 2) / 3;
 	let audioVisualizerBarWidth = 0.0394 * audioVisualizerHeight;
 	let barHeight = audioVisualizerHeight / 8;
 	function keyaction(e) {
-		try{
-			if(mainMenuScr.style.opacity!=1)
-				return
-		}
-		catch(e){
-			eventListenerAttached=false
+		try {
+			if (mainMenuScr.style.opacity != 1) return;
+		} catch (e) {
+			eventListenerAttached = false;
 			document.removeEventListener("keydown", keyaction);
-			return
+			return;
 		}
+		
 		if (e.key == "Escape") {
+			
 			try {
 				if (document.getElementById("settingsPage")) {
 					stb.click();
@@ -122,39 +125,36 @@ function HomeScreen({ props }) {
 	useEffect(() => {
 		let init = ind;
 		let randint;
-		clearInterval(colorChangeLoop)
-		if (props.savedHomeScreenColor!=null) {
-			if(props.savedHomeScreenColor!=ind)
-				setInd(props)
-			clearInterval(colorChangeLoop)
-			colorChangeLoop=null
+		clearInterval(colorChangeLoop);
+		if (props.savedHomeScreenColor != null) {
+			if (props.savedHomeScreenColor != ind) setInd(props);
+			clearInterval(colorChangeLoop);
+			colorChangeLoop = null;
 			randint = parseInt(Math.random() * 8);
 			while (randint == init) {
 				randint = parseInt(Math.random() * 8);
 			}
-			props.setSavedHomeScreenColor(randint)
+			props.setSavedHomeScreenColor(randint);
 			init = randint;
 			setInd(init);
 		} else {
-
-			props.setSavedHomeScreenColor(ind)
+			props.setSavedHomeScreenColor(ind);
 		}
-		colorChangeLoop=setInterval(() => {
-
+		colorChangeLoop = setInterval(() => {
 			randint = parseInt(Math.random() * 8);
 			while (randint == init) {
 				randint = parseInt(Math.random() * 8);
 			}
-			props.setSavedHomeScreenColor(randint)
+			props.setSavedHomeScreenColor(randint);
 			init = randint;
 			setInd(init);
 		}, 30000);
 		setTimeout(
 			() => {
 				logoCircle.style.pointerEvents = "auto";
-				if(!eventListenerAttached)
-				{document.addEventListener("keydown", keyaction);
-					eventListenerAttached=true
+				if (!eventListenerAttached) {
+					document.addEventListener("keydown", keyaction);
+					eventListenerAttached = true;
 				}
 				let children = audioVisva.children;
 				let data = new Uint8Array(bufferLength);
@@ -169,19 +169,22 @@ function HomeScreen({ props }) {
 						avg /= 16;
 						avg = 0.75 + avg / 512;
 						for (let i = 0; i < 16; i++) {
-							val = (data[i] / 255) * barHeight*(Math.random()*0.1+1) + "px";
+							val =
+								(data[i] / 255) *
+									barHeight *
+									(Math.random() * 0.1 + 1) +
+								"px";
 							children[i].style.height = val;
 							children[i + 16].style.height = val;
 							children[i + 32].style.height = val;
 							children[i + 48].style.height = val;
 							children[i + 64].style.height = val;
 						}
-						
+
 						setLogoScale(avg);
 					} catch (e) {
 						clearInterval(loop);
-						clearInterval(colorChangeLoop)
-						
+						clearInterval(colorChangeLoop);
 					}
 				}, 0);
 			},
@@ -190,6 +193,29 @@ function HomeScreen({ props }) {
 	}, []);
 	const [left, setLeft] = useState(props.showTopBar ? 30 : 0);
 	const [clickScale, setClickScale] = useState(1);
+	const [lastInteraction, setLastInteraction] = useState(
+		new Date().getTime()
+	);
+	useEffect(() => {
+		if(closeItTimer)
+			clearTimeout(closeItTimer)
+		closeItTimer=setTimeout(() => {
+			try {
+				if (document.getElementById("settingsPage")) {
+					closeItTimer=null
+					return;
+				}
+			} catch (e) {}
+			if (left == 30) {
+				logoClickScaler.style.scale = "100%";
+				setLeft(0);
+				horizontalMenu.style.width = "0%";
+				horizontalMenu.style.opacity = 1;
+				props.setShowTopBar(false);
+			}
+			closeItTimer=null
+		}, 15000);
+	}, [lastInteraction,props.showSettings]);
 	const [logoScale, setLogoScale] = useState(1);
 	if (left != 0 && !props.showTopBar) setLeft(0);
 	return (
@@ -199,7 +225,7 @@ function HomeScreen({ props }) {
 				className="w-full fade-in3 fixed h-full flex duration-[10s] items-center text-white justify-center"
 				style={{
 					backgroundColor: colors.screenBackground[ind],
-					opacity:1
+					opacity: 1,
 				}}>
 				<div
 					className="w-full pointer-events-none h-full"
@@ -502,7 +528,7 @@ function HomeScreen({ props }) {
 										key={"av+" + i}
 										className="  absolute bg-[#a49bce]"
 										style={{
-											offsetDistance: i*1.25 + "%",
+											offsetDistance: i * 1.25 + "%",
 											offsetAnchor: "0% 0%",
 											offsetPath:
 												"path('m " +
@@ -555,6 +581,9 @@ function HomeScreen({ props }) {
 									fill="#6044db"
 									id="logoCircle"
 									onClick={(e) => {
+										setLastInteraction(
+											new Date().getTime()
+										);
 										logoClickScaler.style.scale = "50%";
 										setLeft(30);
 										horizontalMenu.style.width = "100%";
