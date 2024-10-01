@@ -6,7 +6,7 @@ import TopBar from "../Components/TopBar";
 import { useWindowDimensions } from "../Utility/Utils";
 import Confirm from "./ConfirmDeleteScreen";
 import SongSelectionMenu from "./SongSelectionScreen";
-import MainMenu from "./HomeScreen";
+import HomeScreen from "./HomeScreen";
 
 function MainScreen({startApp}) {
 	const { height, width } = useWindowDimensions();
@@ -23,6 +23,7 @@ function MainScreen({startApp}) {
     const [addSongMenuEventListener,setAddSongMenuEventListener]=useState(false)
     const [showHome,setShowHome]=useState(true)
     const [initLoad,setInitLoad]=useState(true)
+	const [savedHomeScreenColor,setSavedHomeScreenColor]=useState(null)
     useEffect(()=>{
         if(addSongMenuEventListener && initLoad)
             setInitLoad(false)
@@ -32,7 +33,7 @@ function MainScreen({startApp}) {
             {<SongSelectionMenu props={{addSongMenuEventListener,showTopBar:(addSongMenuEventListener&&showTopBar),setShowHome,setAddSongMenuEventListener,setShowTopBar}} />}
             {startApp?
             <>
-            {showHome?<MainMenu props={{setShowHome,setAddSongMenuEventListener,setShowTopBar,initLoad,showTopBar}} />:<></>}
+            {showHome?<HomeScreen props={{setShowHome,setAddSongMenuEventListener,setShowTopBar,initLoad,showTopBar,savedHomeScreenColor,setSavedHomeScreenColor}} />:<></>}
             {showSettings ? (
 				<SettingsScreen
 					setUpdateSettings={changeSettings}

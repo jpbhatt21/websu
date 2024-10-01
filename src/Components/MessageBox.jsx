@@ -27,8 +27,8 @@ function MessageBox({
 				className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
 				<div className=" h-[3.5vh] scale-[60%]">{svg.loaderIcon2}</div>{" "}
 				Downloading
-				<div id="unzipxCounter" className="ml-[1vh]">
-					{"(" + downloadHead + "/" + downloadQueue.length + ")"}
+				<div id="downloadCounter" className="ml-[1vh]">
+					{"(" + 0 + "/" + 0 + ")"}
 				</div>
 			</div>
 			<div
@@ -36,8 +36,8 @@ function MessageBox({
 				className=" flex items-center opacity-0 overflow-hidden duration-300  h-0">
 				<div className=" h-[3.5vh] scale-[60%]">{svg.loaderIcon2}</div>{" "}
 				Unzipping
-				<div id="unzipxCounter" className="ml-[1vh]">
-					{"(" + unzipCounter + "/" + unzipTotal + ")"}
+				<div id="unzipCounter" className="ml-[1vh]">
+					{"(" + 0 + "/" + 0 + ")"}
 				</div>
 			</div>
 			<div

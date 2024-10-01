@@ -18,6 +18,8 @@ import {
 	setBeatmapPreviewData,
 	useWindowDimensions,
 	setLoadingBar,
+	initializeMusic,
+	reInitializeMusic,
 } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
 import PlayArea from "./GamePlayScreen";
@@ -28,6 +30,7 @@ import Toggle from "../Components/Toggle";
 import SettingsScreen from "./SettingsScreen";
 import { settings } from "../SettingsValues";
 import Confirm from "./ConfirmDeleteScreen";
+import { connect } from "./HomeScreen";
 let typeTimeout = null;
 let scrollTimeout = null;
 let scIndTimer = null;
@@ -656,6 +659,10 @@ function SongSelectionMenu({ props }) {
 						top: prev + 2,
 						behavior: "smooth",
 					});
+					connect()
+				}
+				else{
+					reInitializeMusic()
 				}
 			}, 1);
 		}, 300);
@@ -807,6 +814,9 @@ function SongSelectionMenu({ props }) {
 		}
 	}, [start]);
 	useEffect(() => {
+		if(!props.addSongMenuEventListener)
+			return
+		unzipCounter.innerHTML="(" + unzipCounter + "/" + unzipTotal + ")"
 		if (unzipHead == unzipQueueLength && unzipQueueLength > 0) {
 			unzippingSet.style.height = "";
 			unzippingSet.style.opacity = "";
@@ -824,6 +834,9 @@ function SongSelectionMenu({ props }) {
 		}
 	}, [unzipHead, unzipQueueLength]);
 	useEffect(() => {
+		if(!props.addSongMenuEventListener)
+			return
+		downloadCounter.innerHTML="(" + downloadHead + "/" + downloadQueue.length + ")"
 		if (
 			!activeDownload &&
 			downloadQueue.length > 0 &&

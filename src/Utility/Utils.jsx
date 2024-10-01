@@ -21,12 +21,28 @@ export function initializeMusic() {
 	music.pause();
 	setSettings(settings)
 }
+export async  function reInitializeMusic(){
+	await de2()
+	music.src=null
+	music.srcObj=null
+	music.pause()
+	music = new Audio();
+	setSettings(settings)
+
+}
 backgroundImage.src = "/original_1.jpg";
 backgroundImage.style.opacity = 0;
 setTimeout(() => {
 	backgroundImage.style.opacity = 1;
 }, 300);
-
+let de2 = async () => {
+	while (music.volume >= 0.1) {
+		music.volume -= 0.05;
+		await new Promise((r) => setTimeout(r, 10));
+	}
+	music.volume = 0;
+	return false;
+};
 import { Shader, Texture } from "pixi.js";
 import { bSliderPath, lSliderPath, pSliderPath, setCs } from "./Sliders";
 import { setSettings, settings } from "../SettingsValues";
@@ -463,25 +479,18 @@ export function useWindowDimensions() {
 	return windowDimensions;
 }
 export async function playSong(setID, index, previewTime, title, mode = false) {
-	let de2 = async (song) => {
-		if (music.src == song) return true;
-		while (music.volume >= 0.1) {
-			music.volume -= 0.05;
-			await new Promise((r) => setTimeout(r, 10));
-		}
-		music.volume = 0;
-		return false;
-	};
+	
 	if (mode) {
 		if (setID != "") {
 			fetchingSong.style.height = "3.5svh";
 			fetchingSong.style.opacity = "1";
 		}
-
 		let song = setID;
-		if(await de2(song))
+		if (music.src == song) return true;
+		if(await de2())
 			return;
 		setTimeout(async () => {
+			
 			music.setAttribute("src", song);
 			music.title = title;
 			music.load();
@@ -500,15 +509,7 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 		}, 200);
 		return;
 	}
-	let diver = async (song) => {
-		if (music.src == "data:audio/wav;base64," + song) return true;
-		while (music.volume >= 0.05) {
-			music.volume -= 0.05;
-			await new Promise((r) => setTimeout(r, 10));
-		}
-		music.volume = 0;
-		return false;
-	};
+	
 	const request = indexedDB.open("websuStorage", 2);
 	request.onsuccess = async function (event) {
 		const db = event.target.result;
@@ -516,8 +517,10 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
 			async function (event) {
 				let song = event.target.result.files[index];
+				
 				if (music.src.length > 0) {
-					if(await diver(song))
+					if (music.src == "data:audio/wav;base64," + song) return true;
+					if(await de2())
 						return;}
 				setTimeout(async () => {
 					music.setAttribute("src", "data:audio/wav;base64," + song);

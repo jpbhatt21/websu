@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import Intro from "../Components/Intro";
-import { fakeClick, music } from "../Utility/Utils";
+import { fakeClick, initializeMusic, music } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
 let colors = {
 	screenBackground: [
@@ -65,30 +65,37 @@ let colors = {
 	],
 };
 let context = null;
+export function connect() {
+	context = new AudioContext();
+	source = context.createMediaElementSource(music);
+	anazlyzer = context.createAnalyser();
+	source.connect(anazlyzer);
+	anazlyzer.connect(context.destination);
+	anazlyzer.fftSize = 32;
+	bufferLength = anazlyzer.frequencyBinCount;
+}
 let source = null;
 let anazlyzer = null;
 let bufferLength = null;
+let loop = null;
 let skewDeg = 8;
-let prevCol = null;
-function MainMenu({ props }) {
+let colorChangeLoop=null
+function HomeScreen({ props }) {
 	if (!context) {
-		context = new AudioContext();
-		source = context.createMediaElementSource(music);
-		anazlyzer = context.createAnalyser();
-		source.connect(anazlyzer);
-		anazlyzer.connect(context.destination);
-		anazlyzer.fftSize = 64;
-		bufferLength = anazlyzer.frequencyBinCount;
+		connect()
 	}
+	
 	const [ind, setInd] = useState(
-		prevCol ? prevCol : parseInt(Math.random() * 8)
+		props.savedHomeScreenColor ? props.savedHomeScreenColor : parseInt(Math.random() * 8)
 	);
 	let audioVisualizerHeight = (window.innerWidth / 2) * 0.53125;
 	let logoHeight = ((window.innerWidth / 2) * 2) / 3;
-	let audioVisualizerBarWidth = 0.0314 * audioVisualizerHeight;
+	let audioVisualizerBarWidth = 0.0394 * audioVisualizerHeight;
 	let barHeight = audioVisualizerHeight / 8;
 	let top = 50;
 	function keyaction(e) {
+		if(mainMenuScr.style.transitionDuration=="1s")
+			return
 		if (e.key == "Escape") {
 			try {
 				if (document.getElementById("settingsPage")) {
@@ -108,57 +115,72 @@ function MainMenu({ props }) {
 	useEffect(() => {
 		let init = ind;
 		let randint;
-		if (prevCol) {
+		clearInterval(colorChangeLoop)
+		if (props.savedHomeScreenColor!=null) {
+			if(props.savedHomeScreenColor!=ind)
+				setInd(props)
+			clearInterval(colorChangeLoop)
+			colorChangeLoop=null
 			randint = parseInt(Math.random() * 8);
 			while (randint == init) {
 				randint = parseInt(Math.random() * 8);
 			}
-			prevCol = randint;
+			props.setSavedHomeScreenColor(randint)
 			init = randint;
 			setInd(init);
 		} else {
-			prevCol = ind;
+			console.log("ib")
+
+			props.setSavedHomeScreenColor(ind)
 		}
-		setInterval(() => {
+		colorChangeLoop=setInterval(() => {
+			console.log("i2b")
+
 			randint = parseInt(Math.random() * 8);
 			while (randint == init) {
 				randint = parseInt(Math.random() * 8);
 			}
-			prevCol = randint;
+			props.setSavedHomeScreenColor(randint)
 			init = randint;
 			setInd(init);
 		}, 30000);
 		setTimeout(
 			() => {
-				logoCircle.style.pointerEvents="auto"
+				logoCircle.style.pointerEvents = "auto";
 				document.addEventListener("keydown", keyaction);
 				let children = audioVisva.children;
 				let data = new Uint8Array(bufferLength);
 				let avg = 0;
 				let val = 0;
-				setInterval(() => {
-					anazlyzer.getByteFrequencyData(data);
-					avg = data.reduce((a, b) => {
-						return a + b;
-					}, 0);
-					avg /= 32;
-					avg = 0.75 + avg / 512;
-					for (let i = 0; i < 25; i++) {
-						val = (data[i + 3] / 255) * barHeight + "px";
-						children[i].style.height = val;
-						children[i + 25].style.height = val;
-						children[i + 50].style.height = val;
-						children[i + 75].style.height = val;
+				loop = setInterval(() => {
+					try {
+						anazlyzer.getByteFrequencyData(data);
+						avg = data.reduce((a, b) => {
+							return a + b;
+						}, 0);
+						avg /= 16;
+						avg = 0.75 + avg / 512;
+						for (let i = 0; i < 16; i++) {
+							val = (data[i] / 255) * barHeight*(Math.random()*0.1+1) + "px";
+							children[i].style.height = val;
+							children[i + 16].style.height = val;
+							children[i + 32].style.height = val;
+							children[i + 48].style.height = val;
+							children[i + 64].style.height = val;
+						}
+						
+						setLogoScale(avg);
+					} catch (e) {
+						clearInterval(loop);
+						clearInterval(colorChangeLoop)
+						
 					}
-					children[100].style.height =
-						(data[3] / 255) * barHeight + "px";
-					setLogoScale(avg);
 				}, 0);
 			},
 			props.initLoad ? 3000 : 100
 		);
 	}, []);
-	const [left, setLeft] = useState(props.showTopBar?30:0);
+	const [left, setLeft] = useState(props.showTopBar ? 30 : 0);
 	const [clickScale, setClickScale] = useState(1);
 	const [logoScale, setLogoScale] = useState(1);
 	if (left != 0 && !props.showTopBar) setLeft(0);
@@ -306,10 +328,9 @@ function MainMenu({ props }) {
 						id="horizontalMenu"
 						className="w-0 opacity-0 h-1/6 bg-post duration-300 flex bg-opacity-75 overflow-hidden  "
 						style={{
-							width:props.showTopBar?"100%":"0px",
-							opacity:props.showTopBar?"1":"0"
-						}}
-						>
+							width: props.showTopBar ? "100%" : "0px",
+							opacity: props.showTopBar ? "1" : "0",
+						}}>
 						<div className="h-full  w-[20vw]"></div>
 						<div
 							className="h-full hover:-ml-[5vw] group flex items-center justify-center pr-[5vw] hover:w-[20vw] w-[15vw] duration-300  shadow-md  bg-ltpost "
@@ -352,9 +373,10 @@ function MainMenu({ props }) {
 									keyaction
 								);
 								mainMenuScr.style.transitionDuration = "1s";
-								mainMenuScr.style.transitionFunction="ease-out"
+								mainMenuScr.style.transitionFunction =
+									"ease-out";
 								mainMenuScr.style.opacity = 0;
-								mainMenuScr.style.scale="120%"
+								mainMenuScr.style.scale = "120%";
 								props.setAddSongMenuEventListener(true);
 								fakeClick(0, true);
 								setTimeout(() => {
@@ -459,7 +481,7 @@ function MainMenu({ props }) {
 					}
 					style={{
 						marginLeft: -left + "%",
-						scale:props.showTopBar?"50%":"100%"
+						scale: props.showTopBar ? "50%" : "100%",
 					}}>
 					<div
 						id="audioVisva"
@@ -468,7 +490,7 @@ function MainMenu({ props }) {
 							height: audioVisualizerHeight * logoScale,
 						}}>
 						{"0"
-							.repeat(101)
+							.repeat(80)
 							.split("")
 							.map((x, i) => {
 								return (
@@ -476,7 +498,7 @@ function MainMenu({ props }) {
 										key={"av+" + i}
 										className="  absolute bg-[#a49bce]"
 										style={{
-											offsetDistance: i + "%",
+											offsetDistance: i*1.25 + "%",
 											offsetAnchor: "0% 0%",
 											offsetPath:
 												"path('m " +
@@ -528,7 +550,6 @@ function MainMenu({ props }) {
 									strokeLinejoin="round"
 									fill="#6044db"
 									id="logoCircle"
-									
 									onClick={(e) => {
 										logoClickScaler.style.scale = "50%";
 										setLeft(30);
@@ -664,4 +685,4 @@ function MainMenu({ props }) {
 	);
 }
 
-export default MainMenu;
+export default HomeScreen;

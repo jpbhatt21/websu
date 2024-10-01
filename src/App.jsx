@@ -4,7 +4,7 @@ import { initializeMusic, loadingBar, music } from "./Utility/Utils";
 import { setSettings, settings } from "./SettingsValues";
 import { bezier } from "./Screens/GamePlayScreen";
 import Intro from "./Components/Intro";
-import MainMenu from "./Screens/HomeScreen";
+import HomeScreen from "./Screens/HomeScreen";
 import MainScreen from "./Screens/MainMenuScreen";
 export const uri = "https://websu-back.jpbhatt.tech";
 export const uri2 = "https://catboy.best";

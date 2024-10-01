@@ -335,7 +335,7 @@
   }
 }
 .badum{
-  animation: badum 100s linear infinite forwards;
+  animation: badum 20s linear infinite forwards;
 }
 .badum2{
   animation: badum2 0.5s 2.8s;
