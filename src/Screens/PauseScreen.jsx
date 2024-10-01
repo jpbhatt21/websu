@@ -1,27 +1,40 @@
 import { play } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
 
-function PauseScreen({setStart,setAttempts}) {
+function PauseScreen({ props }) {
 	return (
 		<div
 			id="pauseMenu"
-			className="w-full h-full z-[9999] flex flex-row-reverse justify-center gap-5 text-xl font-bold items-center text-[#b3b3b3]  fixed bg-black bg-opacity-50 opacit y-0 duration-300 backdrop-blur-md pointer-events-none opacity-0">
+			className="w-full h-full z-20 fade-in flex flex-row-reverse justify-center gap-5 text-xl font-bold items-center text-[#b3b3b3]  fixed bg-black bg-opacity-50  duration-300 backdrop-blur-md"
+			style={{
+				opacity: 1,
+				pointerEvents: "",
+				animationDuration: "0.3s",
+			}}>
 			<div
 				onClick={async () => {
+					
 					pauseMenu.style.opacity = "0";
 					pauseMenu.style.pointerEvents = "none";
-					if (backgroundVideoSource1.src != "") {
-						backgroundVideo.pause();
-						backgroundVideoSource1.src = "";
-						backgroundImage.style.display = "";
-						await new Promise((resolve) => {
-							setTimeout(() => {
-								resolve();
-							}, 10);
-						});
-						backgroundImage.style.opacity = 1;
-					}
-					setStart(false);
+					playArea.style.opacity = "0";
+					
+					setTimeout(async () => {
+						props.setShowTopBar(true);
+					props.setShowSongMenu(true);
+						if (backgroundVideoSource1.src != "") {
+							backgroundVideo.pause();
+							backgroundVideoSource1.src = "";
+							backgroundImage.style.display = "";
+							await new Promise((resolve) => {
+								setTimeout(() => {
+									resolve();
+								}, 10);
+							});
+							backgroundImage.style.opacity = 1;
+						}
+						props.setShowPause(false);
+						props.setShowGame(false);
+					}, 300);
 				}}
 				className="w-16 h-16 bg-post flex  items-center justify-center outline outline-1 bg-opacity-50 outline-colors-red rounded-md text-center leading-[3.6rem]">
 				{svg.exitIcon}
@@ -30,10 +43,10 @@ function PauseScreen({setStart,setAttempts}) {
 				onClick={() => {
 					pauseMenu.style.opacity = "0";
 					pauseMenu.style.pointerEvents = "none";
-					setStart(false);
-					setAttempts(prev=>prev + 1);
+					props.setShowGame(false);
+					// setAttempts(prev=>prev + 1);
 					setTimeout(() => {
-						setStart(true);
+						props.setShowGame(true);
 					}, 10);
 				}}
 				className="w-16 h-16 bg-post outline outline-1 bg-opacity-50 outline-colors-yellow rounded-md text-center leading-[3.6rem]">
@@ -44,6 +57,7 @@ function PauseScreen({setStart,setAttempts}) {
 					pauseMenu.style.opacity = "0";
 					pauseMenu.style.pointerEvents = "none";
 					setTimeout(() => {
+						props.setShowPause(false);
 						play();
 					}, 1000);
 				}}

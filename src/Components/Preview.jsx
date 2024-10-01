@@ -1,5 +1,5 @@
 let skewDeg = 8;
-function Preview({backdrop}) {
+function Preview({props}) {
 	return (
 		<>
 		
@@ -15,7 +15,7 @@ function Preview({backdrop}) {
 						"deg) rotate(" +
 						skewDeg +
 						"deg)",
-						backgroundColor:!backdrop? "#252525":"",
+						backgroundColor:!props.backdrop? "#252525":"",
 						// boxShadow: "2px 2px 12px 2px #939393"
 				}}>
 				<img
@@ -82,7 +82,7 @@ function Preview({backdrop}) {
 				id="infobox"
 				className={"bg-post items-center  justify-evenly fade-in2 max-h-[44vh] min-h-[22vh] text-[2.2vh] lg:text-[1.8vh]  h-[18vw] -ml-[1.25vw] pl-[1.25vw] w-[45vw] flex flex-row  mt-1  rounded-md border border-bcol border-1 "}
 				style={{
-					backgroundColor:!backdrop? "#252525": "#2525254C"
+					backgroundColor:!props.backdrop? "#252525": "#2525254C"
 				}}
 				>
 				<div

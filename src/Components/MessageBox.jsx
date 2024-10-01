@@ -1,10 +1,6 @@
 import { svg } from "../Utility/VectorGraphics";
 function MessageBox({
-	unzipCounter,
-	unzipTotal,
-	downloadHead,
-	downloadQueue,
-	showFps,
+	props
 }) {
 	return (
 		<div
@@ -65,7 +61,7 @@ function MessageBox({
 			<div
 				
 				style={{
-					height: showFps ? "3.5vh" : 0,
+					height: props.showFps ? "3.5vh" : 0,
 				}}
 				className=" flex items-center opacity -0 px-[1vh]  w-full overflow-hidden duration-300  h -0">
 				<div className="max-w-1/2 w-1/2 flex justify-start">

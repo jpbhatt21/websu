@@ -661,13 +661,11 @@ export function fakeClick(index, index2, mode = false) {
 		}
 	}, 20);
 }
-export function pause(ele) {
-	pauseMenu.style.opacity = "1";
-	pauseMenu.style.pointerEvents = "all";
+export function pause() {
 	music.pause();
 	backgroundVideo.pause();
 }
-export function play(ele) {
+export function play() {
 	music.play();
 	backgroundVideo.play();
 }

@@ -8,36 +8,28 @@ import {
 	getBeatMapCollectionInfo,
 	getIndividualBeatMapInfo,
 	playSong,
-	setBackground,
 	setPreviewImage,
 	music,
 	backgroundImage,
-	colors,
 	pause,
 	play,
 	setBeatmapPreviewData,
 	useWindowDimensions,
 	setLoadingBar,
-	initializeMusic,
 	reInitializeMusic,
 } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
 import PlayArea from "./GamePlayScreen";
 import { uri, uri2 } from "../App";
-import PauseScreen from "./PauseScreen";
-import LoadScreen from "./LoadScreen";
 import Toggle from "../Components/Toggle";
-import SettingsScreen from "./SettingsScreen";
 import { settings } from "../SettingsValues";
-import Confirm from "./ConfirmDeleteScreen";
 import { connect } from "./HomeScreen";
 let typeTimeout = null;
 let scrollTimeout = null;
-let scIndTimer = null;
-let settingTimer = null;
 let playLastActiveSongTimeout = null;
 let offlineDBSearch = null;
 let scale = 1;
+let attachedListener=false
 function SongSelectionMenu({ props }) {
 	const { height, width } = useWindowDimensions();
 	scale = settings.User_Interface.UI_Scale.value;
@@ -58,10 +50,9 @@ function SongSelectionMenu({ props }) {
 	const [secondaryIndex, setSecondaryIndex] = useState(0);
 	const [searchKey, setSearchKey] = useState(0);
 	const [start, setStart] = useState(false);
-	const [focus, setFocus] = useState(!false);
+	const [scrollTop,setScrollTop]=useState(0)
 	const [prevMusic, setPrevMusic] = useState([]);
 	const [onlineMode, setOnlineMode] = useState(false);
-	const [attempts, setAttempts] = useState(0);
 	const [deleteMode, setDeleteMode] = useState(false);
 	const [savedScrollPosition, setSavedScrollPosition] = useState(-1);
 	const [osuDirect, setOsuDirect] = useState(!true);
@@ -74,11 +65,6 @@ function SongSelectionMenu({ props }) {
 	const [downloadHead, setDownloadHead] = useState(0);
 	const [activeDownload, setActiveDownload] = useState(false);
 	const [downloadQueue, setDownloadQueue] = useState([]);
-	const [sctop, setSctop] = useState(0);
-	const [settingsToggle, setSettingsToggle] = useState(false);
-	const [updateSetting, setUpdateSettings] = useState(0);
-	const [settingScrollIndex, setSettingScrollIndex] = useState(0);
-	const [fun, setFun] = useState(null);
 	async function getFiles(files, mode = false) {
 		setUnzipQueueLength((prev) => prev + files.length);
 		for (let i = 0; i < files.length; i++) {
@@ -231,90 +217,96 @@ function SongSelectionMenu({ props }) {
 		}
 	}
 	function keyaction(e) {
-		if (previewSearch.style.opacity == 1) {
-			if (!start) {
-				// if (e.key == "F11" && !e.repeat) {
-				// 	if (document.fullscreenElement) {
-				// 		document.exitFullscreen();
-				// 		navigator.keyboard.unlock();
-				// 	} else {
-				// 		document.documentElement.requestFullscreen();
-				// 		navigator.keyboard.lock();
-				// 	}
-				// }
-				if (e.altKey && e.shiftKey && e.code == "Backquote") {
-					settings.Maintainance[
-						"Restore Default Settings"
-					].function();
-				}
-				if (e.altKey && e.code == "KeyO") {
-					document.getElementById("onlineModeSwitch").click();
-				} else if (e.altKey && e.code == "KeyS") {
-					stb.click();
-				} else if (e.altKey && e.code == "KeyX") {
-					document.getElementById("deleteModeButton").click();
-				} else if (e.altKey && e.code == "KeyM") {
-					music.muted = !music.muted;
-				} else if (e.altKey && e.code == "KeyP") {
-					music.paused ? music.play() : music.pause();
-				}
-				if (e.key == "Escape" && !e.repeat) {
-					if (document.getElementById("resetConfirm")) {
-						document.getElementById("resetConfirm").click();
-					} else if (document.getElementById("settingsPage")) {
-						stb.click();
-					} else {
-						if (searchbox.value == "") {
-							props.setShowHome(true);
-							//props.setShowTopBar(false)
-							previewSearch2.style.opacity="0"
-							setGlobalIndex(-1)
-							setTimeout(()=>{
-								props.setAddSongMenuEventListener(false);
-							},1000)
-							document.removeEventListener("keydown", keyaction);
-							return;
-						}
-						searchbox.value = "";
-						searchbox.blur();
-						resetButton.click();
-						setSearchKey(searchKey + 1);
-					}
-					return;
-				}
-				if (document.activeElement == document.body) searchbox.focus();
-			}
-		} else {
-			if (e.repeat) return;
-
-			if (e.key == "Escape" || e.code == "Space") {
-				let root = document.querySelector("#playArea");
-				if (
-					root.style.animationPlayState != "paused" &&
-					!music.paused
-				) {
-					pause(root);
-				} else {
-					pauseMenu.style.opacity = "0";
-
-					pauseMenu.style.pointerEvents = "none";
-					setTimeout(() => {
-						play(root);
-					}, 1000);
-				}
-			}
-			if (e.key == "x" || e.key == "z") {
-				{
-					let doc = document.querySelector(
-						"#test23 > div >  div:hover "
-					);
-					if (doc != null) {
-						doc.click();
-						doc.style.pointerEvents = "none";
-					}
-				}
-			}
+		try {
+			if (mainMenuScr) return;
+		} catch (e) {}
+		try {
+			if (searchbox) console.log();
+		} catch (e) {
+			document.removeEventListener("keydown", keyaction);
+						return;
 		}
+		if (topBar.style.marginTop == "0px") {
+			// if (e.key == "F11" && !e.repeat) {
+			// 	if (document.fullscreenElement) {
+			// 		document.exitFullscreen();
+			// 		navigator.keyboard.unlock();
+			// 	} else {
+			// 		document.documentElement.requestFullscreen();
+			// 		navigator.keyboard.lock();
+			// 	}
+			// }
+			if (e.altKey && e.shiftKey && e.code == "Backquote") {
+				settings.Maintainance["Restore Default Settings"].function();
+			}
+			if (e.altKey && e.code == "KeyO") {
+				document.getElementById("onlineModeSwitch").click();
+			} else if (e.altKey && e.code == "KeyS") {
+				stb.click();
+			} else if (e.altKey && e.code == "KeyX") {
+				document.getElementById("deleteModeButton").click();
+			} else if (e.altKey && e.code == "KeyM") {
+				music.muted = !music.muted;
+			} else if (e.altKey && e.code == "KeyP") {
+				music.paused ? music.play() : music.pause();
+			}
+			if (e.key == "Escape" && !e.repeat) {
+				if (document.getElementById("resetConfirm")) {
+					document.getElementById("resetConfirm").click();
+				} else if (document.getElementById("settingsPage")) {
+					stb.click();
+				} else {
+					if (searchbox.value == "") {
+						props.setShowHome(true);
+						//props.setShowTopBar(false)
+						songMenuTopBarAddOns.style.opacity = "0";
+						setGlobalIndex(-1);
+						setTimeout(() => {
+							props.setShowSongMenu(false);
+						}, 1000);
+						document.removeEventListener("keydown", keyaction);
+						return;
+					}
+					searchbox.value = "";
+					searchbox.blur();
+					resetButton.click();
+					setSearchKey(searchKey + 1);
+				}
+				return;
+			}
+			if (document.activeElement == document.body) searchbox.focus();
+		}
+		// } else {
+		// 	if (e.repeat) return;
+
+		// 	if (e.key == "Escape" || e.code == "Space") {
+		// 		let root = document.querySelector("#playArea");
+		// 		if (
+		// 			root.style.animationPlayState != "paused" &&
+		// 			!music.paused
+		// 		) {
+		// 			pause(root);
+		// 		} else {
+		// 			pauseMenu.style.opacity = "0";
+
+		// 			pauseMenu.style.pointerEvents = "none";
+		// 			setTimeout(() => {
+		// 				play(root);
+		// 			}, 1000);
+		// 		}
+		// 	}
+		// 	if (e.key == "x" || e.key == "z") {
+		// 		{
+		// 			let doc = document.querySelector(
+		// 				"#test23 > div >  div:hover "
+		// 			);
+		// 			if (doc != null) {
+		// 				doc.click();
+		// 				doc.style.pointerEvents = "none";
+		// 			}
+		// 		}
+		// 	}
+		// }
 	}
 	function resetView() {
 		previewCircleSize.style.width = 0 + "%";
@@ -527,7 +519,7 @@ function SongSelectionMenu({ props }) {
 	}
 	function scrollHandler() {
 		if (start) return;
-		setSctop(scrollMenu.scrollTop);
+		setScrollTop(scrollMenu.scrollTop)
 		let select = onlineMode ? webSearchData : metaData;
 		let centerIndex = Math.min(
 			parseInt(
@@ -659,20 +651,20 @@ function SongSelectionMenu({ props }) {
 						top: prev + 2,
 						behavior: "smooth",
 					});
-					connect()
-				}
-				else{
-					reInitializeMusic()
+					connect();
+				} else {
+					reInitializeMusic();
 				}
 			}, 1);
 		}, 300);
 	}
 	useEffect(() => {
-		if (props.addSongMenuEventListener) document.addEventListener("keydown", keyaction);
-		else document.removeEventListener("keydown", keyaction);
-	}, [props.addSongMenuEventListener]);
+		if (props.showSongMenu){ document.addEventListener("keydown", keyaction);
+			setGlobalIndex(-1)
+			scrollListTo(globalIndex<=0?0:globalIndex, globalIndex<=0);
+		}
+	}, [props.showSongMenu]);
 	useEffect(() => {
-		if (!focus) return;
 		const request = indexedDB.open("websuStorage", 2);
 		request.onupgradeneeded = function (event) {
 			const db = event.target.result;
@@ -797,7 +789,7 @@ function SongSelectionMenu({ props }) {
 				};
 		};
 		setLoadingBar(100);
-	}, [focus]);
+	}, []);
 	useEffect(() => {
 		if (!start && prevMusic.length > 0) {
 			playLastActiveSongTimeout = setTimeout(() => {
@@ -812,11 +804,50 @@ function SongSelectionMenu({ props }) {
 		} else if (playLastActiveSongTimeout != null) {
 			clearTimeout(playLastActiveSongTimeout);
 		}
+		if (start) {
+			props.setGameProp({
+				setId: onlineMode
+					? webSearchData[globalIndex].setId
+					: metaData[globalIndex].setId,
+				id: onlineMode
+					? webSearchData[globalIndex].levels[secondaryIndex].id
+					: metaData[globalIndex].levels[secondaryIndex].id,
+				online: tempOnline,
+			});
+			songMenuTopBarAddOns.style.opacity = "0";
+			props.setShowTopBar(false);
+			backgroundImage.style.filter =
+				"blur(" +
+				settings.Gameplay["Background Blur"].value / 5 +
+				"px) brightness(" +
+				(1 - settings.Gameplay["Background Dim"].value / 100) +
+				")";
+			props.setShowGame(true);
+			// setTimeout(() => {
+			props.setShowSongMenu(false);
+			setStart(false)
+			// }, 1000);
+			// if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
+			// 	document.documentElement.requestFullscreen();
+			// 	navigator.keyboard.lock();
+			// }
+		} else {
+			if (settings.User_Interface.Background.value != 0) {
+				backgroundImage.style.filter = "blur(0px) brightness(0.5)";
+			} else {
+				backgroundImage.style.filter = "blur(6px) brightness(0.5)";
+			}
+			// if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
+			// 	if (document.fullscreenElement) {
+			// 		document.exitFullscreen();
+			// 		navigator.keyboard.unlock();
+			// 	}
+			// }
+		}
 	}, [start]);
 	useEffect(() => {
-		if(!props.addSongMenuEventListener)
-			return
-		unzipCounter.innerHTML="(" + unzipCounter + "/" + unzipTotal + ")"
+		if (!props.showSongMenu) return;
+		unzipCounter.innerHTML = "(" + unzipHead + "/" + unzipQueueLength + ")";
 		if (unzipHead == unzipQueueLength && unzipQueueLength > 0) {
 			unzippingSet.style.height = "";
 			unzippingSet.style.opacity = "";
@@ -834,9 +865,9 @@ function SongSelectionMenu({ props }) {
 		}
 	}, [unzipHead, unzipQueueLength]);
 	useEffect(() => {
-		if(!props.addSongMenuEventListener)
-			return
-		downloadCounter.innerHTML="(" + downloadHead + "/" + downloadQueue.length + ")"
+		if (!props.showSongMenu) return;
+		downloadCounter.innerHTML =
+			"(" + downloadHead + "/" + downloadQueue.length + ")";
 		if (
 			!activeDownload &&
 			downloadQueue.length > 0 &&
@@ -871,33 +902,10 @@ function SongSelectionMenu({ props }) {
 				});
 		}
 	}, [downloadHead, downloadQueue]);
-	if (start) {
-		backgroundImage.style.filter =
-			"blur(" +
-			settings.Gameplay["Background Blur"].value / 5 +
-			"px) brightness(" +
-			(1 - settings.Gameplay["Background Dim"].value / 100) +
-			")";
-		// if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
-		// 	document.documentElement.requestFullscreen();
-		// 	navigator.keyboard.lock();
-		// }
-	} else {
-		if (settings.User_Interface.Background.value != 0) {
-			backgroundImage.style.filter = "blur(0px) brightness(0.5)";
-		} else {
-			backgroundImage.style.filter = "blur(6px) brightness(0.5)";
-		}
-		// if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
-		// 	if (document.fullscreenElement) {
-		// 		document.exitFullscreen();
-		// 		navigator.keyboard.unlock();
-		// 	}
-		// }
-	}
+
 	let sct = 0;
 	try {
-		sct = scrollMenu.scrollTop / (elementHeight * (deleteMode ? 1.2 : 1));
+		sct = scrollTop / (elementHeight * (deleteMode ? 1.2 : 1));
 	} catch (e) {}
 	let rX = height * 3;
 	let rY = height / 2;
@@ -1499,417 +1507,409 @@ function SongSelectionMenu({ props }) {
 	return (
 		<>
 			{" "}
-			{
-				props.addSongMenuEventListener?<><div
-				className="fixed   w-[60vw] duration-300 h-1/2 top-1/4 -left-0 bg-opacity-40 bg-black"
-				style={{
-					transform:
-						"skew(-" +
-						skewDeg +
-						"deg,-" +
-						skewDeg +
-						"deg) rotate(" +
-						skewDeg +
-						"deg) translateY(-50%) translateX(-20%)",
-					opacity: start ? 0 : 1,
-				}}></div>
-			<div
-				className="fixed w-[60vw] h-1/2 duration-300 top-1/4 -left-0 bg-opacity-40 bg-black"
-				style={{
-					transform:
-						"skew(" +
-						skewDeg +
-						"deg," +
-						skewDeg +
-						"deg) rotate(-" +
-						skewDeg +
-						"deg) translateY(50%)  translateX(-20%)",
-					opacity: start ? 0 : 1,
-				}}></div>
-			<div
-				id="screen"
-				className="fade-in"
-				style={{
-					pointerEvents: start ? "none" : "auto",
-				}}>
-				<div
-					className="duration-300 lexend fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
-					style={{
-						opacity:
-							!onlineMode && !switchToggle && metaData.length < 1
-								? "0.5"
-								: "0",
-						transform: "scale(" + scale + ")",
-					}}>
-					<div>
-						{metaFiles.length < 1 ? (
-							<>
-								<label
-									htmlFor="inpp"
-									className=" hover:text-white duration-300 pointer-events-auto">
-									Upload
-								</label>{" "}
-								a beatmap set,
-							</>
-						) : (
-							<>No beatmaps found, </>
-						)}
-					</div>
-					<div>
-						{metaFiles.length < 1 ? (
-							<>
-								<label
-									htmlFor="loadDemo"
-									className=" hover:text-white duration-300 pointer-events-auto">
-									load demo
-								</label>{" "}
-								, or{" "}
-							</>
-						) : (
-							<>try using different keywords, or </>
-						)}
-					</div>
-					<div>
-						{" "}
-						switch to{" "}
-						<label
-							className=" hover:text-white duration-300 pointer-events-auto"
-							onClick={() => {
-								setSwitchToggle(true);
-								setTimeout(() => {
-									setOnlineMode(true);
-								}, 300);
-							}}>
-							online mode
-						</label>{" "}
-					</div>
-				</div>
-				<div
-					className="duration-300 lexend fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
-					style={{
-						opacity:
-							onlineMode &&
-							switchToggle &&
-							webSearchData.length < 1
-								? "0.5"
-								: "0",
-						transform: "scale(" + scale + ")",
-					}}>
-					<div>Search the web</div>
-					<div>for beatmaps</div>
-				</div>
-				<div
-					key={searchKey}
-					id="scrollMenu"
-					className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-hidden right-0  bg -post  pl-4   w-[50vw] items-end justify-end fade-in  grid   h-[150%] pt-[50vh]    "
-					onScroll={scrollHandler}
-					style={{
-						scrollBehavior: "smooth",
-						opacity:
-							start || (settingsToggle && width < 1024) ? 0 : 1,
-						pointerEvents:
-							start ||
-							(metaData.length < 1 && webSearchData.length < 1) ||
-							(settingsToggle && width < 1024)
-								? "none"
-								: "auto",
-						marginRight:
-							settingsToggle && width / 2 < 1024 * scale
-								? -(1024 * scale - width / 2)
-								: "",
-					}}>
-					{list}
+			{props.showSongMenu ? (
+				<>
 					<div
-						id="emptyy2"
-						className=" h-[100vh]"
-						onDragCapture={(e) => {
-							e.preventDefault();
+						className="fixed  fade-in  w-[60vw] duration-300 h-1/2 top-1/4 -left-0 bg-opacity-40 bg-black"
+						style={{
+							transform:
+								"skew(-" +
+								skewDeg +
+								"deg,-" +
+								skewDeg +
+								"deg) rotate(" +
+								skewDeg +
+								"deg) translateY(-50%) translateX(-20%)",
+							opacity: 1,
 						}}></div>
 					<div
-						className="h-[2vh] fixed duration-100 -translate-x-1/2  left-[53vw]"
+						className="fixed fade-in w-[60vw] h-1/2 duration-300 top-1/4 -left-0 bg-opacity-40 bg-black"
 						style={{
-							opacity: stationary ? 0 : 0,
-							top:
-								"calc(50% + " +
-								(scrollIndex * elementHeight -
-									sct * elementHeight +
-									elementHeight / 3) +
-								"px)",
-						}}>
-						{svg.playIcon}
-					</div>
-				</div>
-
-				{props.showTopBar ? (
+							transform:
+								"skew(" +
+								skewDeg +
+								"deg," +
+								skewDeg +
+								"deg) rotate(-" +
+								skewDeg +
+								"deg) translateY(50%)  translateX(-20%)",
+							opacity: 1,
+						}}></div>
 					<div
+						id="screen"
+						className="fade-in"
 						style={{
-							opacity: start ? 0 : 1,
-						}}
-						id="previewSearch2"
-						className="w-full duration-500  h-full flex pointer-events-none flex-col z-[11]  fixed ">
+							pointerEvents: "auto",
+						}}>
 						<div
+							className="duration-300 lexend fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
 							style={{
-								pointerEvents: start ? "none" : "auto",
-								height: 60 * scale + "px",
-								gap: 8 * scale + "px",
-								paddingRight: 8 * scale + "px",
-							}}
-							className=" flex items-center fade-in2 justify-end duration-300  absolute  w-1/2  top-0 right-0  ">
-							<div
-								className="h-full justify-end duration-300 flex"
-								style={{
-									opacity: !switchToggle ? "1" : "0",
-									pointerEvents: !switchToggle
-										? "all"
-										: "none",
-								}}>
-								<div
-									className="h-full aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
-									style={{
-										opacity:
-											metaFiles.length < 1 ? "1" : "0",
-										pointerEvents:
-											metaFiles.length < 1
-												? "all"
-												: "none",
-										marginTop: 2 * scale + "px",
-									}}>
-									<div className="w-1/2 h-fit  ">
-										<label htmlFor="loadDemo">
-											{svg.demoIcon}
-										</label>
-									</div>
-									<button
-										id="loadDemo"
-										className="hidden"
-										onClick={(e) => {
-											setDownloadQueue((prev) => [
-												...prev,
-												[1451291, false],
-												[1974878, false],
-											]);
-
-											return;
-										}}></button>
-									<div
-										style={{
-											transform: "scale(" + scale + ")",
-										}}
-										className="absolute delay-0 text-sm group-hover:delay-500 text-bcol opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
-										<div className="h-full w-full  mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
-											Load Demo
-										</div>
-									</div>
-								</div>
-								<div className="h-full  aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
-									<div
-										onClick={toggleDeleteMode}
-										id="deleteModeButton"
-										className="bg-post outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-white aspect-square h-3/5"
-										style={{
-											color: deleteMode ? "#b3b3b3" : "",
-											outlineColor: deleteMode
-												? "#939393"
-												: "",
-											backgroundColor: deleteMode
-												? "#2525254C"
-												: "",
-											borderRadius: 6 * scale + "px",
-											padding: 6 * scale + "px",
-										}}>
-										{svg.deleteIcon}
-									</div>
-									<div
-										style={{
-											transform: "scale(" + scale + ")",
-										}}
-										className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
-										<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
-											Delete Mode
-										</div>
-									</div>
-								</div>
-								<div className="h-full group aspect-[2/3] text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
-									<div className="w-1/2 ">
-										<label htmlFor="inpp">
-											{svg.uploadIcon}
-										</label>
-									</div>
-									<input
-										multiple
-										type="file"
-										className="hidden"
-										id="inpp"
-										accept=".osz"
-										onChange={(e) => {
-											getFiles(e.target.files);
-										}}
-									/>
-									<div
-										style={{
-											transform: "scale(" + scale + ")",
-										}}
-										className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
-										<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
-											Upload Beatmap
-										</div>
-									</div>
-								</div>
-							</div>
-							<div
-								className=" scale-75 text-bcol duration-300  aspect-square h-2/3"
-								style={{
-									opacity: !switchToggle ? "1" : "0.25",
-									marginLeft: -5 * scale + "px",
-								}}>
-								{svg.offlineIcon}
-							</div>
-							<div className="h-full w-10 group aspect-square text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
-								<Toggle
-									value={switchToggle}
-									onClick={toggleOnlineMode}
-									mode={true}
-									title="onlineModeSwitch"
-								/>
-
-								<div
-									style={{
-										transform: "scale(" + scale + ")",
-									}}
-									className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
-									<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
-										Go {switchToggle ? "Offline" : "Online"}
-									</div>
-								</div>
-							</div>
-							<div
-								className=" scale-75  text-bcol duration-300 aspect-square h-2/3"
-								style={{
-									opacity: switchToggle ? "1" : "0.25",
-								}}>
-								{svg.onlineIcon}
-							</div>
-
-							<div
-								style={{ borderRadius: 6 * scale + "px" }}
-								className="bg-post p-1 pl-2 outline-bcol outline-1 flex items-center   outline bg-opacity-30 w-[20vw] min-w-14 h-2/3 ">
-								<input
-									id="searchbox"
-									placeholder="Search"
-									onChange={searchBeatMaps}
-									type="text"
-									className=" w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none"
-									style={{
-										fontSize: 16 * scale + "px",
-									}}
-								/>
+								opacity:
+									!onlineMode &&
+									!switchToggle &&
+									metaData.length < 1
+										? "0.5"
+										: "0",
+								transform: "scale(" + scale + ")",
+							}}>
+							<div>
+								{metaFiles.length < 1 ? (
+									<>
+										<label
+											htmlFor="inpp"
+											className=" hover:text-white duration-300 pointer-events-auto">
+											Upload
+										</label>{" "}
+										a beatmap set,
+									</>
+								) : (
+									<>No beatmaps found, </>
+								)}
 							</div>
 							<div>
-								<div
-									className="text-bact text-center"
-									style={{
-										width: 96 * scale + "px",
-									}}></div>
+								{metaFiles.length < 1 ? (
+									<>
+										<label
+											htmlFor="loadDemo"
+											className=" hover:text-white duration-300 pointer-events-auto">
+											load demo
+										</label>{" "}
+										, or{" "}
+									</>
+								) : (
+									<>try using different keywords, or </>
+								)}
 							</div>
+							<div>
+								{" "}
+								switch to{" "}
+								<label
+									className=" hover:text-white duration-300 pointer-events-auto"
+									onClick={() => {
+										setSwitchToggle(true);
+										setTimeout(() => {
+											setOnlineMode(true);
+										}, 300);
+									}}>
+									online mode
+								</label>{" "}
+							</div>
+						</div>
+						<div
+							className="duration-300 lexend fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
+							style={{
+								opacity:
+									onlineMode &&
+									switchToggle &&
+									webSearchData.length < 1
+										? "0.5"
+										: "0",
+								transform: "scale(" + scale + ")",
+							}}>
+							<div>Search the web</div>
+							<div>for beatmaps</div>
+						</div>
+						<div
+							key={searchKey}
+							id="scrollMenu"
+							className=" duration-300 fixed overflow-y-scroll z-0 select-none  scroll-smooth overflow-x-hidden right-0  bg -post  pl-4   w-[50vw] items-end justify-end fade-in  grid   h-[150%] pt-[50vh]    "
+							onScroll={scrollHandler}
+							style={{
+								scrollBehavior: "smooth",
+								opacity: 1,
+								// start || (settingsToggle && width < 1024) ? 0 : 1,
+								pointerEvents:
+									// start ||
+									metaData.length < 1 &&
+									webSearchData.length < 1
+										? // ||(settingsToggle && width < 1024)
+										  "none"
+										: "auto",
+								// marginRight:
+								// 	settingsToggle && width / 2 < 1024 * scale
+								// 		? -(1024 * scale - width / 2)
+								// 		: "",
+							}}>
+							{list}
 							<div
-								id="resetButton"
-								className="w-16 h-16 bg-black hidden"
-								onClick={() => {
-									let ind = -1;
-
-									if (onlineMode) setWebSearchData([]);
-									else {
-										setMetaData(metaFiles);
-
-										if (
-											metaData.length > 0 &&
-											metaData[0].setId ==
-												metaFiles[0].setId
-										)
-											return;
-									}
-									setStationary(false);
-									setSearchKey(0);
-									setGlobalIndex(ind);
-									setSecondaryIndex(0);
-									setTimeout(() => {
-										scrollMenu.scrollTo({
-											top: 4,
-											behavior: "instant",
-										});
-										scrollMenu.scrollTo({
-											top: 2,
-											behavior: "smooth",
-										});
-									}, 10);
-									resetView();
+								id="emptyy2"
+								className=" h-[100vh]"
+								onDragCapture={(e) => {
+									e.preventDefault();
 								}}></div>
+							<div
+								className="h-[2vh] fixed duration-100 -translate-x-1/2  left-[53vw]"
+								style={{
+									opacity: stationary ? 0 : 0,
+									top:
+										"calc(50% + " +
+										(scrollIndex * elementHeight -
+											sct * elementHeight +
+											elementHeight / 3) +
+										"px)",
+								}}>
+								{svg.playIcon}
+							</div>
 						</div>
 
-						{settingsToggle ? (
-							<SettingsScreen
-								setUpdateSettings={setUpdateSettings}
-								setFun={setFun}
-								scale={scale}
-							/>
+						{props.showTopBar ? (
+							<div
+								style={{
+									opacity: 1,
+								}}
+								id="songMenuTopBarAddOns"
+								className="w-full duration-500  h-full flex pointer-events-none flex-col z-[31]  fixed ">
+								<div
+									style={{
+										pointerEvents: "auto",
+										height: 60 * scale + "px",
+										gap: 8 * scale + "px",
+										paddingRight: 8 * scale + "px",
+									}}
+									className=" flex items-center fade-in2 justify-end duration-300  absolute  w-1/2  top-0 right-0  ">
+									<div
+										className="h-full justify-end duration-300 flex"
+										style={{
+											opacity: !switchToggle ? "1" : "0",
+											pointerEvents: !switchToggle
+												? "all"
+												: "none",
+										}}>
+										<div
+											className="h-full aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
+											style={{
+												opacity:
+													metaFiles.length < 1
+														? "1"
+														: "0",
+												pointerEvents:
+													metaFiles.length < 1
+														? "all"
+														: "none",
+												marginTop: 2 * scale + "px",
+											}}>
+											<div className="w-1/2 h-fit  ">
+												<label htmlFor="loadDemo">
+													{svg.demoIcon}
+												</label>
+											</div>
+											<button
+												id="loadDemo"
+												className="hidden"
+												onClick={(e) => {
+													setDownloadQueue((prev) => [
+														...prev,
+														[1451291, false],
+														[1974878, false],
+													]);
+
+													return;
+												}}></button>
+											<div
+												style={{
+													transform:
+														"scale(" + scale + ")",
+												}}
+												className="absolute delay-0 text-sm group-hover:delay-500 text-bcol opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+												<div className="h-full w-full  mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
+													Load Demo
+												</div>
+											</div>
+										</div>
+										<div className="h-full  aspect-[2/3] group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+											<div
+												onClick={toggleDeleteMode}
+												id="deleteModeButton"
+												className="bg-post outline-[#93939300] outline-1 text-bcol duration-300  bg-opacity-0  outline hover:text-white aspect-square h-3/5"
+												style={{
+													color: deleteMode
+														? "#b3b3b3"
+														: "",
+													outlineColor: deleteMode
+														? "#939393"
+														: "",
+													backgroundColor: deleteMode
+														? "#2525254C"
+														: "",
+													borderRadius:
+														6 * scale + "px",
+													padding: 6 * scale + "px",
+												}}>
+												{svg.deleteIcon}
+											</div>
+											<div
+												style={{
+													transform:
+														"scale(" + scale + ")",
+												}}
+												className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+												<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
+													Delete Mode
+												</div>
+											</div>
+										</div>
+										<div className="h-full group aspect-[2/3] text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+											<div className="w-1/2 ">
+												<label htmlFor="inpp">
+													{svg.uploadIcon}
+												</label>
+											</div>
+											<input
+												multiple
+												type="file"
+												className="hidden"
+												id="inpp"
+												accept=".osz"
+												onChange={(e) => {
+													getFiles(e.target.files);
+												}}
+											/>
+											<div
+												style={{
+													transform:
+														"scale(" + scale + ")",
+												}}
+												className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+												<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
+													Upload Beatmap
+												</div>
+											</div>
+										</div>
+									</div>
+									<div
+										className=" scale-75 text-bcol duration-300  aspect-square h-2/3"
+										style={{
+											opacity: !switchToggle
+												? "1"
+												: "0.25",
+											marginLeft: -5 * scale + "px",
+										}}>
+										{svg.offlineIcon}
+									</div>
+									<div className="h-full w-10 group aspect-square text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+										<Toggle
+											props={{
+												value: switchToggle,
+												onClick: toggleOnlineMode,
+											}}
+											title="onlineModeSwitch"
+										/>
+
+										<div
+											style={{
+												transform:
+													"scale(" + scale + ")",
+											}}
+											className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+											<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
+												Go{" "}
+												{switchToggle
+													? "Offline"
+													: "Online"}
+											</div>
+										</div>
+									</div>
+									<div
+										className=" scale-75  text-bcol duration-300 aspect-square h-2/3"
+										style={{
+											opacity: switchToggle
+												? "1"
+												: "0.25",
+										}}>
+										{svg.onlineIcon}
+									</div>
+
+									<div
+										style={{
+											borderRadius: 6 * scale + "px",
+										}}
+										className="bg-post p-1 pl-2 outline-bcol outline-1 flex items-center   outline bg-opacity-30 w-[20vw] min-w-14 h-2/3 ">
+										<input
+											id="searchbox"
+											placeholder="Search"
+											onChange={searchBeatMaps}
+											type="text"
+											className=" w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none"
+											style={{
+												fontSize: 16 * scale + "px",
+											}}
+										/>
+									</div>
+									<div>
+										<div
+											className="text-bact text-center"
+											style={{
+												width: 96 * scale + "px",
+											}}></div>
+									</div>
+									<div
+										id="resetButton"
+										className="w-16 h-16 bg-black hidden"
+										onClick={() => {
+											let ind = -1;
+
+											if (onlineMode)
+												setWebSearchData([]);
+											else {
+												setMetaData(metaFiles);
+
+												if (
+													metaData.length > 0 &&
+													metaData[0].setId ==
+														metaFiles[0].setId
+												)
+													return;
+											}
+											setStationary(false);
+											setSearchKey(0);
+											setGlobalIndex(ind);
+											setSecondaryIndex(0);
+											setTimeout(() => {
+												scrollMenu.scrollTo({
+													top: 4,
+													behavior: "instant",
+												});
+												scrollMenu.scrollTo({
+													top: 2,
+													behavior: "smooth",
+												});
+											}, 10);
+											resetView();
+										}}></div>
+								</div>
+							</div>
 						) : (
 							<></>
 						)}
+						<div
+							className="duration-300 fixed"
+							id="previewContainer"
+							style={{
+								opacity:
+									(switchToggle &&
+										webSearchData.length > 0) ||
+									(!switchToggle &&
+										!onlineMode &&
+										metaData.length > 0)
+										? // !settingsToggle?
+										  1
+										: // : 0
+										  0,
+								marginTop: 60 * scale + "px",
+							}}>
+							<Preview
+								props={{
+									backdrop:
+										settings.User_Interface.UI_BackDrop
+											.value,
+								}}
+							/>
+						</div>
 					</div>
-				) : (
-					<></>
-				)}
-				<div
-					className="duration-300 fixed"
-					id="previewContainer"
-					style={{
-						opacity:
-							(switchToggle && webSearchData.length > 0) ||
-							(!switchToggle &&
-								!onlineMode &&
-								metaData.length > 0)
-								? !settingsToggle
-									? 1
-									: 0
-								: 0,
-						marginTop: 60 * scale + "px",
-					}}>
-					<Preview
-						backdrop={settings.User_Interface.UI_BackDrop.value}
-					/>
-				</div>
-				<LoadScreen start={start} />
-				<PauseScreen setStart={setStart} setAttempts={setAttempts} />
-			</div>
-			{start ? (
-				<PlayArea
-					setId={
-						onlineMode
-							? webSearchData[globalIndex].setId
-							: metaData[globalIndex].setId
-					}
-					id={
-						onlineMode
-							? webSearchData[globalIndex].levels[secondaryIndex]
-									.id
-							: metaData[globalIndex].levels[secondaryIndex].id
-					}
-					setStart={setStart}
-					attempts={attempts}
-					online={tempOnline}
-				/>
+				</>
 			) : (
 				<></>
-			)}</>:<></>
-			}
-			{/* <MessageBox
-				downloadHead={downloadHead}
-				downloadQueue={downloadQueue}
-				unzipCounter={unzipHead}
-				unzipTotal={unzipQueueLength}
-				showFps={settings.User_Interface.Show_FPS.value}
-			/> */}
-			{/* {fun ? <Confirm fun={fun} setFun={setFun} /> : <></>} */}
+			)}
 		</>
 	);
 }

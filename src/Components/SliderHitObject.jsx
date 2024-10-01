@@ -1,23 +1,23 @@
 import { Container, SimpleMesh } from "@pixi/react";
 import { capShader, shader, uniforms, uniforms2 } from "../Utility/Utils";
 
-function Slider({shaderIndex, startCap, endCap, sliderMesh,filter}) {
+function Slider({props}) {
 	return (
-		<Container filters={filter}>
+		<Container filters={props.filter}>
 			<SimpleMesh
-				shader={capShader[shaderIndex]}
-				geometry={startCap}
+				shader={capShader[props.shaderIndex]}
+				geometry={props.startCap}
 				texture={uniforms2.uSampler2}
 				
 			/>
 			<SimpleMesh
-				shader={shader[shaderIndex]}
-				geometry={sliderMesh}
+				shader={shader[props.shaderIndex]}
+				geometry={props.sliderMesh}
 				texture={uniforms.uSampler2}
 			/>
 			<SimpleMesh
-				shader={capShader[shaderIndex]}
-				geometry={endCap}
+				shader={capShader[props.shaderIndex]}
+				geometry={props.endCap}
 				texture={uniforms2.uSampler2}
 				
 			/>

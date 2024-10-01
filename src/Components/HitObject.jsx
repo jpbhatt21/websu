@@ -1,48 +1,48 @@
 import { Container, Sprite } from "@pixi/react";
 
-function HitObject({x,y,circleSize,approachCircleScale,approachCircleOpacity,scalingFactor,tintColor,hitObjectNumber,hitObjectOpacity}) {
+function HitObject({props}) {
     return ( <Container
-        alpha={hitObjectOpacity}
-        x={x * scalingFactor}
-        y={y * scalingFactor}>
+        alpha={props.hitObjectOpacity}
+        x={props.x * props.scalingFactor}
+        y={props.y * props.scalingFactor}>
         <Sprite
             image="/hitcircle.png" //Hitcircle
-            height={circleSize * scalingFactor}
-            width={circleSize * scalingFactor}
+            height={props.circleSize * props.scalingFactor}
+            width={props.circleSize * props.scalingFactor}
             anchor={0.5}
-            tint={tintColor}
+            tint={props.tintColor}
         />
-        {hitObjectNumber < 10 ?  //If number is less than 10 then just display the number, else display the number in two parts. Numbers greater than 100 are not displayed
+        {props.hitObjectNumber < 10 ?  //If number is less than 10 then just display the number, else display the number in two parts. Numbers greater than 100 are not displayed
         (
             <Sprite //Number
                 image={
-                    "/Numbers/" + hitObjectNumber + ".png" 
+                    "/Numbers/" + props.hitObjectNumber + ".png" 
                 }
-                scale={{ x: 0.3 * scalingFactor, y: 0.3 * scalingFactor }}
+                scale={{ x: 0.3 * props.scalingFactor, y: 0.3 * props.scalingFactor }}
                 anchor={0.5}
             />
-        ) : hitObjectNumber < 100 ? (
+        ) : props.hitObjectNumber < 100 ? (
             <>
                 <Sprite //Ten's place
                     image={
                         "/Numbers/" +
                         parseInt(
-                            hitObjectNumber / 10
+                            props.hitObjectNumber / 10
                         ) +
                         ".png"
                     }
-                    scale={{ x: 0.3 * scalingFactor, y: 0.3 * scalingFactor }}
-                    x={-20 * 0.3 * scalingFactor}
+                    scale={{ x: 0.3 * props.scalingFactor, y: 0.3 * props.scalingFactor }}
+                    x={-20 * 0.3 * props.scalingFactor}
                     anchor={0.5}
                 />
                 <Sprite //One's place
                     image={
                         "/Numbers/" +
-                        (hitObjectNumber % 10) +
+                        (props.hitObjectNumber % 10) +
                         ".png"
                     }
-                    scale={{ x: 0.3 * scalingFactor, y: 0.3 * scalingFactor }}
-                    x={20 * 0.3 * scalingFactor}
+                    scale={{ x: 0.3 * props.scalingFactor, y: 0.3 * props.scalingFactor }}
+                    x={20 * 0.3 * props.scalingFactor}
                     anchor={0.5}
                 />
             </>
@@ -51,18 +51,18 @@ function HitObject({x,y,circleSize,approachCircleScale,approachCircleOpacity,sca
         )}
         <Sprite
             image="/approachcircle.png" //Approach circle restiing place
-            height={(circleSize ) * scalingFactor}
-            width={(circleSize ) * scalingFactor}
-            alpha={approachCircleScale > 1 ? approachCircleOpacity : 0}
+            height={(props.circleSize ) * props.scalingFactor}
+            width={(props.circleSize ) * props.scalingFactor}
+            alpha={props.approachCircleScale > 1 ? props.approachCircleOpacity : 0}
             anchor={0.5}
         />
         <Sprite
             image="/approachcircle.png" //Approach circle 
-            height={(circleSize ) * scalingFactor * approachCircleScale}
-            width={(circleSize ) * scalingFactor * approachCircleScale}
-            alpha={approachCircleOpacity}
+            height={(props.circleSize ) * props.scalingFactor * props.approachCircleScale}
+            width={(props.circleSize ) * props.scalingFactor * props.approachCircleScale}
+            alpha={props.approachCircleOpacity}
             anchor={0.5}
-            tint={tintColor}
+            tint={props.tintColor}
         />
     </Container> );
 }

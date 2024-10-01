@@ -1,5 +1,5 @@
 import { useState } from "react";
-import Selecter from "./SettingsSelecter";
+import SettingsSelecter from "./SettingsSelecter";
 import Toggle from "./Toggle";
 import SettingsSlider from "./SettingsSlider";
 import { setSettings, settings, defaultSettings } from "../SettingsValues";
@@ -7,54 +7,46 @@ import { svg } from "../Utility/VectorGraphics";
 import SettignsButton from "./SettingsButton";
 import SettingsKey from "./SettingsKey";
 
-function SettingsListElement({
-	x,
-	index,
-	settingScrollIndex,
-	sst,
-	backdrop,
-	setFun,
-	scale,
-}) {
+function SettingsListElement({ props }) {
 	const [key, setKey] = useState(0);
 	function toggleClick(i) {
 		let prev = settings;
-		prev[x.name][i].value = !prev[x.name][i].value;
-		sst((prev) => prev + 1);
+		prev[props.x.name][i].value = !prev[props.x.name][i].value;
+		props.changeSettings((prev) => prev + 1);
 		setSettings(prev);
 	}
 	function selecterSelecter(i, val) {
 		let prev = settings;
-		prev[x.name][i].value = val;
-		sst((prev) => prev + 1);
+		prev[props.x.name][i].value = val;
+		props.changeSettings((prev) => prev + 1);
 		setSettings(prev);
 	}
 	function resetToDefault(i) {
 		let prev = settings;
-		prev[x.name][i].value = defaultSettings[x.name][i].value;
-		sst((prev) => prev + 1);
+		prev[props.x.name][i].value = defaultSettings[props.x.name][i].value;
+		props.changeSettings((prev) => prev + 1);
 		setKey((prev) => prev + 1);
 		setSettings(prev);
 	}
 	return (
 		<>
 			<div
-				className="w-full h-fit   duration-300  text-white flex-col flex  text-lg    "
+				className="flex flex-col w-full text-lg text-white duration-300 h-fit"
 				style={{
 					// filter:
 					// 	settingScrollIndex == index ? "" : "brightness(65%)",
-					fontSize: 18 * scale + "px",
-					lineHeight: 24 * scale + "px",
+					fontSize: 18 * props.scale + "px",
+					lineHeight: 24 * props.scale + "px",
 				}}>
 				<div
-					className=" text-3xl lexend -ml-2"
+					className="-ml-2 text-3xl lexend"
 					style={{
-						fontSize: 30 * scale + "px",
-						marginTop: 20 * scale + "px",
-						marginLeft: -8 * scale + "px",
+						fontSize: 30 * props.scale + "px",
+						marginTop: 20 * props.scale + "px",
+						marginLeft: -8 * props.scale + "px",
 					}}
 					onClick={(e) => {
-						if (settingScrollIndex != index)
+						if (props.settingScrollIndex != props.index)
 							settingsScroll.scrollTo({
 								top:
 									settingsScroll.scrollTop +
@@ -67,50 +59,50 @@ function SettingsListElement({
 							});
 					}}>
 					{" "}
-					{x.name.replace("_", " ")}
+					{props.x.name.replace("_", " ")}
 				</div>
 				<div
-					className="flex w-full flex-col-reverse gap-2"
+					className="flex flex-col-reverse w-full gap-2"
 					style={{
 						// pointerEvents:
 						// 	settingScrollIndex == index ? "" : "none",
-						paddingTop: 20 * scale + "px",
-						gap: 8 * scale + "px",
+						paddingTop: 20 * props.scale + "px",
+						gap: 8 * props.scale + "px",
 					}}>
-					{Object.keys(x.settings)
+					{Object.keys(props.x.settings)
 						.reverse()
 						.map((y, index2) => (
 							<div
-								key={"settings" + index + " " + index2}
-								className="text-bact relative  justify-between flex  items-center w-full"
+								key={"settings" + props.index + " " + index2}
+								className="relative flex items-center justify-between w-full text-bact"
 								style={{
-									height: 60 * scale + "px",
+									height: 60 * props.scale + "px",
 								}}>
 								<div
-									className="w-64 items-center flex h-full -mt-1"
+									className="flex items-center w-64 h-full -mt-1"
 									style={{
-										width: 256 * scale + "px",
+										width: 256 * props.scale + "px",
 									}}>
 									<div
 										className="min-w-fit"
 										style={{
-											width: 256 * scale + "px",
+											width: 256 * props.scale + "px",
 											fontSize:
-												x.settings[y].type ==
+												props.x.settings[y].type ==
 												"Subheading"
-													? 25 * scale + "px"
+													? 25 * props.scale + "px"
 													: "",
 											color:
-												x.settings[y].type ==
+												props.x.settings[y].type ==
 												"Subheading"
 													? "#ddd"
 													: "",
 										}}>
 										{y.replace("_", " ")}
 									</div>
-									{x.settings[y].type != "button" &&
-									defaultSettings[x.name][y].value !=
-										x.settings[y].value ? (
+									{props.x.settings[y].type != "button" &&
+									defaultSettings[props.x.name][y].value !=
+										props.x.settings[y].value ? (
 										<div
 											onClick={() => {
 												resetToDefault(y);
@@ -122,41 +114,51 @@ function SettingsListElement({
 										<></>
 									)}
 								</div>
-								{x.settings[y].type == "toggle" ? (
+								{props.x.settings[y].type == "toggle" ? (
 									<Toggle
-										mode={backdrop}
-										value={x.settings[y].value}
-										onClick={() => {
-											toggleClick(y);
+										props={{
+											value: props.x.settings[y].value,
+											onClick: () => {
+												toggleClick(y);
+											},
 										}}
 									/>
-								) : x.settings[y].type == "list" ? (
-									<Selecter
-										backdrop={backdrop}
-										key2={"selecter" + index + " " + index2}
-										index={y}
-										options={x.settings[y].options}
-										selected={x.settings[y].value}
-										selecterSelecter={selecterSelecter}
-										scale={scale}
+								) : props.x.settings[y].type == "list" ? (
+									<SettingsSelecter
+										props={{
+											index: y,
+											options:
+												props.x.settings[y].options,
+											selected: props.x.settings[y].value,
+											selecterSelecter,
+											scale: props.scale,
+											key:
+												"selecter" +
+												props.index +
+												" " +
+												index2,
+										}}
 									/>
-								) : x.settings[y].type == "slider" ? (
+								) : props.x.settings[y].type == "slider" ? (
 									<SettingsSlider
 										key={"setting" + y + "" + key}
-										index={y}
-										value={x.settings[y].value}
-										selecterSelecter={selecterSelecter}
+										props={{
+											index: y,
+											value: props.x.settings[y].value,
+											selecterSelecter,
+										}}
 									/>
-								) : x.settings[y].type == "button" ? (
+								) : props.x.settings[y].type == "button" ? (
 									<SettignsButton
-										backdrop={backdrop}
-										y={x.settings[y]}
-										setFun={setFun}
+										props={{
+											element: props.x.settings[y],
+											setResetFunction:
+												props.setResetFunction,
+										}}
 									/>
-								) : x.settings[y].type == "key" ? (
+								) : props.x.settings[y].type == "key" ? (
 									<SettingsKey
-										backdrop={backdrop}
-										y={x.settings[y]}
+										props={{ element: props.x.settings[y] }}
 									/>
 								) : (
 									<></>

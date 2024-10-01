@@ -1,32 +1,14 @@
-import { useEffect, useState } from "react";
 import { music } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
-import { settings } from "../SettingsValues";
 let start = null;
 let startTime= new Date()
 startTime=[startTime.getHours(),startTime.getMinutes(),startTime.getSeconds()]
-console.log(startTime)
 let past5 = [60, 60, 60, 60, 60];
-let clear = false;
 let prev = null;
 let mCTMin, mCTSec, mDurMin, mDurSec,pTHr,pTMin,pTSec, interaction, diff, fPS;
-let interacted = false;
 function repeater(time) {
 	if (prev) {
 		mDurSec = music.duration;
-		// interaction = navigator.userActivation.isActive;
-		// if (interaction && !interacted) {
-		// 	interacted = true;
-		// 	music.play();
-		// 	if(settings.User_Interface["Toggle_Fullscreen"].value==0){
-		// 		document.documentElement.requestFullscreen();
-		// 		navigator.keyboard.lock();
-		// 	}
-		// 	setTimeout(() => {
-		// 		clickToUnmute.style.opacity = "0";
-		// 		clickToUnmute.style.height = "0px";
-		// 	}, 100);
-		// }
 		if (mDurSec > 0) {
 			mCTSec = music.currentTime;
 			musicProgress.style.marginLeft =

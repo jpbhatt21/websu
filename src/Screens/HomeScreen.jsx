@@ -92,10 +92,15 @@ function HomeScreen({ props }) {
 	let logoHeight = ((window.innerWidth / 2) * 2) / 3;
 	let audioVisualizerBarWidth = 0.0394 * audioVisualizerHeight;
 	let barHeight = audioVisualizerHeight / 8;
-	let top = 50;
 	function keyaction(e) {
-		if(mainMenuScr.style.transitionDuration=="1s")
+		try{
+			if(mainMenuScr.style.opacity!=1)
+				return
+		}
+		catch(e){
+			document.removeEventListener("keydown", keyaction);
 			return
+		}
 		if (e.key == "Escape") {
 			try {
 				if (document.getElementById("settingsPage")) {
@@ -113,6 +118,7 @@ function HomeScreen({ props }) {
 		}
 	}
 	useEffect(() => {
+		console.log("init")
 		let init = ind;
 		let randint;
 		clearInterval(colorChangeLoop)
@@ -191,6 +197,7 @@ function HomeScreen({ props }) {
 				className="w-full fade-in3 fixed h-full flex duration-[10s] items-center text-white justify-center"
 				style={{
 					backgroundColor: colors.screenBackground[ind],
+					opacity:1
 				}}>
 				<div
 					className="w-full pointer-events-none h-full"
@@ -368,17 +375,12 @@ function HomeScreen({ props }) {
 						<div
 							className="h-full  w-[15vw] hover:w-[20vw] group flex items-center justify-center pl-[5vw] duration-300 shadow-md  bg-colors-green"
 							onClick={() => {
-								document.removeEventListener(
-									"keydown",
-									keyaction
-								);
 								mainMenuScr.style.transitionDuration = "1s";
 								mainMenuScr.style.transitionFunction =
 									"ease-out";
 								mainMenuScr.style.opacity = 0;
 								mainMenuScr.style.scale = "120%";
-								props.setAddSongMenuEventListener(true);
-								fakeClick(0, true);
+								props.setShowSongMenu(true);
 								setTimeout(() => {
 									props.setShowHome(false);
 								}, 1000);

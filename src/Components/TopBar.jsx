@@ -1,4 +1,3 @@
-import SettingsScreen from "../Screens/SettingsScreen";
 import { settings } from "../SettingsValues";
 import { svg } from "../Utility/VectorGraphics";
 import MusicPlayer from "./MusicPlayer";
@@ -9,11 +8,11 @@ function TopBar({ props }) {
 		<>
 			<div
 				style={{
-					opacity: props.showTopBar ? 1 : 0,
-                    marginTop:props.showTopBar?0:-60 * props.scale + "px"
+					opacity: 1,
+                    marginTop:(props.showTopBar?0:-60 * props.scale) + "px"
 				}}
-				id="previewSearch"
-				className="w-full h-full flex pointer-events-none duration-300 flex-col   fixed z-10 ">
+				id="topBar"
+				className="w-full h-full flex pointer-events-none duration-300 flex-col fixed z-30 ">
 				<div
 					style={{
 						pointerEvents: props.showTopBar ? "auto" : "none",

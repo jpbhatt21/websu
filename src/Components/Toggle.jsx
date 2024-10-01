@@ -1,20 +1,22 @@
-function Toggle({value,onClick,mode=false,title}) {
+import { settings } from "../SettingsValues";
+
+function Toggle({props,title}) {
     return ( <div
-        className={"bg-ltpost  cursor-pointer outline-bdark outline-1  duration-300   flex  items-center  outline  rounded-full aspect-video  h-1/3 "+(mode?"bg-opacity-50":"")}
+        className={"bg-ltpost  cursor-pointer outline-bdark outline-1  duration-300   flex  items-center  outline  rounded-full aspect-video  h-1/3 "+(settings.User_Interface["UI_BackDrop"].value?"bg-opacity-50":"")}
         id={title?title:""}
-        onClick={onClick}
+        onClick={props.onClick}
         style={{
-            backgroundColor: value
+            backgroundColor: props.value
                 ? "#555"
                 : "",
         }}>
         <div
             className="bg-bdark duration-300  h-3/4 aspect-square rounded-full"
             style={{
-                backgroundColor: value
+                backgroundColor: props.value
                     ? "#939393"
                     : "",
-                marginLeft: value ? "50%" : "5%",
+                marginLeft: props.value ? "50%" : "5%",
             }}></div>
     </div> );
 }
