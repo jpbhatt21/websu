@@ -81,7 +81,7 @@ function SettingsSelecter({ props }) {
 								let children =
 									e.currentTarget.parentElement.nextSibling
 										.children;
-								console.log(document.activeElement);
+								
 								e.currentTarget.parentElement.nextSibling.style.marginTop = 0;
 								for (let i in props.options) {
 									children[i].style.height = 0;

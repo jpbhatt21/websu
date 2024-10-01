@@ -410,7 +410,6 @@ export async function setPreviewImage(
 	// if (!settingsVal.showPreviewImage && !settingsVal.showBackground) return;
 
 	if (mode) {
-		console.log(index);
 		if (index == "") console.log("blank");
 		if (
 			previewImage.src == index ||
@@ -651,7 +650,6 @@ export function fakeClick(index, index2, mode = false) {
 			scale = settings.User_Interface.UI_Scale.options[scale];
 		}
 		if (index2) {
-			console.log("yeaaa");
 			scrollMenu.scrollTo({ top: 1 * 40 * scale, behavior: "instant" });
 		} else {
 			scrollMenu.scrollTo({

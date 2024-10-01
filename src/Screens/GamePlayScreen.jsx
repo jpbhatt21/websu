@@ -41,7 +41,6 @@ function PlayArea({ props,extraProps }) {
 	let scalingFactor = height / 480;
 	let horizontalOffset = (width - (4 * height) / 3) / 2;
 	function keyaction(e) {
-		console.log("atc")
 		try{
 			if(!playArea){
 
@@ -50,7 +49,6 @@ function PlayArea({ props,extraProps }) {
 		catch(e){
 			document.removeEventListener("keydown", keyaction);
 			eventListenerAttached=false
-			console.log("dtc")
 			return
 		}
 		try{

@@ -80,6 +80,7 @@ let bufferLength = null;
 let loop = null;
 let skewDeg = 8;
 let colorChangeLoop=null
+let eventListenerAttached=false
 function HomeScreen({ props }) {
 	if (!context) {
 		connect()
@@ -98,6 +99,7 @@ function HomeScreen({ props }) {
 				return
 		}
 		catch(e){
+			eventListenerAttached=false
 			document.removeEventListener("keydown", keyaction);
 			return
 		}
@@ -118,7 +120,6 @@ function HomeScreen({ props }) {
 		}
 	}
 	useEffect(() => {
-		console.log("init")
 		let init = ind;
 		let randint;
 		clearInterval(colorChangeLoop)
@@ -135,12 +136,10 @@ function HomeScreen({ props }) {
 			init = randint;
 			setInd(init);
 		} else {
-			console.log("ib")
 
 			props.setSavedHomeScreenColor(ind)
 		}
 		colorChangeLoop=setInterval(() => {
-			console.log("i2b")
 
 			randint = parseInt(Math.random() * 8);
 			while (randint == init) {
@@ -153,7 +152,10 @@ function HomeScreen({ props }) {
 		setTimeout(
 			() => {
 				logoCircle.style.pointerEvents = "auto";
-				document.addEventListener("keydown", keyaction);
+				if(!eventListenerAttached)
+				{document.addEventListener("keydown", keyaction);
+					eventListenerAttached=true
+				}
 				let children = audioVisva.children;
 				let data = new Uint8Array(bufferLength);
 				let avg = 0;

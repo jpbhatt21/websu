@@ -29,7 +29,7 @@ let scrollTimeout = null;
 let playLastActiveSongTimeout = null;
 let offlineDBSearch = null;
 let scale = 1;
-let attachedListener=false
+let eventListenerAttached=false
 function SongSelectionMenu({ props }) {
 	const { height, width } = useWindowDimensions();
 	scale = settings.User_Interface.UI_Scale.value;
@@ -221,9 +221,10 @@ function SongSelectionMenu({ props }) {
 			if (mainMenuScr) return;
 		} catch (e) {}
 		try {
-			if (searchbox) console.log();
+			if (!searchbox) console.log();
 		} catch (e) {
 			document.removeEventListener("keydown", keyaction);
+			eventListenerAttached=false
 						return;
 		}
 		if (topBar.style.marginTop == "0px") {
@@ -260,11 +261,9 @@ function SongSelectionMenu({ props }) {
 						props.setShowHome(true);
 						//props.setShowTopBar(false)
 						songMenuTopBarAddOns.style.opacity = "0";
-						setGlobalIndex(-1);
 						setTimeout(() => {
 							props.setShowSongMenu(false);
 						}, 1000);
-						document.removeEventListener("keydown", keyaction);
 						return;
 					}
 					searchbox.value = "";
@@ -659,7 +658,11 @@ function SongSelectionMenu({ props }) {
 		}, 300);
 	}
 	useEffect(() => {
-		if (props.showSongMenu){ document.addEventListener("keydown", keyaction);
+		if (props.showSongMenu){
+			if(!eventListenerAttached)
+			{document.addEventListener("keydown", keyaction);
+			eventListenerAttached=true
+			}
 			setGlobalIndex(-1)
 			scrollListTo(globalIndex<=0?0:globalIndex, globalIndex<=0);
 		}

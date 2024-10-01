@@ -3,7 +3,6 @@ import { svg } from "../Utility/VectorGraphics";
 import MusicPlayer from "./MusicPlayer";
 let settingTimer = null;
 function TopBar({ props }) {
-    console.log(props.scale)
 	return (
 		<>
 			<div

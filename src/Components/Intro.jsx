@@ -55,7 +55,7 @@ function Intro() {
 			<div className="w-full pointer-events-none opacity-0 brighten h-full flex items-center text-3xl justify-center text-white montserrat   fixed bg-blank">
 				{pts}
 				<div
-					className="absolute tracking-wider opacity-0"
+					className="absolute tracking-wider min-w-fit opacity-0"
 					style={{ animation: "display 0.1s , widen 1.6s" }}>
 					wel
 					<span id="come" style={{ animation: "display 0.2s " }}>

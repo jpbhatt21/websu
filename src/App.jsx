@@ -51,9 +51,9 @@ function App() {
 			<MainScreen startApp={clicked} />
 			{!clicked ? (
 				<div
-					onClick={(e) => {
+					onClick={async (e) => {
 						if (loadingBar < 100) return;
-						initializeMusic()
+						await initializeMusic()
 						cts.style.opacity = 0;
 						// if(settings.User_Interface["Toggle_Fullscreen"].value==0){
 						// 	document.documentElement.requestFullscreen();
@@ -62,7 +62,7 @@ function App() {
 						setTimeout(async () => {
 							music.play();
 
-							while (music.currentTime <= 0.01) {
+							while (music.currentTime <= 0.1) {
 								await new Promise((resolve) =>
 									setTimeout(resolve, 10)
 								);

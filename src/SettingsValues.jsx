@@ -190,7 +190,6 @@ export const defaultSettings = {
 };
 
 function clearDatabase(prefix) {
-	console.log("clearing");
 	const request2 = indexedDB.open(prefix + "Storage", 2);
 	request2.onupgradeneeded = function (event) {
 		const db = event.target.result;
@@ -209,7 +208,6 @@ function clearDatabase(prefix) {
 	};
 	request2.onsuccess = function (event) {
 		let db = event.target.result;
-		console.log("clearing");
 		let transaction = db.transaction("Meta").objectStore("Meta").getAll();
 		transaction.onsuccess = function (event) {
 			if (event.target.result.length > 0) {
