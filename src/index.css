@@ -35,7 +35,9 @@
 
 
 
-
+.fade-in3 {
+  animation: fadeIn3 ease 1s;
+}
 
 
 
@@ -69,6 +71,16 @@
   }
   100% {
     opacity: 1;
+  }
+}
+@keyframes fadeIn3 {
+  0% {
+    opacity: 0;
+    scale:120%
+  }
+  100% {
+    opacity: 1;
+    scale:100%
   }
 }
 @keyframes fade {
@@ -315,7 +327,7 @@
   }
   75%{
     opacity: 1;
-    transform: scale(1.5);
+    transform: scale(2);
   }
   100% {
     opacity: 1;

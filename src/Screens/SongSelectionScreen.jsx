@@ -263,11 +263,12 @@ function SongSelectionMenu({ props }) {
 					} else {
 						if (searchbox.value == "") {
 							props.setShowHome(true);
-							props.setShowTopBar(false)
+							//props.setShowTopBar(false)
+							previewSearch2.style.opacity="0"
 							setGlobalIndex(-1)
 							setTimeout(()=>{
 								props.setAddSongMenuEventListener(false);
-							},300)
+							},1000)
 							document.removeEventListener("keydown", keyaction);
 							return;
 						}
@@ -1632,7 +1633,7 @@ function SongSelectionMenu({ props }) {
 							opacity: start ? 0 : 1,
 						}}
 						id="previewSearch2"
-						className="w-full h-full flex pointer-events-none flex-col z-[11]  fixed ">
+						className="w-full duration-500  h-full flex pointer-events-none flex-col z-[11]  fixed ">
 						<div
 							style={{
 								pointerEvents: start ? "none" : "auto",

@@ -10,9 +10,15 @@ function SettingsScreen({setUpdateSettings,setFun,scale}) {
     let icons=[svg.smileyIcon,svg.unmuteIcon2,svg.gameIcon,svg.keyBindingIcon,svg.manageIcon]
 	return (
 		<>
+			<div className="w-full h-full pointer-events-auto fixed"
+			onClick={(e)=>{
+				if(e.currentTarget==e.target)
+				stb.click()
+			}}
+			>
 			<div
 				id="settingsPage"
-				className="w-full lg:w-[1024px]  slide-in pointer-events-auto absolute h-full duration-300 transition-all"
+				className="w-full lg:w-[1024px]  slide-in pointer-events-auto h-full duration-300 transition-all"
 				style={{
 					paddingTop: 60*scale+"px",
 					width:Math.min(window.innerWidth,1024*scale)+"px",
@@ -137,6 +143,7 @@ function SettingsScreen({setUpdateSettings,setFun,scale}) {
 						/>
 					</div>
 				</div>
+			</div>
 			</div>
 		</>
 	);

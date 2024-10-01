@@ -464,13 +464,13 @@ export function useWindowDimensions() {
 }
 export async function playSong(setID, index, previewTime, title, mode = false) {
 	let de2 = async (song) => {
-		if (music.src == song) return;
+		if (music.src == song) return true;
 		while (music.volume >= 0.1) {
 			music.volume -= 0.05;
 			await new Promise((r) => setTimeout(r, 10));
 		}
 		music.volume = 0;
-		return;
+		return false;
 	};
 	if (mode) {
 		if (setID != "") {
@@ -479,7 +479,8 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 		}
 
 		let song = setID;
-		await de2(song);
+		if(await de2(song))
+			return;
 		setTimeout(async () => {
 			music.setAttribute("src", song);
 			music.title = title;
@@ -500,13 +501,13 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 		return;
 	}
 	let diver = async (song) => {
-		if (music.src == "data:audio/wav;base64," + song) return;
+		if (music.src == "data:audio/wav;base64," + song) return true;
 		while (music.volume >= 0.05) {
 			music.volume -= 0.05;
 			await new Promise((r) => setTimeout(r, 10));
 		}
 		music.volume = 0;
-		return;
+		return false;
 	};
 	const request = indexedDB.open("websuStorage", 2);
 	request.onsuccess = async function (event) {
@@ -515,7 +516,9 @@ export async function playSong(setID, index, previewTime, title, mode = false) {
 		db.transaction("Preview").objectStore("Preview").get(setID).onsuccess =
 			async function (event) {
 				let song = event.target.result.files[index];
-				if (music.src.length > 0) await diver(song);
+				if (music.src.length > 0) {
+					if(await diver(song))
+						return;}
 				setTimeout(async () => {
 					music.setAttribute("src", "data:audio/wav;base64," + song);
 					music.title = title;

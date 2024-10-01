@@ -69,6 +69,7 @@ let source = null;
 let anazlyzer = null;
 let bufferLength = null;
 let skewDeg = 8;
+let prevCol = null;
 function MainMenu({ props }) {
 	if (!context) {
 		context = new AudioContext();
@@ -79,7 +80,9 @@ function MainMenu({ props }) {
 		anazlyzer.fftSize = 64;
 		bufferLength = anazlyzer.frequencyBinCount;
 	}
-	const [ind, setInd] = useState(parseInt(Math.random() * 8));
+	const [ind, setInd] = useState(
+		prevCol ? prevCol : parseInt(Math.random() * 8)
+	);
 	let audioVisualizerHeight = (window.innerWidth / 2) * 0.53125;
 	let logoHeight = ((window.innerWidth / 2) * 2) / 3;
 	let audioVisualizerBarWidth = 0.0314 * audioVisualizerHeight;
@@ -87,35 +90,47 @@ function MainMenu({ props }) {
 	let top = 50;
 	function keyaction(e) {
 		if (e.key == "Escape") {
-			try{
+			try {
 				if (document.getElementById("settingsPage")) {
 					stb.click();
-					return
-			}}
-			catch(e){}
+					return;
+				}
+			} catch (e) {}
 			if (horizontalMenu.style.width == "100%") {
 				logoClickScaler.style.scale = "100%";
 				setLeft(0);
 				horizontalMenu.style.width = "0%";
+				horizontalMenu.style.opacity = 1;
 				props.setShowTopBar(false);
 			}
-			
 		}
 	}
 	useEffect(() => {
 		let init = ind;
 		let randint;
-
+		if (prevCol) {
+			randint = parseInt(Math.random() * 8);
+			while (randint == init) {
+				randint = parseInt(Math.random() * 8);
+			}
+			prevCol = randint;
+			init = randint;
+			setInd(init);
+		} else {
+			prevCol = ind;
+		}
 		setInterval(() => {
 			randint = parseInt(Math.random() * 8);
 			while (randint == init) {
 				randint = parseInt(Math.random() * 8);
 			}
+			prevCol = randint;
 			init = randint;
 			setInd(init);
 		}, 30000);
 		setTimeout(
 			() => {
+				logoCircle.style.pointerEvents="auto"
 				document.addEventListener("keydown", keyaction);
 				let children = audioVisva.children;
 				let data = new Uint8Array(bufferLength);
@@ -143,7 +158,7 @@ function MainMenu({ props }) {
 			props.initLoad ? 3000 : 100
 		);
 	}, []);
-	const [left, setLeft] = useState(0);
+	const [left, setLeft] = useState(props.showTopBar?30:0);
 	const [clickScale, setClickScale] = useState(1);
 	const [logoScale, setLogoScale] = useState(1);
 	if (left != 0 && !props.showTopBar) setLeft(0);
@@ -151,7 +166,7 @@ function MainMenu({ props }) {
 		<>
 			<div
 				id="mainMenuScr"
-				className="w-full fade-in fixed h-full flex duration-[10s] items-center text-white justify-center"
+				className="w-full fade-in3 fixed h-full flex duration-[10s] items-center text-white justify-center"
 				style={{
 					backgroundColor: colors.screenBackground[ind],
 				}}>
@@ -289,7 +304,12 @@ function MainMenu({ props }) {
 				<div className="w-full h-full duration-300 fixed flex items-center justify-center">
 					<div
 						id="horizontalMenu"
-						className="w-0 h-1/6 bg-post duration-300 flex bg-opacity-75 overflow-hidden  ">
+						className="w-0 opacity-0 h-1/6 bg-post duration-300 flex bg-opacity-75 overflow-hidden  "
+						style={{
+							width:props.showTopBar?"100%":"0px",
+							opacity:props.showTopBar?"1":"0"
+						}}
+						>
 						<div className="h-full  w-[20vw]"></div>
 						<div
 							className="h-full hover:-ml-[5vw] group flex items-center justify-center pr-[5vw] hover:w-[20vw] w-[15vw] duration-300  shadow-md  bg-ltpost "
@@ -327,14 +347,19 @@ function MainMenu({ props }) {
 						<div
 							className="h-full  w-[15vw] hover:w-[20vw] group flex items-center justify-center pl-[5vw] duration-300 shadow-md  bg-colors-green"
 							onClick={() => {
-								document.removeEventListener("keydown", keyaction);
-								props.setAddSongMenuEventListener(true);
-								mainMenuScr.style.transitionDuration = "0.5s";
+								document.removeEventListener(
+									"keydown",
+									keyaction
+								);
+								mainMenuScr.style.transitionDuration = "1s";
+								mainMenuScr.style.transitionFunction="ease-out"
 								mainMenuScr.style.opacity = 0;
+								mainMenuScr.style.scale="120%"
+								props.setAddSongMenuEventListener(true);
 								fakeClick(0, true);
 								setTimeout(() => {
 									props.setShowHome(false);
-								}, 500);
+								}, 1000);
 							}}
 							style={{
 								transform:
@@ -428,9 +453,13 @@ function MainMenu({ props }) {
 				</div>
 				<div
 					id="logoClickScaler"
-					className={"duration-300 transition-all pointer-events-auto   hover:brightness-110  hover:scale-[1.15] fixed "+(props.initLoad?" badum2":"")}
+					className={
+						"duration-300 transition-all pointer-events-auto   hover:brightness-110  hover:scale-[1.15] fixed " +
+						(props.initLoad ? " badum2" : "")
+					}
 					style={{
 						marginLeft: -left + "%",
+						scale:props.showTopBar?"50%":"100%"
 					}}>
 					<div
 						id="audioVisva"
@@ -444,8 +473,8 @@ function MainMenu({ props }) {
 							.map((x, i) => {
 								return (
 									<div
-									key={"av+"+i}
-										className="w-3 h-12  absolute bg-[#a49bce]"
+										key={"av+" + i}
+										className="  absolute bg-[#a49bce]"
 										style={{
 											offsetDistance: i + "%",
 											offsetAnchor: "0% 0%",
@@ -498,11 +527,13 @@ function MainMenu({ props }) {
 									strokeLinecap="round"
 									strokeLinejoin="round"
 									fill="#6044db"
-									className=" pointer-events-auto"
+									id="logoCircle"
+									
 									onClick={(e) => {
 										logoClickScaler.style.scale = "50%";
 										setLeft(30);
 										horizontalMenu.style.width = "100%";
+										horizontalMenu.style.opacity = 1;
 										props.setShowTopBar(true);
 										return;
 									}}
