@@ -5,7 +5,7 @@ function MessageBox({
 	return (
 		<div
 			id="messagebox"
-			className="text-bhov fade-in  fixed bottom-0 text-[1.5vh] right-0 duration-300 flex flex-col justify-center item  bg-post  bg-opacity-50  h-fit  w-[21vh]    overflow-clip rounded-tl-md">
+			className="text-bhov fade-in  fixed bottom-0 text-[1.5vh] right-0 duration-300 flex flex-col justify-center item  bg-post  bg-opacity-50  h-fit  w-[22vh]    overflow-clip rounded-tl-md">
 			<div
 				id="looking"
 				className="duration-300 opacity-0 overflow-hidden h-0 flex items-center">
