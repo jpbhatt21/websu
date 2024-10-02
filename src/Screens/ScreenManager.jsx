@@ -1,17 +1,18 @@
 import { useEffect, useState } from "react";
 import { settings } from "../SettingsValues";
-import SettingsScreen from "./SettingsScreen";
+import Settings from "./Settings";
 import MessageBox from "../Components/MessageBox";
 import TopBar from "../Components/TopBar";
 import { useWindowDimensions } from "../Utility/Utils";
-import Confirm from "./ConfirmDeleteScreen";
-import SongSelectionMenu from "./SongSelectionScreen";
-import HomeScreen from "./HomeScreen";
-import LoadScreen from "./LoadScreen";
-import PauseScreen from "./PauseScreen";
-import PlayArea from "./GamePlayScreen";
+import DeleteConfirmation from "./DeleteConfirmation";
+import SongMenu from "./SongMenu";
+import Home from "./Home";
+import Loading from "./Loading";
+import PauseScreen from "./Pause";
+import PlayArea from "./PlayArea";
+import Credits from "./Credits";
 
-function MainScreen({ startApp }) {
+function ScreenManager({ startApp }) {
 	const { height, width } = useWindowDimensions();
 	let scale = settings.User_Interface.UI_Scale.value;
 	if (scale == 0) {
@@ -22,6 +23,7 @@ function MainScreen({ startApp }) {
 	const [updateOnSettingChange, changeSettings] = useState(0);
 	const [gameProp, setGameProp] = useState({});
 	const [resetFunction, setResetFunction] = useState(null);
+	const [showCredits,setShowCredits]=useState(false)
 	const [showTopBar, setShowTopBar] = useState(false);
 	const [showSettings, setShowSettings] = useState(false);
 	const [showSongMenu, setShowSongMenu] = useState(false);
@@ -48,7 +50,7 @@ function MainScreen({ startApp }) {
 	return (
 		<>
 			{
-				<SongSelectionMenu
+				<SongMenu
 					props={{
 						showSongMenu,
 						showTopBar: showSongMenu && showTopBar,
@@ -84,14 +86,14 @@ function MainScreen({ startApp }) {
 						<></>
 					)}
 					{showLoading ? (
-						<LoadScreen
+						<Loading
 							props={{ showLoadingScreen: showLoading }}
 						/>
 					) : (
 						<></>
 					)}
 					{showHome ? (
-						<HomeScreen
+						<Home
 							props={{
 								setShowHome,
 								setShowSongMenu,
@@ -100,14 +102,17 @@ function MainScreen({ startApp }) {
 								showTopBar,
 								savedHomeScreenColor,
 								showSettings,
+								showCredits,
+								setShowCredits,
 								setSavedHomeScreenColor,
 							}}
 						/>
 					) : (
 						<></>
 					)}
+					{showCredits?<Credits props={{scale}}/>:<></>}
 					{showSettings ? (
-						<SettingsScreen
+						<Settings
 							props={{ changeSettings, setResetFunction, scale }}
 						/>
 					) : (
@@ -129,7 +134,7 @@ function MainScreen({ startApp }) {
 						}}
 					/>
 					{resetFunction ? (
-						<Confirm props={{ resetFunction, setResetFunction }} />
+						<DeleteConfirmation props={{ resetFunction, setResetFunction }} />
 					) : (
 						<></>
 					)}
@@ -141,4 +146,4 @@ function MainScreen({ startApp }) {
 	);
 }
 
-export default MainScreen;
+export default ScreenManager;

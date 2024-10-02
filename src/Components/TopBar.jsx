@@ -123,7 +123,7 @@ function TopBar({ props }) {
 					<div>
 						<div
 							id="dateTime"
-							className="text-bact flex items-center justify-center"
+							className="text-bact font-mono flex items-center justify-center"
 							style={{
 								fontSize: 16 * props.scale + "px",
 								width: 96 * props.scale + "px",
@@ -134,7 +134,7 @@ function TopBar({ props }) {
 						</div>
 						<div
 							id="playTime"
-							className="text-bact flex items-center justify-center"
+							className="text-bact font-mono flex items-center justify-center"
 							style={{
 								fontSize: 16 * props.scale + "px",
 								width: 96 * props.scale + "px",

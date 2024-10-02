@@ -81,6 +81,7 @@ export const uniforms2 = {
 	time: 0,
 };
 export let shader = [];
+export let capShader = [];
 for (let i = 0; i < 101; i++) {
 	let alpha = (i / 100).toFixed(2);
 	let temp =
@@ -100,26 +101,7 @@ for (let i = 0; i < 101; i++) {
     }`;
 	let s = Shader.from(vertexSrc, fragmentSrc + temp, uniforms);
 	shader.push(s);
-}
-export let capShader = [];
-for (let i = 0; i < 101; i++) {
-	let alpha = (i / 100).toFixed(2);
-	let temp =
-		`
-	void main() {
-       vec4 fg = texture2D(uSampler2, vUvs ) ;
-	   fg.ra *= ` +
-		alpha +
-		`;
-	   fg.ga *= ` +
-		alpha +
-		`;
-	   fg.ba *= ` +
-		alpha +
-		`;
-		gl_FragColor = fg;
-    }`;
-	let s = Shader.from(vertexSrc, fragmentSrc + temp, uniforms2);
+	s = Shader.from(vertexSrc, fragmentSrc + temp, uniforms2);
 	capShader.push(s);
 }
 export let colors = {

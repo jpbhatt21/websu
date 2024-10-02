@@ -77,7 +77,9 @@ function Intro() {
 					<div className="h-20 aspect-square">{svg.crossIcon2}</div>
 					<div className="h-20 aspect-square">{svg.squareIcon}</div>
 				</div>
-				<div className="w-1/3 opacity-0 logo-intro aspect-square fixed">
+				<div className="w-1/3 opacity-0 aspect-square fixed"
+				style={{animation:"logo-intro 1s cubic-bezier(0.075, 0.82, 0.165, 1) 2.1s 1 forwards"}}
+				>
 					<svg
 						viewBox="0 0 64 64"
 						xmlns="http://www.w3.org/2000/svg"

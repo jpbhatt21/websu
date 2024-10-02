@@ -1,8 +1,9 @@
 import { useState } from "react";
 import { initializeMusic, loadingBar, music } from "./Utility/Utils";
 import { setSettings, settings } from "./SettingsValues";
-import { bezier } from "./Screens/GamePlayScreen";
-import MainScreen from "./Screens/MainMenuScreen";
+import { bezier } from "./Screens/PlayArea";
+import ScreenManager from "./Screens/ScreenManager";
+import Credits from "./Screens/Credits";
 export const uri = "https://websu-back.jpbhatt.tech";
 export const uri2 = "https://catboy.best";
 
@@ -45,7 +46,7 @@ function App() {
 	const [clicked, setClicked] = useState(false);
 	return (
 		<>
-			<MainScreen startApp={clicked} />
+			<ScreenManager startApp={clicked} />
 			{!clicked ? (
 				<div
 					onClick={async (e) => {
@@ -83,6 +84,7 @@ function App() {
 			) : (
 				<></>
 			)}
+			
 			
 		</>
 	);

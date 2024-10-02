@@ -107,7 +107,9 @@ function SettingsListElement({ props }) {
 											onClick={() => {
 												resetToDefault(y);
 											}}
-											className="h-1/2 spin-in aspect-square">
+											className="h-1/2 aspect-square"
+											style={{animation:"spin-in 0.5s cubic-bezier(0.075, 0.82, 0.165, 1)"}}
+											>
 											{svg.replayIcon}
 										</div>
 									) : (

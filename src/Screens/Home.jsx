@@ -82,7 +82,8 @@ let skewDeg = 8;
 let colorChangeLoop = null;
 let eventListenerAttached = false;
 let closeItTimer = null;
-function HomeScreen({ props }) {
+let creditsTimer=null
+function Home({ props }) {
 	if (!context) {
 		connect();
 	}
@@ -204,7 +205,7 @@ function HomeScreen({ props }) {
 		if (closeItTimer) clearTimeout(closeItTimer);
 		closeItTimer = setTimeout(() => {
 			try {
-				if (document.getElementById("settingsPage")) {
+				if (props.showSettings||props.showCredits) {
 					closeItTimer = null;
 					return;
 				}
@@ -218,17 +219,18 @@ function HomeScreen({ props }) {
 			}
 			closeItTimer = null;
 		}, 15000);
-	}, [lastInteraction, props.showSettings]);
+	}, [lastInteraction, props.showSettings,props.showCredits]);
 	const [logoScale, setLogoScale] = useState(1);
 	if (left != 0 && !props.showTopBar) setLeft(0);
 	return (
 		<>
 			<div
 				id="mainMenuScr"
-				className="w-full fade-in3 fixed h-full flex duration-[10s] items-center text-white justify-center"
+				className="w-full fixed h-full flex duration-[3s] items-center text-white justify-center"
 				style={{
 					backgroundColor: colors.screenBackground[ind],
 					opacity: 1,
+					animation:"fadeIn ease 1s, scale-down ease 1s "
 				}}>
 				<div
 					className="w-full flex items-center justify-center pointer-events-none text-white h-full"
@@ -247,12 +249,12 @@ function HomeScreen({ props }) {
 							y1="0%"
 							y2="100%">
 							<stop
-								className=" duration-[10s]"
+								className=" duration-[3s]"
 								offset="0%"
 								stopColor={colors.backgrond[ind]}
 							/>
 							<stop
-								className=" duration-[10s]"
+								className=" duration-[3s]"
 								offset="100%"
 								stopColor={colors.backgrond[ind] + "4C"}
 							/>
@@ -275,7 +277,7 @@ function HomeScreen({ props }) {
 					   743,990 700,1065 680,1025 650,1081 465,1081
 
 					"
-						className=" duration-[10s]"
+						className=" duration-[3s]"
 						stroke={colors.outline[ind]}
 						strokeWidth="3"
 						strokeLinecap="round"
@@ -310,7 +312,7 @@ function HomeScreen({ props }) {
 					M420,43 373,122
 					M343,178 334,193
 					"
-						className=" duration-[10s]"
+						className=" duration-[3s]"
 						stroke={colors.faded[ind]}
 						strokeWidth="2"
 						strokeLinecap="round"
@@ -334,7 +336,7 @@ function HomeScreen({ props }) {
 					M1185,255  1085,425 1285,425 1185,255
 					
 					"
-						className=" duration-[10s]"
+						className=" duration-[3s]"
 						stroke={colors.colored1[ind]}
 						strokeWidth="2"
 						strokeLinecap="round"
@@ -352,7 +354,7 @@ function HomeScreen({ props }) {
 					M695,300 615,445 780,445 695,300
 					M655,455 615,525 695,525 655,455
 					"
-						className=" duration-[10s]"
+						className=" duration-[3s]"
 						stroke={colors.colored2[ind]}
 						strokeWidth="2"
 						strokeLinecap="round"
@@ -445,7 +447,28 @@ function HomeScreen({ props }) {
 							</div>
 						</div>
 						<div
-							className="h-full -ml-[0.5vw] w-[10vw] group  hover:w-[15vw] flex items-center justify-center duration-300 shadow-md  bg-colors-purple"
+							className="h-full -ml-[0.5vw] w-[10vw] group  hover:w-[15vw] flex items-center justify-center duration-300 shadow-md  bg-colors-yellow"
+							id="creditsButton"
+							onClick={() => {
+								if (creditsTimer) return;
+								if (props.showCredits) {
+									creditsPage.style.transform =
+										"translateX(100%)";
+									creditsTimer = setTimeout(() => {
+										props.setShowCredits(
+											!props.showCredits
+										);
+										creditsTimer = null;
+									}, 300);
+								} else {
+									props.setShowCredits(
+										!props.showCredits
+									);
+									creditsTimer = setTimeout(() => {
+										creditsTimer = null;
+									}, 300);
+								}
+							}}
 							style={{
 								transform:
 									"skew(-" +
@@ -508,19 +531,19 @@ function HomeScreen({ props }) {
 				</div>
 				<div
 					id="logoClickScaler"
-					className={
-						"duration-300 transition-all pointer-events-auto   hover:brightness-110  hover:scale-[1.15] fixed " +
-						(props.initLoad ? " badum2" : "")
-					}
+					className="duration-300 transition-all pointer-events-auto   hover:brightness-110  hover:scale-[1.15] fixed " 
+					
 					style={{
 						marginLeft: -left + "%",
 						scale: props.showTopBar ? "50%" : "100%",
+						animation: props.initLoad? "scale-down 0.5s 2.8s":""
 					}}>
 					<div
 						id="audioVisva"
-						className=" pointer-events-none badum  aspect-square fixed"
+						className=" pointer-events-none aspect-square fixed"
 						style={{
 							height: audioVisualizerHeight * logoScale,
+							animation: "rotate360 20s linear infinite forwards"
 						}}>
 						{"0"
 							.repeat(80)
@@ -721,4 +744,4 @@ function HomeScreen({ props }) {
 	);
 }
 
-export default HomeScreen;
+export default Home;

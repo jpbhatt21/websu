@@ -19,18 +19,18 @@ import {
 	reInitializeMusic,
 } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
-import PlayArea from "./GamePlayScreen";
+import PlayArea from "./PlayArea";
 import { uri, uri2 } from "../App";
 import Toggle from "../Components/Toggle";
 import { settings } from "../SettingsValues";
-import { connect } from "./HomeScreen";
+import { connect } from "./Home";
 let typeTimeout = null;
 let scrollTimeout = null;
 let playLastActiveSongTimeout = null;
 let offlineDBSearch = null;
 let scale = 1;
 let eventListenerAttached = false;
-function SongSelectionMenu({ props }) {
+function SongMenu({ props }) {
 	const { height, width } = useWindowDimensions();
 	scale = settings.User_Interface.UI_Scale.value;
 	if (scale == 0) {
@@ -656,11 +656,7 @@ function SongSelectionMenu({ props }) {
 	}
 	useEffect(() => {
 		if (props.showSongMenu) {
-			if (settings.User_Interface.Background.value != 0) {
-				backgroundImage.style.filter = "blur(0px) brightness(0.5)";
-			} else {
-				backgroundImage.style.filter = "blur(6px) brightness(0.5)";
-			}
+			
 			if (!eventListenerAttached) {
 				document.addEventListener("keydown", keyaction);
 				eventListenerAttached = true;
@@ -898,7 +894,11 @@ function SongSelectionMenu({ props }) {
 				});
 		}
 	}, [downloadHead, downloadQueue]);
-
+	if (settings.User_Interface.Background.value != 0) {
+		backgroundImage.style.filter = "blur(0px) brightness(0.5)";
+	} else {
+		backgroundImage.style.filter = "blur(6px) brightness(0.5)";
+	}
 	let sct = 0;
 	try {
 		sct = scrollTop / (elementHeight * (deleteMode ? 1.2 : 1));
@@ -1903,4 +1903,4 @@ function SongSelectionMenu({ props }) {
 	);
 }
 
-export default SongSelectionMenu;
+export default SongMenu;

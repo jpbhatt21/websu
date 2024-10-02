@@ -1,4 +1,4 @@
-import { bezier } from "./Screens/GamePlayScreen";
+import { bezier } from "./Screens/PlayArea";
 import { music } from "./Utility/Utils";
 let functions = {
 	"Restore Default Settings": () => {
@@ -16,8 +16,8 @@ export const defaultSettings = {
 	User_Interface: {
 		Toggle_Fullscreen: {
 			type: "list",
-			options: ["Always", "During Gameplay", "Never"],
-			value: 1,
+			options: ["TODO","Always", "During Gameplay", "Never"],
+			value: 0,
 		},
 		UI_Scale: {
 			type: "list",
@@ -30,7 +30,7 @@ export const defaultSettings = {
 		},
 		Background: {
 			type: "list",
-			options: ["Blur", "Show", "Hide"],
+			options: ["Blur", "Show"],//"Hide"],
 			value: 0,
 		},
 		Show_Banners: {
@@ -46,7 +46,7 @@ export const defaultSettings = {
 	Audio: {
 		"Output Device": {
 			type: "list",
-			options: ["Default"],
+			options: ["TODO"],//"Default"],
 			value: 0,
 		},
 		"Master Volume": {
@@ -61,7 +61,7 @@ export const defaultSettings = {
 			type: "slider",
 			value: 100,
 		},
-		"Effect Volume": {
+		"TODO-Effect Volume": {
 			type: "slider",
 			value: 100,
 		},
@@ -69,7 +69,7 @@ export const defaultSettings = {
 			type: "toggle",
 			value: false,
 		},
-		"Effect Mute": {
+		"TODO-Effect Mute": {
 			type: "toggle",
 			value: false,
 		},
@@ -83,23 +83,23 @@ export const defaultSettings = {
 			type: "toggle",
 			value: true,
 		},
-		"Default Cursor": {
+		"TODO-Default Cursor": {
 			type: "toggle",
 			value: false,
 		},
-		"Cursor Size": {
+		"TODO-Cursor Size": {
 			type: "slider",
 			value: 50,
 		},
-		"Beatmap Skin": {
+		"TODO-Beatmap Skin": {
 			type: "toggle",
 			value: false,
 		},
-		"Beatmap Hitsounds": {
+		"TODO-Beatmap Hitsounds": {
 			type: "toggle",
 			value: false,
 		},
-		"Beatmap Storyboard": {
+		"TODO-Beatmap Storyboard": {
 			type: "toggle",
 			value: false,
 		},
@@ -111,53 +111,56 @@ export const defaultSettings = {
 			type: "slider",
 			value: 0,
 		},
-		"Fade To Red On Low HP": {
+		"TODO-Fade To Red On Low HP": {
 			type: "toggle",
 			value: false,
 		},
 	},
 	Key_Bindings:{
-		"Gameplay":{
+		"TODO":{
 			type:"Subheading"
 		},
-		"Pause":{
-			type:"key",
-			value:"Space",
-			alternate:"Esc"
-		},
-		"Menu":{
-			type:"Subheading"
-		},
-		"Toggle Settings": {
-			type: "key",
-			value: "S",
-			modifier:"Alt"
-		},
-		"Toggle Online Mode":{
-			type: "key",
-			value: "O",
-			modifier:"Alt"
-		},
-		"Toggle Delete Mode":{
-			type: "key",
-			value: "X",
-			modifier:"Alt"
-		},
-		"Mute Music": {
-			type: "key",
-			value: "M",
-			modifier:"Alt"
-		},
-		"Pause Music": {
-			type: "key",
-			value: "P",
-			modifier:"Alt"
-		},
-		"Panic Restore Default Settings": {
-			type: "key",
-			value: "`",
-			modifier:"Alt+Shift"
-		},
+		// "Gameplay":{
+		// 	type:"Subheading"
+		// },
+		// "Pause":{
+		// 	type:"key",
+		// 	value:"Space",
+		// 	alternate:"Esc"
+		// },
+		// "Menu":{
+		// 	type:"Subheading"
+		// },
+		// "Toggle Settings": {
+		// 	type: "key",
+		// 	value: "S",
+		// 	modifier:"Alt"
+		// },
+		// "Toggle Online Mode":{
+		// 	type: "key",
+		// 	value: "O",
+		// 	modifier:"Alt"
+		// },
+		// "Toggle Delete Mode":{
+		// 	type: "key",
+		// 	value: "X",
+		// 	modifier:"Alt"
+		// },
+		// "Mute Music": {
+		// 	type: "key",
+		// 	value: "M",
+		// 	modifier:"Alt"
+		// },
+		// "Pause Music": {
+		// 	type: "key",
+		// 	value: "P",
+		// 	modifier:"Alt"
+		// },
+		// "Panic Restore Default Settings": {
+		// 	type: "key",
+		// 	value: "`",
+		// 	modifier:"Alt+Shift"
+		// },
 		
 	},
 	Maintainance: {
@@ -174,11 +177,11 @@ export const defaultSettings = {
 			type: "button",
 			title: "Delete",
 		},
-		"Delete All Beatmap Videos": {
+		"TODO-Delete All Beatmap Videos": {
 			type: "button",
 			title: "Unavailable",
 		},
-		"Delete All Beatmap Skins": {
+		"TODO-Delete All Beatmap Skins": {
 			type: "button",
 			title: "Unavailable",
 		},

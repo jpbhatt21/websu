@@ -5,7 +5,7 @@ function Preview({props}) {
 		
 			<div
 
-				className="bg-post lexend bg-opacity-25 shadow- xl shadow-colors- orange max-h-[35vh] h-[20vw]  w-[55vw] fade-in2 text-center   border-t-0  ml-[-8vw] rounded-lg rounded-tr-none border border-bcol border-2 overflow-hidden"
+				className="bg-post lexend bg-opacity-25 shadow- xl shadow-colors- orange max-h-[35vh] h-[20vw]  w-[55vw] fade-in2 text-center   border-t-0  ml-[-8vw] rounded-lg rounded-tr-none b order border-bcol border-2 overflow-hidden"
 				style={{
 					transform:
 						"skew(-" +

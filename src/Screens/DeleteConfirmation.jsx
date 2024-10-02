@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-function Confirm({ props }) {
+function DeleteConfirmation({ props }) {
 	let height = (window.innerHeight / 2) ;
 	let width = (window.innerWidth / 4) * 3;
 	const [clearing, setClearing] = useState(0);
@@ -94,7 +94,11 @@ function Confirm({ props }) {
 					<div className="w-1/4 h-2 bg-ltpost rounded-full overflow-hidden">
 						<div
 							id="opqbar"
-							className="w-full  duration-300  fill-up h-full bg-colors-red rounded-full"></div>
+							className="w-full  duration-300 h-full bg-colors-red rounded-full"
+							style={{
+								animation:"fill-up 10s cubic-bezier(0.075, 0.82, 0.165, 1)"
+							}}
+							></div>
 					</div>
 				</div>
 			) : (
@@ -104,4 +108,4 @@ function Confirm({ props }) {
 	);
 }
 
-export default Confirm;
+export default DeleteConfirmation;

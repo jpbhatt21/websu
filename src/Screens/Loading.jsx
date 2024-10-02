@@ -1,6 +1,6 @@
 import { svg } from "../Utility/VectorGraphics";
 
-function LoadScreen({props}) {
+function Loading({props}) {
     return ( <div
         style={{ opacity: props.showLoadingScreen ? 1 : 0 }}
         id="load"
@@ -11,4 +11,4 @@ function LoadScreen({props}) {
     </div> );
 }
 
-export default LoadScreen;
+export default Loading;
