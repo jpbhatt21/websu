@@ -399,10 +399,10 @@ function Home({ props }) {
 										skewDeg +
 										"deg)",
 								}}>
-								<div className="h-1/3  bop duration-300  aspect-square">
+								<div className="w-[3vw] bop duration-300  aspect-square">
 									{svg.settingsIcon}
 								</div>
-								<div className=" text-lg">Settings</div>
+								<div className=" text-[1vw]">Settings</div>
 							</div>
 						</div>
 						<div
@@ -440,10 +440,10 @@ function Home({ props }) {
 										skewDeg +
 										"deg)",
 								}}>
-								<div className="h-1/3  bop duration-300 aspect-square">
+								<div className="w-[3vw]  bop duration-300 aspect-square">
 									{svg.playIcon}
 								</div>
-								<div className=" text-lg">Play</div>
+								<div className="text-[1vw]">Play</div>
 							</div>
 						</div>
 						<div
@@ -491,10 +491,10 @@ function Home({ props }) {
 										skewDeg +
 										"deg)",
 								}}>
-								<div className="h-1/3 bop duration-300 aspect-square">
+								<div className="w-[3vw] bop duration-300 aspect-square">
 									{svg.infoIcon}
 								</div>
-								<div className=" text-lg">Credits</div>
+								<div className="text-[1vw]">Credits</div>
 							</div>
 						</div>
 						<div
@@ -521,10 +521,10 @@ function Home({ props }) {
 										skewDeg +
 										"deg)",
 								}}>
-								<div className="h-1/3 bop duration-300 aspect-square">
+								<div className="w-[3vw] bop duration-300 aspect-square">
 									{svg.crossIcon2}
 								</div>
-								<div className=" text-lg">Exit</div>
+								<div className="text-[1vw]">Exit</div>
 							</div>
 						</div>
 					</div>

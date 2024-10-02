@@ -1,11 +1,6 @@
 import { settings } from "../SettingsValues";
 let credits = [
-	{
-		prop: "Beatmap Mirror",
-		val: "Mino",
-		link: "https://catboy.best/",
-        icon:"/mino.webp"
-	},
+	
 	{
 		prop: "Intro Music",
 		val: "triangles (osu!lazer) - cYsmix",
@@ -23,6 +18,12 @@ let credits = [
 		val: "Pomax",
 		link: "https://pomax.github.io/bezierinfo/",
         icon:"/pomax.png"
+	},
+	{
+		prop: "Beatmap Mirror",
+		val: "Mino",
+		link: "https://catboy.best/",
+        icon:"/mino.webp"
 	},
 	{
 		prop: "Icons",

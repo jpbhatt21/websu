@@ -105,6 +105,7 @@ function ScreenManager({ startApp }) {
 								showCredits,
 								setShowCredits,
 								setSavedHomeScreenColor,
+								scale
 							}}
 						/>
 					) : (
