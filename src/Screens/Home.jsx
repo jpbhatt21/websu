@@ -407,6 +407,7 @@ function Home({ props }) {
 						</div>
 						<div
 							className="h-full  w-[15vw] hover:w-[20vw] group flex items-center justify-center pl-[5vw] duration-300 shadow-md  bg-colors-green"
+							id="playButton"
 							onClick={() => {
 								mainMenuScr.style.transitionDuration = "1s";
 								mainMenuScr.style.transitionFunction =
@@ -607,7 +608,8 @@ function Home({ props }) {
 									fill="#6044db"
 									id="logoCircle"
 									onClick={(e) => {
-										setLastInteraction(
+										if(left!=30)
+										{setLastInteraction(
 											new Date().getTime()
 										);
 										logoClickScaler.style.scale = "50%";
@@ -615,7 +617,10 @@ function Home({ props }) {
 										horizontalMenu.style.width = "100%";
 										horizontalMenu.style.opacity = 1;
 										props.setShowTopBar(true);
-										return;
+										return;}
+										else{
+											playButton.click()
+										}
 									}}
 								/>
 								{/* 'w' shape */}
