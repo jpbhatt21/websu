@@ -15,7 +15,7 @@ import { settings } from "../SettingsValues";
 // import { setClear } from "./Components/MessageBox";
 
 let delay = 0;
-let eventListenerAttached=false
+let eventListenerAttached = false;
 let colFil = new ColorMatrixFilter();
 function sleep(ms) {
 	return new Promise((resolve) => setTimeout(resolve, ms));
@@ -23,7 +23,7 @@ function sleep(ms) {
 export function bezier(t) {
 	return t * t * (3.0 - 2.0 * t);
 }
-function PlayArea({ props,extraProps }) {
+function PlayArea({ props, extraProps }) {
 	const [approachRate, setApproachRate] = useState(0);
 	const [hpDrain, setHpDrain] = useState(0);
 	const [circleSize, setCircleSize] = useState(0);
@@ -41,31 +41,28 @@ function PlayArea({ props,extraProps }) {
 	let scalingFactor = height / 480;
 	let horizontalOffset = (width - (4 * height) / 3) / 2;
 	function keyaction(e) {
-		try{
-			if(!playArea){
-
+		try {
+			if (!playArea) {
 			}
-		}
-		catch(e){
+		} catch (e) {
 			document.removeEventListener("keydown", keyaction);
-			eventListenerAttached=false
-			return
+			eventListenerAttached = false;
+			return;
 		}
-		try{
+		try {
 			if (e.repeat || (music.paused && !pauseMenu)) return;
+		} catch (e) {
+			return;
 		}
-		catch(e){return}
 		if (e.key == "Escape" || e.code == "Space") {
-			
 			if (!music.paused) {
 				pause();
-				extraProps.setShowPause(true)
-
+				extraProps.setShowPause(true);
 			} else {
 				pauseMenu.style.opacity = "0";
 				pauseMenu.style.pointerEvents = "none";
 				setTimeout(() => {
-					extraProps.setShowPause(false)
+					extraProps.setShowPause(false);
 					play();
 				}, 1000);
 			}
@@ -212,6 +209,12 @@ function PlayArea({ props,extraProps }) {
 			.reverse();
 	}, [hitObjects, time]);
 	useEffect(() => {
+		backgroundImage.style.filter =
+			"blur(" +
+			settings.Gameplay["Background Blur"].value / 5 +
+			"px) brightness(" +
+			(1 - settings.Gameplay["Background Dim"].value / 100) +
+			")";
 		music.pause();
 		music.currentTime = 0;
 		let dbPrefix = "websu";
@@ -227,7 +230,7 @@ function PlayArea({ props,extraProps }) {
 					(x) => x.id == props.id
 				);
 				await sleep(300);
-				extraProps.setShowPause(false)
+				extraProps.setShowPause(false);
 				let beatMap = await decodeBeatMap(
 					file.file,
 					props.setId,
@@ -236,11 +239,11 @@ function PlayArea({ props,extraProps }) {
 				await sleep(200);
 				load.style.opacity = 0; //Hide loading screen
 				await sleep(1000);
-				if(!eventListenerAttached){
+				if (!eventListenerAttached) {
 					document.addEventListener("keydown", keyaction);
-					eventListenerAttached=true
+					eventListenerAttached = true;
 				}
-				extraProps.setShowLoading(false)
+				extraProps.setShowLoading(false);
 				setHitObjects(beatMap[2]); //hitObjects
 				setApproachRate(beatMap[0] * 2); //approachRate
 				setCircleSize(beatMap[1] * 2); //circleSize
@@ -325,7 +328,6 @@ function PlayArea({ props,extraProps }) {
 					setTimeout(async () => {
 						props.setShowGame(false);
 					}, 300);
-					
 				}
 			};
 		};

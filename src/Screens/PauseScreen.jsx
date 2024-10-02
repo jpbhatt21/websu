@@ -13,11 +13,9 @@ function PauseScreen({ props }) {
 			}}>
 			<div
 				onClick={async () => {
-					
 					pauseMenu.style.opacity = "0";
 					pauseMenu.style.pointerEvents = "none";
 					playArea.style.opacity = "0";
-					
 					setTimeout(async () => {
 						props.setShowTopBar(true);
 					props.setShowSongMenu(true);

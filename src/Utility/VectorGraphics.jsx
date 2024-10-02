@@ -637,6 +637,29 @@ const infoIcon = (
 		/>
 	</svg>
 );
+const homeIcon=(
+	<svg
+    fill="currentColor"
+    viewBox="0 0 24 24"
+    id="home-alt-3"
+    data-name="Flat Color"
+    xmlns="http://www.w3.org/2000/svg"
+    className="icon flat-color"
+  >
+    <g id="SVGRepo_bgCarrier" strokeWidth={0} />
+    <g
+      id="SVGRepo_tracerCarrier"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <g id="SVGRepo_iconCarrier">
+      <path
+        d="M21.71,11.29l-9-9a1,1,0,0,0-1.42,0l-9,9a1,1,0,0,0-.21,1.09A1,1,0,0,0,3,13H4v7.3A1.77,1.77,0,0,0,5.83,22H8.5a1,1,0,0,0,1-1V16.1a1,1,0,0,1,1-1h3a1,1,0,0,1,1,1V21a1,1,0,0,0,1,1h2.67A1.77,1.77,0,0,0,20,20.3V13h1a1,1,0,0,0,.92-.62A1,1,0,0,0,21.71,11.29Z"
+        fill="currentColor"
+      />
+    </g>
+  </svg>
+)
 export const svg = {
 	donwloadIcon,
 	unmuteIcon,
@@ -665,5 +688,6 @@ export const svg = {
 	squareIcon,
 	triangleIcon,
 	crossIcon2,
-	infoIcon
+	infoIcon,
+	homeIcon
 };

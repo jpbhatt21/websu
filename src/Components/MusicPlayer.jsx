@@ -5,7 +5,7 @@ let startTime= new Date()
 startTime=[startTime.getHours(),startTime.getMinutes(),startTime.getSeconds()]
 let past5 = [60, 60, 60, 60, 60];
 let prev = null;
-let mCTMin, mCTSec, mDurMin, mDurSec,pTHr,pTMin,pTSec, interaction, diff, fPS;
+let mCTMin, mCTSec, mDurMin, mDurSec,pTHr,pTMin,pTSec, interaction, diff, fPS,playTimeChildren,currentTimeChildren;
 function repeater(time) {
 	if (prev) {
 		mDurSec = music.duration;
@@ -57,7 +57,10 @@ function repeater(time) {
 		pTHr = parseInt(time / 3600000);
 		pTMin = parseInt(time / 60000 % 3600);
 		pTSec = parseInt(time / 1000 % 60);
-		playTime.innerHTML = (pTHr<10?"0":"")+pTHr+":"+(pTMin<10?"0":"")+pTMin+":"+(pTSec<10?"0":"")+pTSec;
+		playTimeChildren[0].innerHTML=(pTHr<10?"0":"")+pTHr+":"
+		playTimeChildren[1].innerHTML=(pTMin<10?"0":"")+pTMin+":"
+		playTimeChildren[2].innerHTML=(pTSec<10?"0":"")+pTSec
+		// playTime.innerHTML = (pTHr<10?"0":"")+pTHr+":"+(pTMin<10?"0":"")+pTMin+":"+(pTSec<10?"0":"")+pTSec;
 		pTHr+=startTime[0]
 		pTMin+=startTime[1]
 		pTSec+=startTime[2]
@@ -72,15 +75,21 @@ function repeater(time) {
 		if(pTHr>=24){
 			pTHr-=24
 		}
-		dateTime.innerHTML = (pTHr<10?"0":"")+pTHr+":"+(pTMin<10?"0":"")+pTMin+":"+(pTSec<10?"0":"")+pTSec;
+		currentTimeChildren[0].innerHTML=(pTHr<10?"0":"")+pTHr+":"
+		currentTimeChildren[1].innerHTML=(pTMin<10?"0":"")+pTMin+":"
+		currentTimeChildren[2].innerHTML=(pTSec<10?"0":"")+pTSec
 	}
 	prev = time;
 	
 	window.requestAnimationFrame(repeater);
 }
 function startRepeater() {
+	setTimeout(()=>{
+		playTimeChildren=playTime.children
+	currentTimeChildren=dateTime.children
 	if (!start) window.requestAnimationFrame(repeater);
 	start = true;
+	},200)
 }
 function MusicPlayer() {
 	return (

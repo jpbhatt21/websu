@@ -1,10 +1,7 @@
-import SongSelectionMenu from "./Screens/SongSelectionScreen";
 import { useState } from "react";
 import { initializeMusic, loadingBar, music } from "./Utility/Utils";
 import { setSettings, settings } from "./SettingsValues";
 import { bezier } from "./Screens/GamePlayScreen";
-import Intro from "./Components/Intro";
-import HomeScreen from "./Screens/HomeScreen";
 import MainScreen from "./Screens/MainMenuScreen";
 export const uri = "https://websu-back.jpbhatt.tech";
 export const uri2 = "https://catboy.best";
@@ -12,7 +9,7 @@ export const uri2 = "https://catboy.best";
 window.localStorage.getItem("settings") == null
 	? window.localStorage.setItem("settings", JSON.stringify(settings))
 	: setSettings(JSON.parse(window.localStorage.getItem("settings")));
-window.addEventListener("blur", async (event) => {
+window.addEventListener("blur", async () => {
 	while (
 		music.volume >
 			bezier(
@@ -30,7 +27,7 @@ window.addEventListener("blur", async (event) => {
 		music.volume = 0;
 	}
 });
-window.addEventListener("focus", async (event) => {
+window.addEventListener("focus", async () => {
 	while (
 		music.volume <
 			bezier(
@@ -53,7 +50,7 @@ function App() {
 				<div
 					onClick={async (e) => {
 						if (loadingBar < 100) return;
-						await initializeMusic()
+						await initializeMusic();
 						cts.style.opacity = 0;
 						// if(settings.User_Interface["Toggle_Fullscreen"].value==0){
 						// 	document.documentElement.requestFullscreen();
@@ -86,6 +83,7 @@ function App() {
 			) : (
 				<></>
 			)}
+			
 		</>
 	);
 }

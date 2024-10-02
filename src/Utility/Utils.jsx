@@ -71,13 +71,13 @@ export const fragmentSrc = `
     uniform sampler2D uSampler2;
     uniform float time;
 	`;
-export let sliderTexture = "/slider3.png";
+export let sliderTexture = "/s2d.png";
 export const uniforms = {
 	uSampler2: Texture.from(sliderTexture),
 	time: 0,
 };
 export const uniforms2 = {
-	uSampler2: Texture.from("/hitcircle2.png"),
+	uSampler2: Texture.from("/nocap.png"),
 	time: 0,
 };
 export let shader = [];

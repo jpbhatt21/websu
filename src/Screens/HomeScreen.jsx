@@ -8,7 +8,7 @@ let colors = {
 		"#1d1419",
 		"#546284",
 		"#0e1322",
-		"#adadad",
+		"#cccccc",
 		"#220c18",
 		"#8c436a",
 		"#112826",
@@ -18,7 +18,7 @@ let colors = {
 		"#292125",
 		"#617ea8",
 		"#1b2a3d",
-		"#cccccc",
+		"#eeeeee",
 		"#361728",
 		"#b26b92",
 		"#153631",
@@ -81,7 +81,7 @@ let loop = null;
 let skewDeg = 8;
 let colorChangeLoop = null;
 let eventListenerAttached = false;
-let closeItTimer=null
+let closeItTimer = null;
 function HomeScreen({ props }) {
 	if (!context) {
 		connect();
@@ -93,20 +93,23 @@ function HomeScreen({ props }) {
 			: parseInt(Math.random() * 8)
 	);
 	let audioVisualizerHeight = (window.innerWidth / 2) * 0.53125;
-	let logoHeight = ((window.innerWidth / 2) * 2) / 3;
+	let logoHeight = ((window.innerWidth / 3)) ;
 	let audioVisualizerBarWidth = 0.0394 * audioVisualizerHeight;
 	let barHeight = audioVisualizerHeight / 8;
 	function keyaction(e) {
 		try {
 			if (mainMenuScr.style.opacity != 1) return;
+			
 		} catch (e) {
-			eventListenerAttached = false;
 			document.removeEventListener("keydown", keyaction);
+			eventListenerAttached = false;
 			return;
 		}
-		
+		try{
+			if(songMenuScreen)return
+		}
+		catch(e){}
 		if (e.key == "Escape") {
-			
 			try {
 				if (document.getElementById("settingsPage")) {
 					stb.click();
@@ -128,7 +131,6 @@ function HomeScreen({ props }) {
 		clearInterval(colorChangeLoop);
 		if (props.savedHomeScreenColor != null) {
 			if (props.savedHomeScreenColor != ind) setInd(props);
-			clearInterval(colorChangeLoop);
 			colorChangeLoop = null;
 			randint = parseInt(Math.random() * 8);
 			while (randint == init) {
@@ -160,14 +162,16 @@ function HomeScreen({ props }) {
 				let data = new Uint8Array(bufferLength);
 				let avg = 0;
 				let val = 0;
+				clearInterval(loop);
 				loop = setInterval(() => {
 					try {
+						if (!mainMenuScr) return;
 						anazlyzer.getByteFrequencyData(data);
 						avg = data.reduce((a, b) => {
 							return a + b;
 						}, 0);
 						avg /= 16;
-						avg = 0.75 + avg / 512;
+						avg = 1 + (avg -128)/ 1024;
 						for (let i = 0; i < 16; i++) {
 							val =
 								(data[i] / 255) *
@@ -197,12 +201,11 @@ function HomeScreen({ props }) {
 		new Date().getTime()
 	);
 	useEffect(() => {
-		if(closeItTimer)
-			clearTimeout(closeItTimer)
-		closeItTimer=setTimeout(() => {
+		if (closeItTimer) clearTimeout(closeItTimer);
+		closeItTimer = setTimeout(() => {
 			try {
 				if (document.getElementById("settingsPage")) {
-					closeItTimer=null
+					closeItTimer = null;
 					return;
 				}
 			} catch (e) {}
@@ -213,9 +216,9 @@ function HomeScreen({ props }) {
 				horizontalMenu.style.opacity = 1;
 				props.setShowTopBar(false);
 			}
-			closeItTimer=null
+			closeItTimer = null;
 		}, 15000);
-	}, [lastInteraction,props.showSettings]);
+	}, [lastInteraction, props.showSettings]);
 	const [logoScale, setLogoScale] = useState(1);
 	if (left != 0 && !props.showTopBar) setLeft(0);
 	return (
@@ -228,14 +231,13 @@ function HomeScreen({ props }) {
 					opacity: 1,
 				}}>
 				<div
-					className="w-full pointer-events-none h-full"
+					className="w-full flex items-center justify-center pointer-events-none text-white h-full"
 					style={{
 						background:
 							"linear-gradient(45deg ,#1b1b1b00,#00000000)",
-					}}></div>
-				<svg
+					}}><svg
 					viewBox="0 0 1920 1080"
-					className="min-w-full pointer-events-none  top-0 fixed min-h-full"
+					className="min-w-full aspect-video pointer-events-none min-h-full"
 					xmlns="http://www.w3.org/2000/svg">
 					<defs>
 						<linearGradient
@@ -357,7 +359,8 @@ function HomeScreen({ props }) {
 						strokeLinejoin="round"
 						fill="none"
 					/>
-				</svg>
+				</svg></div>
+				
 				<div className="w-full h-full duration-300 fixed flex items-center justify-center">
 					<div
 						id="horizontalMenu"

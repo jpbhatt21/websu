@@ -8,7 +8,8 @@ function TopBar({ props }) {
 			<div
 				style={{
 					opacity: 1,
-                    marginTop:(props.showTopBar?0:-60 * props.scale) + "px"
+					marginTop:
+						(props.showTopBar ? 0 : -60 * props.scale) + "px",
 				}}
 				id="topBar"
 				className="w-full h-full flex pointer-events-none duration-300 flex-col fixed z-30 ">
@@ -34,8 +35,11 @@ function TopBar({ props }) {
 					className="bg-post flex items-center justify-end duration-300 bg-opacity-50   border-bcol  border-b-2  backdrop-blur-md   w-full  top-0 left-0  ">
 					<div className="h-full flex items-center  w-full">
 						<div
-							className="h-full  aspect-square group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
-							style={{}}>
+							className="h-full overflow-hidden aspect-square group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
+							style={{
+								marginRight:-10*props.scale+"px",
+								marginLeft:((!props.showHome || props.showSettings)?2:-45)*props.scale+"px"
+							}}>
 							<div
 								id="stb"
 								className="h-full flex items-center justify-center  aspect-square"
@@ -74,11 +78,35 @@ function TopBar({ props }) {
 							<div
 								className="absolute delay-0 group-hover:delay-500 text-bcol group-hover:text-white opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 "
 								style={{
-									transform:
-										"scale(" + props.scale + ")",
+									transform: "scale(" + props.scale + ")",
 								}}>
-								<div className="h-full ml-3 mt-28 bg-opacity-50 bg-post pb-[6px] p-1  rounded-md  min-w-fit flex">
+								<div className="h-full ml-5 mt-28 bg-opacity-50 bg-post pb-[6px] p-1  rounded-md  min-w-fit flex">
 									Settings
+								</div>
+							</div>
+						</div>
+						<div
+							className="h-full aspect-square group text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center"
+							style={{}}>
+							<div
+								id="returnHome"
+								className="h-full flex items-center justify-center  aspect-square"
+								onClick={() => {
+									props.setShowHome(true)
+									
+								}}>
+								<div className="h-1/2 -mt-1  aspect-square">
+									{svg.homeIcon}
+								</div>
+							</div>
+							<div
+								className="absolute delay-0 group-hover:delay-500 text-bcol group-hover:text-white opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 "
+								style={{
+									transform: "scale(" + props.scale + ")",
+									marginLeft:((!props.showHome || props.showSettings)?0:52)*props.scale+"px"
+								}}>
+								<div className="h-full mt-28 bg-opacity-50 bg-post pb-[6px] p-1  whitespace-nowrap rounded-md  min-w-fit ">
+									Return Home
 								</div>
 							</div>
 						</div>
@@ -86,7 +114,7 @@ function TopBar({ props }) {
 							className="h-[60px] w-64"
 							style={{
 								transform: "scale(" + props.scale + ")",
-								marginLeft: (props.scale - 1) * 128 + "px",
+								marginLeft: ((props.scale - 1) * 128 +2)+ "px",
 							}}>
 							<MusicPlayer />
 						</div>
@@ -95,21 +123,25 @@ function TopBar({ props }) {
 					<div>
 						<div
 							id="dateTime"
-							className="text-bact text-center"
+							className="text-bact flex items-center justify-center"
 							style={{
 								fontSize: 16 * props.scale + "px",
 								width: 96 * props.scale + "px",
 							}}>
-							00:00:00
+							<span className="w-1/4 text-end">00:</span>
+							<span className="w-1/4 text-end">00:</span>
+							<span className="w-1/4">00</span>
 						</div>
 						<div
 							id="playTime"
-							className="text-bact text-center"
+							className="text-bact flex items-center justify-center"
 							style={{
 								fontSize: 16 * props.scale + "px",
 								width: 96 * props.scale + "px",
 							}}>
-							00:00:00
+							<span className="w-1/4 text-end">00:</span>
+							<span className="w-1/4 text-end">00:</span>
+							<span className="w-1/4">00</span>
 						</div>
 					</div>
 				</div>

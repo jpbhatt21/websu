@@ -29,7 +29,7 @@ let scrollTimeout = null;
 let playLastActiveSongTimeout = null;
 let offlineDBSearch = null;
 let scale = 1;
-let eventListenerAttached=false
+let eventListenerAttached = false;
 function SongSelectionMenu({ props }) {
 	const { height, width } = useWindowDimensions();
 	scale = settings.User_Interface.UI_Scale.value;
@@ -50,7 +50,7 @@ function SongSelectionMenu({ props }) {
 	const [secondaryIndex, setSecondaryIndex] = useState(0);
 	const [searchKey, setSearchKey] = useState(0);
 	const [start, setStart] = useState(false);
-	const [scrollTop,setScrollTop]=useState(0)
+	const [scrollTop, setScrollTop] = useState(0);
 	const [prevMusic, setPrevMusic] = useState([]);
 	const [onlineMode, setOnlineMode] = useState(false);
 	const [deleteMode, setDeleteMode] = useState(false);
@@ -65,6 +65,8 @@ function SongSelectionMenu({ props }) {
 	const [downloadHead, setDownloadHead] = useState(0);
 	const [activeDownload, setActiveDownload] = useState(false);
 	const [downloadQueue, setDownloadQueue] = useState([]);
+	const offsetBG = (height / 2) * Math.tan(15 * 0.01745);
+	const widthBG = width * 0.475;
 	async function getFiles(files, mode = false) {
 		setUnzipQueueLength((prev) => prev + files.length);
 		for (let i = 0; i < files.length; i++) {
@@ -224,8 +226,8 @@ function SongSelectionMenu({ props }) {
 			if (!searchbox) console.log();
 		} catch (e) {
 			document.removeEventListener("keydown", keyaction);
-			eventListenerAttached=false
-						return;
+			eventListenerAttached = false;
+			return;
 		}
 		if (topBar.style.marginTop == "0px") {
 			// if (e.key == "F11" && !e.repeat) {
@@ -258,12 +260,8 @@ function SongSelectionMenu({ props }) {
 					stb.click();
 				} else {
 					if (searchbox.value == "") {
-						props.setShowTopBar(true)
 						props.setShowHome(true);
-						songMenuTopBarAddOns.style.opacity = "0";
-						setTimeout(() => {
-							props.setShowSongMenu(false);
-						}, 1000);
+						
 						return;
 					}
 					searchbox.value = "";
@@ -518,7 +516,7 @@ function SongSelectionMenu({ props }) {
 	}
 	function scrollHandler() {
 		if (start) return;
-		setScrollTop(scrollMenu.scrollTop)
+		setScrollTop(scrollMenu.scrollTop);
 		let select = onlineMode ? webSearchData : metaData;
 		let centerIndex = Math.min(
 			parseInt(
@@ -603,11 +601,10 @@ function SongSelectionMenu({ props }) {
 		}, 1200);
 	}
 	function toggleDeleteMode() {
-		document.documentElement.requestFullscreen();
-		let dm = deleteMode;
+		// document.documentElement.requestFullscreen();
+		let dm = !deleteMode;
 		scrollMenu.style.scrollSnapType = "none";
 		scrollMenu.style.marginTop = "0px";
-		dm = !dm;
 		setDeleteMode(dm);
 		if (dm) {
 		} else {
@@ -658,13 +655,18 @@ function SongSelectionMenu({ props }) {
 		}, 300);
 	}
 	useEffect(() => {
-		if (props.showSongMenu){
-			if(!eventListenerAttached)
-			{document.addEventListener("keydown", keyaction);
-			eventListenerAttached=true
+		if (props.showSongMenu) {
+			if (settings.User_Interface.Background.value != 0) {
+				backgroundImage.style.filter = "blur(0px) brightness(0.5)";
+			} else {
+				backgroundImage.style.filter = "blur(6px) brightness(0.5)";
 			}
-			setGlobalIndex(-1)
-			scrollListTo(globalIndex<=0?0:globalIndex, globalIndex<=0);
+			if (!eventListenerAttached) {
+				document.addEventListener("keydown", keyaction);
+				eventListenerAttached = true;
+			}
+			setGlobalIndex(-1);
+			scrollListTo(globalIndex <= 0 ? 0 : globalIndex, globalIndex <= 0);
 		}
 	}, [props.showSongMenu]);
 	useEffect(() => {
@@ -794,19 +796,19 @@ function SongSelectionMenu({ props }) {
 		setLoadingBar(100);
 	}, []);
 	useEffect(() => {
-		if (!start && prevMusic.length > 0) {
-			playLastActiveSongTimeout = setTimeout(() => {
-				playSong(
-					prevMusic[0],
-					prevMusic[1],
-					prevMusic[2],
-					prevMusic[3],
-					prevMusic[4]
-				);
-			}, 100);
-		} else if (playLastActiveSongTimeout != null) {
-			clearTimeout(playLastActiveSongTimeout);
-		}
+		// if (!start && prevMusic.length > 0) {
+		// 	playLastActiveSongTimeout = setTimeout(() => {
+		// 		playSong(
+		// 			prevMusic[0],
+		// 			prevMusic[1],
+		// 			prevMusic[2],
+		// 			prevMusic[3],
+		// 			prevMusic[4]
+		// 		);
+		// 	}, 100);
+		// } else if (playLastActiveSongTimeout != null) {
+		// 	clearTimeout(playLastActiveSongTimeout);
+		// }
 		if (start) {
 			props.setGameProp({
 				setId: onlineMode
@@ -818,28 +820,19 @@ function SongSelectionMenu({ props }) {
 				online: tempOnline,
 			});
 			songMenuTopBarAddOns.style.opacity = "0";
+			songMenuScreen.style.opacity="0"
+			songMenuScreen.style.pointerEvents="none"
 			props.setShowTopBar(false);
-			backgroundImage.style.filter =
-				"blur(" +
-				settings.Gameplay["Background Blur"].value / 5 +
-				"px) brightness(" +
-				(1 - settings.Gameplay["Background Dim"].value / 100) +
-				")";
 			props.setShowGame(true);
-			// setTimeout(() => {
+			setTimeout(() => {
 			props.setShowSongMenu(false);
-			setStart(false)
-			// }, 1000);
+			setStart(false);
+			}, 300);
 			// if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
 			// 	document.documentElement.requestFullscreen();
 			// 	navigator.keyboard.lock();
 			// }
 		} else {
-			if (settings.User_Interface.Background.value != 0) {
-				backgroundImage.style.filter = "blur(0px) brightness(0.5)";
-			} else {
-				backgroundImage.style.filter = "blur(6px) brightness(0.5)";
-			}
 			// if (settings.User_Interface["Toggle_Fullscreen"].value == 1) {
 			// 	if (document.fullscreenElement) {
 			// 		document.exitFullscreen();
@@ -966,7 +959,7 @@ function SongSelectionMenu({ props }) {
 									false
 								);
 							}}
-							className=" w-full  flex fade-in  outline outline-1  "
+							className=" fade-in outline outline-1 flex w-full"
 							style={{
 								height: elementHeight + "px",
 								backgroundImage: settings.User_Interface
@@ -982,7 +975,7 @@ function SongSelectionMenu({ props }) {
 								backgroundPosition: "center",
 							}}>
 							<div
-								className="h-full w-full flex flex-row items-center duration-300 pointer-events-none px-3  justify-between"
+								className="flex flex-row items-center justify-between w-full h-full px-3 duration-300 pointer-events-none"
 								style={{
 									backgroundColor:
 										scrollIndex == index
@@ -998,7 +991,7 @@ function SongSelectionMenu({ props }) {
 								{onlineMode ? (
 									<div
 										id={"download" + index}
-										className="absolute min-w-fit duration-300 flex items-center justify-center overflow-hidden  text-bcol hover:text-colors-red aspect-square"
+										className="min-w-fit text-bcol hover:text-colors-red aspect-square absolute flex items-center justify-center overflow-hidden duration-300"
 										onClick={async (e) => {
 											e.preventDefault();
 											let y = tempFiles.filter(
@@ -1314,7 +1307,7 @@ function SongSelectionMenu({ props }) {
 								</div>
 								<div
 									id={"delete" + index}
-									className="h-1/2 min-w-fit duration-300 text-bcol hover:text-colors-red aspect-square"
+									className="h-1/2 min-w-fit text-bcol hover:text-colors-red aspect-square duration-300"
 									onClick={(e) => {
 										e.preventDefault();
 										const request = indexedDB.open(
@@ -1386,7 +1379,7 @@ function SongSelectionMenu({ props }) {
 						</div>
 
 						<div
-							className="overflow-y-scroll  w-full flex flex-wrap "
+							className=" flex flex-wrap w-full overflow-y-scroll"
 							style={{
 								padding: 8 * scale + "px",
 
@@ -1477,7 +1470,7 @@ function SongSelectionMenu({ props }) {
 										{x.level}
 									</div>
 									<div
-										className=" pointer-events-none rounded-lg w-full bg-white bg-opacity-30 "
+										className=" bg-opacity-30 w-full bg-white rounded-lg pointer-events-none"
 										style={{ height: 8 * scale + "px" }}>
 										<div
 											className={
@@ -1506,46 +1499,39 @@ function SongSelectionMenu({ props }) {
 			</div>
 		);
 	});
-	let skewDeg = 8;
 	return (
 		<>
 			{" "}
 			{props.showSongMenu ? (
 				<>
+					
 					<div
-						className="fixed  fade-in  w-[60vw] duration-300 h-1/2 top-1/4 -left-0 bg-opacity-40 bg-black"
-						style={{
-							transform:
-								"skew(-" +
-								skewDeg +
-								"deg,-" +
-								skewDeg +
-								"deg) rotate(" +
-								skewDeg +
-								"deg) translateY(-50%) translateX(-20%)",
-							opacity: 1,
-						}}></div>
-					<div
-						className="fixed fade-in w-[60vw] h-1/2 duration-300 top-1/4 -left-0 bg-opacity-40 bg-black"
-						style={{
-							transform:
-								"skew(" +
-								skewDeg +
-								"deg," +
-								skewDeg +
-								"deg) rotate(-" +
-								skewDeg +
-								"deg) translateY(50%)  translateX(-20%)",
-							opacity: 1,
-						}}></div>
-					<div
-						id="screen"
-						className="fade-in"
-						style={{
-							pointerEvents: "auto",
-						}}>
+						id="songMenuScreen"
+						className="fade-in duration-500">
+							<svg
+						className="fixed w-full h-full pointer-events-none"
+						xmlns="http://www.w3.org/2000/svg">
+						<path
+							d={
+								"M0 0 " +
+								(widthBG + offsetBG) +
+								" 0 " +
+								widthBG +
+								" " +
+								height * 0.5 +
+								" " +
+								(widthBG + offsetBG) +
+								" " +
+								height +
+								" 0 " +
+								height +
+								" 0 0"
+							}
+							fill="#0000004C"
+						/>
+					</svg>
 						<div
-							className="duration-300 lexend fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
+							className="lexend text-bact  fixed right-0 flex flex-col items-center justify-center w-1/2 h-full overflow-hidden text-3xl font-bold duration-300 pointer-events-none"
 							style={{
 								opacity:
 									!onlineMode &&
@@ -1599,7 +1585,7 @@ function SongSelectionMenu({ props }) {
 							</div>
 						</div>
 						<div
-							className="duration-300 lexend fixed overflow-hidden  pointer-events-none  text-3xl font-bold w-1/2 right-0 h-full  flex flex-col items-center  justify-center text-bact "
+							className="lexend text-bact  fixed right-0 flex flex-col items-center justify-center w-1/2 h-full overflow-hidden text-3xl font-bold duration-300 pointer-events-none"
 							style={{
 								opacity:
 									onlineMode &&
@@ -1669,9 +1655,9 @@ function SongSelectionMenu({ props }) {
 										gap: 8 * scale + "px",
 										paddingRight: 8 * scale + "px",
 									}}
-									className=" flex items-center fade-in2 justify-end duration-300  absolute  w-1/2  top-0 right-0  ">
+									className=" fade-in2 absolute top-0 right-0 flex items-center justify-end w-1/2 duration-300">
 									<div
-										className="h-full justify-end duration-300 flex"
+										className="flex justify-end h-full duration-300"
 										style={{
 											opacity: !switchToggle ? "1" : "0",
 											pointerEvents: !switchToggle
@@ -1691,7 +1677,7 @@ function SongSelectionMenu({ props }) {
 														: "none",
 												marginTop: 2 * scale + "px",
 											}}>
-											<div className="w-1/2 h-fit  ">
+											<div className="h-fit  w-1/2">
 												<label htmlFor="loadDemo">
 													{svg.demoIcon}
 												</label>
@@ -1713,7 +1699,7 @@ function SongSelectionMenu({ props }) {
 													transform:
 														"scale(" + scale + ")",
 												}}
-												className="absolute delay-0 text-sm group-hover:delay-500 text-bcol opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+												className="delay-0 group-hover:delay-500 text-bcol group-hover:opacity-100  absolute text-sm transition-opacity duration-300 opacity-0 pointer-events-none">
 												<div className="h-full w-full  mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
 													Load Demo
 												</div>
@@ -1745,14 +1731,14 @@ function SongSelectionMenu({ props }) {
 													transform:
 														"scale(" + scale + ")",
 												}}
-												className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+												className="delay-0 group-hover:delay-500 group-hover:opacity-100  absolute text-sm transition-opacity duration-300 opacity-0 pointer-events-none">
 												<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
 													Delete Mode
 												</div>
 											</div>
 										</div>
 										<div className="h-full group aspect-[2/3] text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
-											<div className="w-1/2 ">
+											<div className=" w-1/2">
 												<label htmlFor="inpp">
 													{svg.uploadIcon}
 												</label>
@@ -1772,7 +1758,7 @@ function SongSelectionMenu({ props }) {
 													transform:
 														"scale(" + scale + ")",
 												}}
-												className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+												className="delay-0 group-hover:delay-500 group-hover:opacity-100  absolute text-sm transition-opacity duration-300 opacity-0 pointer-events-none">
 												<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
 													Upload Beatmap
 												</div>
@@ -1780,7 +1766,7 @@ function SongSelectionMenu({ props }) {
 										</div>
 									</div>
 									<div
-										className=" scale-75 text-bcol duration-300  aspect-square h-2/3"
+										className=" text-bcol aspect-square h-2/3 duration-300 scale-75"
 										style={{
 											opacity: !switchToggle
 												? "1"
@@ -1789,7 +1775,7 @@ function SongSelectionMenu({ props }) {
 										}}>
 										{svg.offlineIcon}
 									</div>
-									<div className="h-full w-10 group aspect-square text-bcol hover:text-white duration-300 flex flex-wrap items-center justify-center">
+									<div className="group aspect-square text-bcol hover:text-white flex flex-wrap items-center justify-center w-10 h-full duration-300">
 										<Toggle
 											props={{
 												value: switchToggle,
@@ -1803,7 +1789,7 @@ function SongSelectionMenu({ props }) {
 												transform:
 													"scale(" + scale + ")",
 											}}
-											className="absolute delay-0 text-sm group-hover:delay-500 opacity-0 duration-300 pointer-events-none transition-opacity group-hover:opacity-100 ">
+											className="delay-0 group-hover:delay-500 group-hover:opacity-100  absolute text-sm transition-opacity duration-300 opacity-0 pointer-events-none">
 											<div className="h-full w-full mt-28 bg-opacity-50 bg-post pb-[6px]  rounded-md p-1 min-w-fit flex">
 												Go{" "}
 												{switchToggle
@@ -1813,7 +1799,7 @@ function SongSelectionMenu({ props }) {
 										</div>
 									</div>
 									<div
-										className=" scale-75  text-bcol duration-300 aspect-square h-2/3"
+										className=" text-bcol aspect-square h-2/3 duration-300 scale-75"
 										style={{
 											opacity: switchToggle
 												? "1"
@@ -1832,7 +1818,7 @@ function SongSelectionMenu({ props }) {
 											placeholder="Search"
 											onChange={searchBeatMaps}
 											type="text"
-											className=" w-full  text-slate-200 bg-white bg-opacity-0 border-none outline-none focus:border-none"
+											className=" text-slate-200 focus:border-none w-full bg-white bg-opacity-0 border-none outline-none"
 											style={{
 												fontSize: 16 * scale + "px",
 											}}
@@ -1847,7 +1833,7 @@ function SongSelectionMenu({ props }) {
 									</div>
 									<div
 										id="resetButton"
-										className="w-16 h-16 bg-black hidden"
+										className="hidden w-16 h-16 bg-black"
 										onClick={() => {
 											let ind = -1;
 
@@ -1885,7 +1871,7 @@ function SongSelectionMenu({ props }) {
 							<></>
 						)}
 						<div
-							className="duration-300 fixed"
+							className="fixed duration-300"
 							id="previewContainer"
 							style={{
 								opacity:

@@ -20,7 +20,7 @@ function MainScreen({ startApp }) {
 		scale = settings.User_Interface.UI_Scale.options[scale];
 	}
 	const [updateOnSettingChange, changeSettings] = useState(0);
-	const [gameProp,setGameProp]=useState({})
+	const [gameProp, setGameProp] = useState({});
 	const [resetFunction, setResetFunction] = useState(null);
 	const [showTopBar, setShowTopBar] = useState(false);
 	const [showSettings, setShowSettings] = useState(false);
@@ -34,10 +34,17 @@ function MainScreen({ startApp }) {
 	useEffect(() => {
 		if (showSongMenu && initLoad) setInitLoad(false);
 	}, [showSongMenu]);
-	useEffect(()=>{
-		if(showGame)
-		setShowLoading(true)
-	},[showGame])
+	useEffect(() => {
+		if (showSongMenu && showHome) {
+			songMenuTopBarAddOns.style.opacity = "0";
+			setTimeout(() => {
+				setShowSongMenu(false);
+			}, 1000);
+		}
+	}, [showHome]);
+	useEffect(() => {
+		if (showGame) setShowLoading(true);
+	}, [showGame]);
 	return (
 		<>
 			{
@@ -49,7 +56,7 @@ function MainScreen({ startApp }) {
 						setShowSongMenu,
 						setShowTopBar,
 						setGameProp,
-						setShowGame
+						setShowGame,
 					}}
 				/>
 			}
@@ -59,7 +66,26 @@ function MainScreen({ startApp }) {
 					{showGame ? (
 						<PlayArea
 							props={gameProp}
-							extraProps={{setShowLoading,setShowPause}}
+							extraProps={{ setShowLoading, setShowPause }}
+						/>
+					) : (
+						<></>
+					)}
+					{showPause ? (
+						<PauseScreen
+							props={{
+								setShowPause,
+								setShowGame,
+								setShowSongMenu,
+								setShowTopBar,
+							}}
+						/>
+					) : (
+						<></>
+					)}
+					{showLoading ? (
+						<LoadScreen
+							props={{ showLoadingScreen: showLoading }}
 						/>
 					) : (
 						<></>
@@ -92,7 +118,9 @@ function MainScreen({ startApp }) {
 							scale,
 							showTopBar,
 							showSettings,
+							showHome,
 							setShowSettings,
+							setShowHome,
 						}}
 					/>
 					<MessageBox
@@ -102,16 +130,6 @@ function MainScreen({ startApp }) {
 					/>
 					{resetFunction ? (
 						<Confirm props={{ resetFunction, setResetFunction }} />
-					) : (
-						<></>
-					)}
-					{showPause ? (
-						<PauseScreen props={{ setShowPause,setShowGame,setShowSongMenu,setShowTopBar }} />
-					) : (
-						<></>
-					)}
-					{showLoading ? (
-						<LoadScreen props={{ showLoadingScreen: showLoading }} />
 					) : (
 						<></>
 					)}
