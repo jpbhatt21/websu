@@ -315,8 +315,8 @@ function PlayArea({ props, extraProps }) {
 				await songPlaying; //Wait for music to end
 				await sleep(200);
 				if (music.currentTime >= music.duration) {
-					props.setShowTopBar(true);
-					props.setShowSongMenu(true);
+					extraProps.setShowTopBar(true);
+					extraProps.setShowSongMenu(true);
 					playArea.style.opacity = "0";
 					if (beatMap[5]) {
 						backgroundVideo.pause();
@@ -326,7 +326,7 @@ function PlayArea({ props, extraProps }) {
 						backgroundImage.style.opacity = 1;
 					}
 					setTimeout(async () => {
-						props.setShowGame(false);
+						extraProps.setShowGame(false);
 					}, 300);
 				}
 			};

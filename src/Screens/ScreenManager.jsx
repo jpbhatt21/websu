@@ -68,7 +68,7 @@ function ScreenManager({ startApp }) {
 					{showGame ? (
 						<PlayArea
 							props={gameProp}
-							extraProps={{ setShowLoading, setShowPause }}
+							extraProps={{ setShowLoading, setShowPause,setShowTopBar,setShowSongMenu,setShowGame}}
 						/>
 					) : (
 						<></>
