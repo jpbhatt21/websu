@@ -218,7 +218,6 @@
 	}
 	100% {
 		opacity: 1;
-		display: block;
 	}
 }
 @keyframes draw {
