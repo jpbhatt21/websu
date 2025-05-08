@@ -33,7 +33,7 @@
 1. Clone the repo:  
    ```bash
    git clone https://github.com/jpbhatt21/websu.git
-   cd cengine
+   cd websu
    ```
 2. Install dependencies:  
    ```bash
