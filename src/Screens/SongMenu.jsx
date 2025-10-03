@@ -24,6 +24,7 @@ import { uri, uri2 } from "../App";
 import Toggle from "../Components/Toggle";
 import { settings } from "../SettingsValues";
 import { connect } from "./Home";
+import { setSongList } from "../Components/MusicPlayer";
 let typeTimeout = null;
 let scrollTimeout = null;
 let playLastActiveSongTimeout = null;
@@ -67,6 +68,9 @@ function SongMenu({ props }) {
 	const [downloadQueue, setDownloadQueue] = useState([]);
 	const offsetBG = (height / 2) * Math.tan(15 * 0.01745);
 	const widthBG = width * 0.475;
+	useEffect(()=>{
+		setSongList(metaFiles.map(x=>({id:x.setId,title:x.title,artist:x.artist})))
+	},[metaFiles])
 	async function getFiles(files, mode = false) {
 		setUnzipQueueLength((prev) => prev + files.length);
 		for (let i = 0; i < files.length; i++) {
@@ -566,6 +570,7 @@ function SongMenu({ props }) {
 					valueBeatMap.title,
 					onlineMode
 				);
+				console.log(valueBeatMap.setId,valueBeatMap.title);
 				setPreviewImage(
 					valueBeatMap.setId,
 					onlineMode

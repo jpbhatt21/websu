@@ -1,34 +1,44 @@
-import { music } from "../Utility/Utils";
+import { music, playSong } from "../Utility/Utils";
 import { svg } from "../Utility/VectorGraphics";
 let start = null;
-let startTime= new Date()
-startTime=[startTime.getHours(),startTime.getMinutes(),startTime.getSeconds()]
+let startTime = new Date();
+startTime = [startTime.getHours(), startTime.getMinutes(), startTime.getSeconds()];
 let past5 = [60, 60, 60, 60, 60];
 let prev = null;
-let mCTMin, mCTSec, mDurMin, mDurSec,pTHr,pTMin,pTSec, interaction, diff, fPS,playTimeChildren,currentTimeChildren;
+let mCTMin, mCTSec, mDurMin, mDurSec, pTHr, pTMin, pTSec, interaction, diff, fPS, playTimeChildren, currentTimeChildren;
+let songList = [];
+let randomize = false
+export function setSongList(list) {
+	songList = list;
+}
+function playRandomTimer() {
+	console.log("playRandomTimer",randomize);
+	if(randomize)
+		return;
+	randomize = true;
+	setTimeout(() => {
+		if (music.ended && songList.length > 0) {
+			let random = songList[Math.floor(Math.random() * songList.length)];
+			playSong(random.id, 0, 0, random.title,false);
+		}
+		setTimeout(() => {randomize = false;}, 1000);
+	}, 100);
+}
 function repeater(time) {
 	if (prev) {
 		mDurSec = music.duration;
 		if (mDurSec > 0) {
 			mCTSec = music.currentTime;
-			musicProgress.style.marginLeft =
-				-(100 - (mCTSec / mDurSec) * 100) + "%";
+			musicProgress.style.marginLeft = -(100 - (mCTSec / mDurSec) * 100) + "%";
+			if (music.ended) {
+				playRandomTimer();
+			}
 			mCTMin = parseInt(mCTSec / 60);
 			mCTSec = parseInt(mCTSec % 60);
-			musicCurrentTime.innerHTML =
-				(mCTMin < 10 ? "0" : "") +
-				mCTMin +
-				":" +
-				(mCTSec < 10 ? "0" : "") +
-				mCTSec;
+			musicCurrentTime.innerHTML = (mCTMin < 10 ? "0" : "") + mCTMin + ":" + (mCTSec < 10 ? "0" : "") + mCTSec;
 			mDurMin = parseInt(mDurSec / 60);
 			mDurSec = parseInt(mDurSec % 60);
-			musicDuration.innerHTML =
-				(mDurMin < 10 ? "0" : "") +
-				mDurMin +
-				":" +
-				(mDurSec < 10 ? "0" : "") +
-				mDurSec;
+			musicDuration.innerHTML = (mDurMin < 10 ? "0" : "") + mDurMin + ":" + (mDurSec < 10 ? "0" : "") + mDurSec;
 			songName.innerHTML = music.title;
 			if (music.paused) {
 				musicPlaying.style.opacity = "0";
@@ -55,41 +65,41 @@ function repeater(time) {
 			lat.innerHTML = parseInt(diff);
 		}
 		pTHr = parseInt(time / 3600000);
-		pTMin = parseInt(time / 60000 % 3600);
-		pTSec = parseInt(time / 1000 % 60);
-		playTimeChildren[0].innerHTML=(pTHr<10?"0":"")+pTHr+":"
-		playTimeChildren[1].innerHTML=(pTMin<10?"0":"")+pTMin+":"
-		playTimeChildren[2].innerHTML=(pTSec<10?"0":"")+pTSec
+		pTMin = parseInt((time / 60000) % 3600);
+		pTSec = parseInt((time / 1000) % 60);
+		playTimeChildren[0].innerHTML = (pTHr < 10 ? "0" : "") + pTHr + ":";
+		playTimeChildren[1].innerHTML = (pTMin < 10 ? "0" : "") + pTMin + ":";
+		playTimeChildren[2].innerHTML = (pTSec < 10 ? "0" : "") + pTSec;
 		// playTime.innerHTML = (pTHr<10?"0":"")+pTHr+":"+(pTMin<10?"0":"")+pTMin+":"+(pTSec<10?"0":"")+pTSec;
-		pTHr+=startTime[0]
-		pTMin+=startTime[1]
-		pTSec+=startTime[2]
-		if(pTSec>=60){
-			pTSec-=60
-			pTMin++
+		pTHr += startTime[0];
+		pTMin += startTime[1];
+		pTSec += startTime[2];
+		if (pTSec >= 60) {
+			pTSec -= 60;
+			pTMin++;
 		}
-		if(pTMin>=60){
-			pTMin-=60
-			pTHr++
+		if (pTMin >= 60) {
+			pTMin -= 60;
+			pTHr++;
 		}
-		if(pTHr>=24){
-			pTHr-=24
+		if (pTHr >= 24) {
+			pTHr -= 24;
 		}
-		currentTimeChildren[0].innerHTML=(pTHr<10?"0":"")+pTHr+":"
-		currentTimeChildren[1].innerHTML=(pTMin<10?"0":"")+pTMin+":"
-		currentTimeChildren[2].innerHTML=(pTSec<10?"0":"")+pTSec
+		currentTimeChildren[0].innerHTML = (pTHr < 10 ? "0" : "") + pTHr + ":";
+		currentTimeChildren[1].innerHTML = (pTMin < 10 ? "0" : "") + pTMin + ":";
+		currentTimeChildren[2].innerHTML = (pTSec < 10 ? "0" : "") + pTSec;
 	}
 	prev = time;
-	
+
 	window.requestAnimationFrame(repeater);
 }
 function startRepeater() {
-	setTimeout(()=>{
-		playTimeChildren=playTime.children
-	currentTimeChildren=dateTime.children
-	if (!start) window.requestAnimationFrame(repeater);
-	start = true;
-	},200)
+	setTimeout(() => {
+		playTimeChildren = playTime.children;
+		currentTimeChildren = dateTime.children;
+		if (!start) window.requestAnimationFrame(repeater);
+		start = true;
+	}, 200);
 }
 function MusicPlayer() {
 	return (
@@ -127,22 +137,13 @@ function MusicPlayer() {
 					<div
 						className="h-1/3   w-full flex items-center " //Song name
 					>
-						<div
-							id="songName"
-							className="text-lg w-full overflow-hidden lexend text-ellipsis whitespace-nowrap  ">
-							
-						</div>
+						<div id="songName" className="text-lg w-full overflow-hidden lexend text-ellipsis whitespace-nowrap  "></div>
 					</div>
 					<div className="h-1/3 flex items-center ">
 						<div
 							className="bg-bdark overflow-hidden out line outl ine-1  h-1/2 rounded-full  w-full" //Seek-bar background
 							onClick={(e) => {
-								music.currentTime =
-									((e.clientX -
-										e.target.getBoundingClientRect().left) /
-										e.target.getBoundingClientRect()
-											.width) *
-									music.duration;
+								music.currentTime = ((e.clientX - e.target.getBoundingClientRect().left) / e.target.getBoundingClientRect().width) * music.duration;
 							}}>
 							<div
 								id="musicProgress"
@@ -159,9 +160,7 @@ function MusicPlayer() {
 							music.muted = !music.muted;
 						}}>
 						{svg.unmuteIcon}
-						<div
-							id="slashLine"
-							className="h-[110%] bg-bact duration-300 rounded-sm aspect-[1/10] rotate-45 -ml-[50%]"></div>
+						<div id="slashLine" className="h-[110%] bg-bact duration-300 rounded-sm aspect-[1/10] rotate-45 -ml-[50%]"></div>
 					</div>
 					<div
 						id="musicDuration"

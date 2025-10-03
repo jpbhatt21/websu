@@ -460,7 +460,7 @@ export function useWindowDimensions() {
 	return windowDimensions;
 }
 export async function playSong(setID, index, previewTime, title, mode = false) {
-	
+	console.log("play",setID,index,previewTime,title,mode)
 	if (mode) {
 		if (setID != "") {
 			fetchingSong.style.height = "3.5svh";

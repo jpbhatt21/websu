@@ -16,22 +16,25 @@ function PauseScreen({ props }) {
 					pauseMenu.style.opacity = "0";
 					pauseMenu.style.pointerEvents = "none";
 					playArea.style.opacity = "0";
-					setTimeout(async () => {
-						props.setShowTopBar(true);
+					props.setShowTopBar(true);
 					props.setShowSongMenu(true);
-						if (backgroundVideoSource1.src != "") {
-							backgroundVideo.pause();
-							backgroundVideoSource1.src = "";
-							backgroundImage.style.display = "";
-							await new Promise((resolve) => {
-								setTimeout(() => {
-									resolve();
-								}, 10);
-							});
-							backgroundImage.style.opacity = 1;
-						}
+					if (backgroundVideoSource1.src != "") {
+						backgroundVideo.pause();
+						backgroundVideoSource1.src = "";
+						backgroundImage.style.display = "";
+						await new Promise((resolve) => {
+							setTimeout(() => {
+								resolve();
+							}, 10);
+						});
+						backgroundImage.style.opacity = 1;
+					}
+					setTimeout(async () => {
 						props.setShowPause(false);
 						props.setShowGame(false);
+						setTimeout(() => {
+							play();
+						}, 100);
 					}, 300);
 				}}
 				className="w-16 h-16 bg-post flex  items-center justify-center outline outline-1 bg-opacity-50 outline-colors-red rounded-md text-center leading-[3.6rem]">

@@ -25,7 +25,7 @@ function Settings({ props }) {
 			}}>
 			<div
 				id="settingsPage"
-				className="w-full lg:w-[1024px]  slide-in pointer-events-auto h-full duration-300 transition-all flex bg-opacity-50 bg-post backdrop-blur-md"
+				className="w-full lg:w-[1024px] slide  pointer-events-auto h-full duration-300 transition-all flex bg-opacity-50 bg-post backdrop-blur-md"
 				style={{
 					backgroundColor: !settings.User_Interface.UI_BackDrop.value
 						? "#252525"

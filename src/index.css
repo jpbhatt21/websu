@@ -48,8 +48,16 @@
 	height: 7vh;
 	animation: trailFade 1s ease-in-out 0s 1 forwards;
 }
-.slide-in {
-	animation: slide-in 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+.slide {
+	animation: slide 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
+}
+@keyframes slide {
+	0% {
+		transform: translateX(-100%);
+	}
+	100% {
+		transform: translateX(0);
+	}
 }
 .slide-in-back {
 	animation: slide-in-back 0.3s cubic-bezier(0.075, 0.82, 0.165, 1);
@@ -113,15 +121,7 @@
 		opacity: 0;
 	}
 }
-@keyframes slide-in {
-	0% {
-		
-		transform: translateX(-100%);
-	}
-	100% {
-		transform: translateX(0);
-	}
-}
+
 @keyframes slide-in-back {
 	0% {
 		
